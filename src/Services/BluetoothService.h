@@ -32,6 +32,7 @@ private:
     BluetoothMode mode = BluetoothMode::NONE;
     static BLEScan* bleScan;
     static std::string lastAdParsed;
+    inline static uint32_t receivedFramesCount = 0;
 
 public:
     class PassiveAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {

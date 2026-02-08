@@ -43,6 +43,7 @@ void UartController::handleCommand(const TerminalCommand& cmd) {
     else if (cmd.getRoot() == "bridge") handleBridge();
     else if (cmd.getRoot() == "at") handleAtCommand(cmd);
     else if (cmd.getRoot() == "emulator") handleEmulation();
+    else if (cmd.getRoot() == "trigger") handleTrigger(cmd);
     else if (cmd.getRoot() == "spam") handleSpam(cmd);
     else if (cmd.getRoot() == "glitch") handleGlitch();
     else if (cmd.getRoot() == "xmodem") handleXmodem(cmd);
@@ -592,6 +593,147 @@ Emulation
 */
 void UartController::handleEmulation() {
     uartEmulationShell.run();
+}
+
+/*
+Trigger
+*/
+void UartController::handleTrigger(const TerminalCommand& cmd) {
+    ensureConfigured();
+
+    // trigger [pattern]
+    std::string patternRaw = cmd.getSubcommand() + " " + cmd.getArgs();
+    std::string responseRaw;
+
+    // If missing pattern
+    if (cmd.getSubcommand().empty()) {
+        terminalView.println("");
+        terminalView.println("UART Trigger: Send a response when a specific pattern is detected.");
+        patternRaw = userInputManager.readString("\nThe pattern to be detected", "Hit ESC key");
+    }
+
+    terminalView.println("");
+    terminalView.println("[Special characters reference]");
+    terminalView.println("  ESC        = \\x1B");
+    terminalView.println("  ENTER (CR) = \\r");
+    terminalView.println("  ENTER (LF) = \\n");
+    terminalView.println("  TAB        = \\t");
+    terminalView.println("  BACKSPACE  = \\x08");
+    terminalView.println("  DELETE     = \\x7F");
+    terminalView.println("  SPACE      = \\x20");
+    terminalView.println("  F1  = \\x1BOP    F2  = \\x1BOQ");
+    terminalView.println("  F3  = \\x1BOR    F4  = \\x1BOS");
+    terminalView.println("  F5  = \\x1B[15~  F6  = \\x1B[17~");
+    terminalView.println("  F7  = \\x1B[18~  F8  = \\x1B[19~");
+    terminalView.println("  F9  = \\x1B[20~  F10 = \\x1B[21~");
+    terminalView.println("  F11 = \\x1B[23~  F12 = \\x1B[24~");
+    terminalView.println("");
+    responseRaw = userInputManager.readString("The response to be send", "\\x1B"); // default to ESC
+
+    std::string textPattern;
+    std::vector<uint8_t> hexPattern;
+    std::vector<uint8_t> hexMask;
+    bool isHex = false;
+
+    if (!argTransformer.parsePattern(patternRaw, textPattern, hexPattern, hexMask, isHex)) {
+        terminalView.println("UART Trigger: Invalid pattern. Use text or hex{7E 01 ?? 10}");
+        return;
+    }
+
+    std::string response = argTransformer.decodeEscapes(responseRaw);
+    if (response.empty()) {
+        terminalView.println("UART Trigger: Empty response after decoding.\n");
+        return;
+    }
+
+    terminalView.println("");
+    terminalView.println("UART Trigger: Listening for pattern... Press [ENTER] to stop.");
+    terminalView.println("");
+    terminalView.println("  Pattern to detect : " + patternRaw);
+    terminalView.println("  Response to send  : " + responseRaw);
+    terminalView.println("");
+
+    const size_t MAX_BUF = 512;
+    const uint32_t COOLDOWN_MS = 200;
+    uint32_t lastFire = 0;
+    std::vector<uint8_t> buf;
+    buf.reserve(MAX_BUF);
+
+    while (true) {
+        // Stop on ENTER
+        char key = terminalInput.readChar();
+        if (key == '\r' || key == '\n') {
+            terminalView.println("\r\nUART Trigger: Stopped by user.\n");
+            break;
+        }
+
+        // Read incoming UART
+        while (uartService.available() > 0) {
+            char c = uartService.read();
+
+            // echo to terminal so user sees the stream
+            terminalView.print(std::string(1, c));
+
+            // sliding buffer
+            buf.push_back((uint8_t)c);
+            if (buf.size() > MAX_BUF) {
+                size_t drop = buf.size() - MAX_BUF;
+                buf.erase(buf.begin(), buf.begin() + drop);
+            }
+
+            bool matched = false;
+
+            if (!isHex) {
+                // text match
+                if (buf.size() >= textPattern.size()) {
+                    size_t startMin = 0;
+                    if (buf.size() > textPattern.size() + 64) {
+                        startMin = buf.size() - textPattern.size() - 64;
+                    }
+
+                    for (size_t s = startMin; s + textPattern.size() <= buf.size(); ++s) {
+                        bool ok = true;
+                        for (size_t k = 0; k < textPattern.size(); ++k) {
+                            if (buf[s + k] != (uint8_t)textPattern[k]) { ok = false; break; }
+                        }
+                        if (ok) { matched = true; break; }
+                    }
+                }
+            } else {
+                // hex match with ?? wildcards
+                if (buf.size() >= hexPattern.size()) {
+                    size_t startMin = 0;
+                    if (buf.size() > hexPattern.size() + 32) {
+                        startMin = buf.size() - hexPattern.size() - 32;
+                    }
+
+                    for (size_t s = startMin; s + hexPattern.size() <= buf.size(); ++s) {
+                        bool ok = true;
+                        for (size_t k = 0; k < hexPattern.size(); ++k) {
+                            if (hexMask[k] == 0) continue; // wildcard
+                            if (buf[s + k] != hexPattern[k]) { ok = false; break; }
+                        }
+                        if (ok) { matched = true; break; }
+                    }
+                }
+            }
+
+            if (matched) {
+                uint32_t now = millis();
+                if (now - lastFire >= COOLDOWN_MS) {
+                    lastFire = now;
+
+                    uartService.print(response);
+                    terminalView.println("");
+                    terminalView.println("\r\n[TRIGGER] match -> sent " + responseRaw);
+                    terminalView.println("");
+
+                    // Prevent immediate retrigger
+                    buf.clear();
+                }
+            }
+        }
+    }
 }
 
 /*

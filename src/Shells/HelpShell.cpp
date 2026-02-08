@@ -143,6 +143,7 @@ void HelpShell::cmdUart() {
         "bridge               - Full-duplex mode",
         "at                   - AT commands operations",
         "emulator             - Emulate UART device",
+        "trigger [pattern]    - Send response on pattern",
         "spam <text> <ms>     - Write text every ms",
         "xmodem <send> <path> - Send file via XMODEM",
         "xmodem <recv> <path> - Receive file via XMODEM",

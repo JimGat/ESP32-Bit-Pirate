@@ -91,6 +91,33 @@ std::string UserInputManager::readSanitizedString(const std::string& label,
     }
 }
 
+std::string UserInputManager::readString(const std::string& label,
+                                         const std::string& def)
+{
+    // Print prompt
+    terminalView.print(label);
+
+    if (!def.empty()) {
+        terminalView.print(" [" + def + "]");
+    }
+    terminalView.print(": ");
+
+    // Raw input
+    std::string input = getLine();
+
+    // If empty, keep default
+    if (input.empty()) {
+        return def;
+    }
+
+    // Enforce max length
+    if (input.size() > MAX_ALLOWED_INPUT_LENGTH) {
+        input.resize(MAX_ALLOWED_INPUT_LENGTH);
+    }
+
+    return input;
+}
+
 uint8_t UserInputManager::readValidatedUint8(const std::string& label, uint8_t def, uint8_t min, uint8_t max) {
     while (true) {
         terminalView.print(label + " [" + std::to_string(def) + "]: ");

@@ -90,6 +90,9 @@ private:
     // Handle UART emulation shell
     void handleEmulation();
 
+    // Handle trigger setup to send response on pattern match
+    void handleTrigger(const TerminalCommand& cmd);
+
     ITerminalView& terminalView;
     IInput& terminalInput;
     IInput& deviceInput;

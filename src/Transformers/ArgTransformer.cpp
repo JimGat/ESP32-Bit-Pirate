@@ -1,5 +1,5 @@
 #include "ArgTransformer.h"
-
+#include <array>
 
 uint8_t ArgTransformer::parseByte(const std::string& str, int index) const {
     std::istringstream ss(str);
@@ -352,6 +352,65 @@ std::string ArgTransformer::toAsciiLine(uint32_t startAddr, const std::vector<ui
     return line.str();
 }
 
+std::string ArgTransformer::toBinString(uint32_t value) {
+    std::string bin;
+    bin.reserve(32 + 3);
+
+    // find most significant non-zero byte
+    int msbByte = 3; // 4 bytes for uint32_t
+    for (; msbByte > 0; --msbByte) {
+        if (((value >> (msbByte * 8)) & 0xFF) != 0) break;
+    }
+
+    // display from msbByte down to byte 0
+    for (int b = msbByte; b >= 0; --b) {
+        uint8_t byte = (value >> (b * 8)) & 0xFF;
+
+        for (int i = 7; i >= 0; --i) {
+            bin += ((byte >> i) & 1U) ? '1' : '0';
+        }
+
+        if (b != 0) bin += ' ';
+    }
+
+    return bin;
+}
+
+std::string ArgTransformer::toAsciiString(uint32_t value) {
+    std::string ascii;
+    bool hasLetter = false;
+
+    // find most significant non-zero byte
+    int msbByte = 3;
+    for (; msbByte > 0; --msbByte) {
+        if (((value >> (msbByte * 8)) & 0xFF) != 0) break;
+    }
+
+    // build ASCII view
+    for (int b = msbByte; b >= 0; --b) {
+        uint8_t byte = (value >> (b * 8)) & 0xFF;
+
+        if ((byte >= 'A' && byte <= 'Z') ||
+            (byte >= 'a' && byte <= 'z')) {
+            hasLetter = true;
+            ascii += static_cast<char>(byte);
+        }
+        else if (byte >= 0x20 && byte <= 0x7E) {
+            ascii += static_cast<char>(byte);
+        }
+        else {
+            ascii += '.';
+        }
+    }
+
+    // Only show ASCII if there is at least one letter
+    if (!hasLetter) {
+        return "";
+    }
+
+    return ascii;
+}
+
 bool ArgTransformer::parseMac(const std::string& s, std::array<uint8_t,6>& out) {
     // Accept "AA:BB:CC:DD:EE:FF" or "AABBCCDDEEFF"
     std::string hex;
@@ -446,4 +505,58 @@ bool ArgTransformer::unpackLsbFirst(const std::vector<uint8_t>& bytes,
 std::string ArgTransformer::toFixed2(float f) {
     std::ostringstream oss; oss.setf(std::ios::fixed); oss.precision(2); oss << f;
     return oss.str();
+}
+
+bool ArgTransformer::parsePattern(const std::string& patternRaw,
+                                             std::string& outTextPattern,
+                                             std::vector<uint8_t>& outHexPattern,
+                                             std::vector<uint8_t>& outHexMask,
+                                             bool& outIsHex) 
+{
+    outTextPattern.clear();
+    outHexPattern.clear();
+    outHexMask.clear();
+    outIsHex = false;
+
+    if (patternRaw.empty()) return false;
+
+    // hex{ ... }
+    if (patternRaw.size() >= 5 && patternRaw.rfind("hex{", 0) == 0 && patternRaw.back() == '}') {
+        outIsHex = true;
+
+        std::string inner = patternRaw.substr(4, patternRaw.size() - 5);
+        auto toks = splitArgs(inner);
+        if (toks.empty()) return false;
+
+        for (auto tok : toks) {
+            tok = toLower(tok);
+
+            if (tok == "??") {
+                outHexPattern.push_back(0x00);
+                outHexMask.push_back(0);
+                continue;
+            }
+
+            if (tok.rfind("0x", 0) == 0) tok = tok.substr(2);
+            if (tok.size() != 2) return false;
+
+            auto isHexDigit = [](char c) {
+                return (c >= '0' && c <= '9') ||
+                       (c >= 'a' && c <= 'f') ||
+                       (c >= 'A' && c <= 'F');
+            };
+            if (!isHexDigit(tok[0]) || !isHexDigit(tok[1])) return false;
+
+            uint8_t b = parseHexOrDec("0x" + tok);
+            outHexPattern.push_back(b);
+            outHexMask.push_back(1);
+        }
+
+        return !outHexPattern.empty();
+    }
+
+    // text
+    outIsHex = false;
+    outTextPattern = decodeEscapes(patternRaw);
+    return !outTextPattern.empty();
 }

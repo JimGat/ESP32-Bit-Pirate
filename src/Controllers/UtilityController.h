@@ -75,6 +75,9 @@ private:
     // Pin diagnostic with periodic report
     void handleWizard(const TerminalCommand& cmd);
 
+    // Hexadecimal converter
+    void handleHex(const TerminalCommand& cmd);
+
     ITerminalView& terminalView;
     IDeviceView& deviceView;
     IInput& terminalInput;

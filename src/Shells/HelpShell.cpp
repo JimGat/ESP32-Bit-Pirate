@@ -101,6 +101,7 @@ void HelpShell::cmdGeneral() {
         "mode [name]          - Set active mode",
         "man                  - Show firmware guide",
         "system               - Show system infos",
+        "hex [number]         - Convert dec/hex/bin",
         "logic <pin>          - Logic analyzer",
         "analogic <pin>       - Analogic plotter",
         "wizard <pin>         - Pin activity analyzer",

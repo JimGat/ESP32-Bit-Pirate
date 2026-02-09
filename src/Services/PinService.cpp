@@ -63,18 +63,30 @@ bool PinService::setupPwm(uint8_t pin, uint32_t freq, uint8_t dutyPercent) {
     if (dutyPercent > 100) dutyPercent = 100;
 
     int channel = pin % 16;
-    const int resolution = 8;
+
+    int resolutionBits;
+    if (freq > 300000) {
+        resolutionBits = 6;
+    } else if (freq > 150000) {
+        resolutionBits = 7;
+    } else if (freq > 60000) {
+        resolutionBits = 8;
+    } else if (freq > 20000) {
+        resolutionBits = 9;
+    } else {
+        resolutionBits = 10;
+    }
 
     ledcDetachPin(pin);
 
-    if (!ledcSetup(channel, freq, resolution)) {
+    if (!ledcSetup(channel, freq, resolutionBits)) {
         return false;
     }
 
     ledcAttachPin(pin, channel);
 
-    uint32_t dutyMax = (1UL << resolution) - 1;
-    uint32_t dutyVal = (dutyPercent * dutyMax) / 100;
+    uint32_t dutyMax = (1UL << resolutionBits) - 1;
+    uint32_t dutyVal = (uint32_t(dutyPercent) * dutyMax) / 100U;
     ledcWrite(channel, dutyVal);
 
     return true;

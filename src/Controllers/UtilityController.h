@@ -18,6 +18,7 @@
 #include "Shells/SysInfoShell.h"
 #include "Shells/GuideShell.h"
 #include "Shells/HelpShell.h"
+#include "Shells/ProfileShell.h"
 
 class UtilityController {
 public:
@@ -32,7 +33,8 @@ public:
         ArgTransformer& argTransformer,
         SysInfoShell& sysInfoShell,
         GuideShell& guideShell,
-        HelpShell& helpShell
+        HelpShell& helpShell,
+        ProfileShell& profileShell
     );
 
     // Entry point for global utility commands
@@ -46,6 +48,9 @@ public:
 
     // Analogic plotter on device screen
     void handleAnalogic(const TerminalCommand& cmd);
+
+    // Save or load profile with pin states and settings
+    void handleProfile();
 
     // Check if a command is a global utility command
     bool isGlobalCommand(const TerminalCommand& cmd);
@@ -88,5 +93,6 @@ private:
     SysInfoShell& sysInfoShell;
     GuideShell& guideShell;
     HelpShell& helpShell;
+    ProfileShell& profileShell;
     GlobalState& state = GlobalState::getInstance();
 };

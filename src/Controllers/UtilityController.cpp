@@ -13,7 +13,8 @@ UtilityController::UtilityController(
     ArgTransformer& argTransformer,
     SysInfoShell& sysInfoShell,
     GuideShell& guideShell,
-    HelpShell& helpShell
+    HelpShell& helpShell,
+    ProfileShell& profileShell
 )
     : terminalView(terminalView),
       deviceView(deviceView),
@@ -24,7 +25,8 @@ UtilityController::UtilityController(
       argTransformer(argTransformer),
       sysInfoShell(sysInfoShell),
       guideShell(guideShell),
-      helpShell(helpShell)
+      helpShell(helpShell),
+      profileShell(profileShell)
 {}
 
 /*
@@ -40,6 +42,7 @@ void UtilityController::handleCommand(const TerminalCommand& cmd) {
     else if (cmd.getRoot() == "guide" || cmd.getRoot() == "man")                 handleGuide();
     else if (cmd.getRoot() == "hex" || cmd.getRoot() == "dec")                   handleHex(cmd);
     else if (cmd.getRoot() == "wizard")                                          handleWizard(cmd);
+    else if (cmd.getRoot() == "profile")                                         handleProfile();
     else {
         helpShell.run(state.getCurrentMode(), false);
     }
@@ -509,6 +512,13 @@ void UtilityController::handleHex(const TerminalCommand& cmd) {
 }
 
 /*
+Profile
+*/
+void UtilityController::handleProfile() {
+    profileShell.run();
+}
+
+/*
 Help
 */
 void UtilityController::handleHelp() {
@@ -522,7 +532,7 @@ bool UtilityController::isGlobalCommand(const TerminalCommand& cmd) {
             root == "logic" || root == "analogic" || root == "P" || root == "p") || 
             root == "system" || root == "guide" || root == "man" || root == "wizard" ||
             root == "help" || root == "h" || root == "?" || root == "hex" || root == "dec" ||
-            root == "sys";
+            root == "sys" || root == "profile";
 }
 
 bool UtilityController::isScreenCommand(const TerminalCommand& cmd) {

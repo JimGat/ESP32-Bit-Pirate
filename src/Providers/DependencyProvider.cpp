@@ -48,6 +48,7 @@ DependencyProvider::DependencyProvider(ITerminalView &terminalView, IDeviceView 
       jsonTransformer(),
       infraredTransformer(),
       subGhzTransformer(),
+      profileTransformer(),
 
       // Managers
       commandHistoryManager(),
@@ -72,6 +73,7 @@ DependencyProvider::DependencyProvider(ITerminalView &terminalView, IDeviceView 
       guideShell(terminalView, terminalInput, userInputManager),
       helpShell(terminalView, terminalInput, userInputManager),
       uartEmulationShell(terminalView, terminalInput, uartService, argTransformer, userInputManager),
+      profileShell(terminalView, terminalInput, userInputManager, littleFsService, profileTransformer),
 
       // Selectors
       horizontalSelector(deviceView, deviceInput),
@@ -84,7 +86,7 @@ DependencyProvider::DependencyProvider(ITerminalView &terminalView, IDeviceView 
       i2cController(terminalView, terminalInput, i2cService, argTransformer, userInputManager, i2cEepromShell, helpShell),
       oneWireController(terminalView, terminalInput, oneWireService, argTransformer, userInputManager, ibuttonShell, oneWireEepromShell, helpShell),
       infraredController(terminalView, terminalInput, infraredService, littleFsService, argTransformer, infraredTransformer, userInputManager, universalRemoteShell, helpShell),
-      utilityController(terminalView, deviceView, terminalInput, pinService, userInputManager, pinAnalyzeManager, argTransformer, sysInfoShell, guideShell, helpShell),
+      utilityController(terminalView, deviceView, terminalInput, pinService, userInputManager, pinAnalyzeManager, argTransformer, sysInfoShell, guideShell, helpShell, profileShell),
       hdUartController(terminalView, terminalInput, deviceInput, hdUartService, uartService, argTransformer, userInputManager, helpShell),
       spiController(terminalView, terminalInput, spiService, sdService, argTransformer, userInputManager, binaryAnalyzeManager, sdCardShell, spiFlashShell, spiEepromShell, helpShell),
       jtagController(terminalView, terminalInput, jtagService, userInputManager, helpShell),

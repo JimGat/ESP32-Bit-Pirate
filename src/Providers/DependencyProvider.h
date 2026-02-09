@@ -86,6 +86,7 @@ and injecting shared instances of core components
 #include "Shells/GuideShell.h"
 #include "Shells/HelpShell.h"
 #include "Shells/UartEmulationShell.h"
+#include "Shells/ProfileShell.h"
 #include "Config/TerminalTypeConfigurator.h"
 
 class DependencyProvider
@@ -193,6 +194,7 @@ public:
     GuideShell &getGuideShell();
     HelpShell &getHelpShell();
     UartEmulationShell &getUartEmulationShell();
+    ProfileShell &getProfileShell();
 
     // Selectors
     HorizontalSelector &getHorizontalSelector();
@@ -275,6 +277,7 @@ private:
     JsonTransformer jsonTransformer;
     InfraredRemoteTransformer infraredTransformer;
     SubGhzTransformer subGhzTransformer;
+    ProfileTransformer profileTransformer;
 
     // Managers
     CommandHistoryManager commandHistoryManager;
@@ -299,6 +302,7 @@ private:
     GuideShell guideShell;
     HelpShell helpShell;
     UartEmulationShell uartEmulationShell;
+    ProfileShell profileShell;
 
     // Selectors
     HorizontalSelector horizontalSelector;

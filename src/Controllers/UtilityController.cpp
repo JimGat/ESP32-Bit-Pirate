@@ -36,9 +36,8 @@ void UtilityController::handleCommand(const TerminalCommand& cmd) {
     else if (cmd.getRoot() == "p")                                               handleDisablePullups();
     else if (cmd.getRoot() == "logic")                                           handleLogicAnalyzer(cmd);
     else if (cmd.getRoot() == "analogic")                                        handleAnalogic(cmd);
-    else if (cmd.getRoot() == "system")                                          handleSystem();
-    else if (cmd.getRoot() == "guide")                                           handleGuide();
-    else if (cmd.getRoot() == "man")                                             handleGuide();
+    else if (cmd.getRoot() == "system" || cmd.getRoot() == "sys")                handleSystem();
+    else if (cmd.getRoot() == "guide" || cmd.getRoot() == "man")                 handleGuide();
     else if (cmd.getRoot() == "hex" || cmd.getRoot() == "dec")                   handleHex(cmd);
     else if (cmd.getRoot() == "wizard")                                          handleWizard(cmd);
     else {
@@ -522,7 +521,8 @@ bool UtilityController::isGlobalCommand(const TerminalCommand& cmd) {
     return (root == "mode"  || root == "m" || root == "l" ||
             root == "logic" || root == "analogic" || root == "P" || root == "p") || 
             root == "system" || root == "guide" || root == "man" || root == "wizard" ||
-            root == "help" || root == "h" || root == "?" || root == "hex" || root == "dec";
+            root == "help" || root == "h" || root == "?" || root == "hex" || root == "dec" ||
+            root == "sys";
 }
 
 bool UtilityController::isScreenCommand(const TerminalCommand& cmd) {

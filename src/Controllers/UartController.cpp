@@ -602,8 +602,11 @@ void UartController::handleTrigger(const TerminalCommand& cmd) {
     ensureConfigured();
 
     // trigger [pattern]
-    std::string patternRaw = cmd.getSubcommand() + " " + cmd.getArgs();
     std::string responseRaw;
+    std::string patternRaw = cmd.getSubcommand();
+    if (!cmd.getArgs().empty()) {
+        patternRaw += " " + cmd.getArgs();
+    }
 
     // If missing pattern
     if (cmd.getSubcommand().empty()) {
@@ -654,7 +657,7 @@ void UartController::handleTrigger(const TerminalCommand& cmd) {
     terminalView.println("");
 
     const size_t MAX_BUF = 512;
-    const uint32_t COOLDOWN_MS = 200;
+    const uint32_t COOLDOWN_MS = 20;
     uint32_t lastFire = 0;
     std::vector<uint8_t> buf;
     buf.reserve(MAX_BUF);

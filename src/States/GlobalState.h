@@ -10,7 +10,7 @@
 class GlobalState {
 private:
     // Version
-    const std::string version = "1.3";
+    const std::string version = "1.4";
 
     //Pin in use
     std::vector<uint8_t> protectedPins;

@@ -221,9 +221,10 @@ void DioController::handlePwm(const TerminalCommand& cmd) {
         return;
     }
 
-    terminalView.println("DIO PWM: Pin " + std::to_string(pin) +
+    terminalView.println("\nDIO PWM: Pin " + std::to_string(pin) +
                          " (" + std::to_string(freq) + "Hz, " +
-                         std::to_string(duty) + "% duty).");
+                         std::to_string(duty) + "% duty)... Use 'reset " + 
+                         std::to_string(pin) + "' to stop.\n");
 }
 
 

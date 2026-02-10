@@ -37,6 +37,9 @@ private:
     // Set pin high or low, input or output
     void handleSetPin(const TerminalCommand& cmd);
 
+    // Scan for pin changes and display edge count and rate
+    void handleScan(const TerminalCommand& cmd);
+
     // Enable internal pull-up resistor
     void handlePullup(const TerminalCommand& cmd);
 

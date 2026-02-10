@@ -101,7 +101,7 @@ void HelpShell::cmdGeneral() {
         "mode [name]          - Set active mode",
         "man                  - Show firmware guide",
         "system               - Show system infos",
-        "profile              - Save/load pins state",
+        "profile              - Save/load pins config",
         "hex [number]         - Convert dec/hex/bin",
         "logic <pin>          - Logic analyzer",
         "analogic <pin>       - Analogic plotter",
@@ -228,6 +228,7 @@ void HelpShell::cmdThreeWire() {
 void HelpShell::cmdDio() {
     printHeader("DIO");
     static const char* const lines[] = {
+        "scan                 - Detect pins activity",
         "sniff <pin>          - Track toggle states",
         "read <pin>           - Get pin state",
         "set <pin> <H/L/I/O>  - Set pin state",

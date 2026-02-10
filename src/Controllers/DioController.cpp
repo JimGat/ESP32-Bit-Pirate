@@ -15,6 +15,7 @@ void DioController::handleCommand(const TerminalCommand& cmd) {
     if (cmd.getRoot() == "sniff") handleSniff(cmd);
     else if (cmd.getRoot() == "read")   handleReadPin(cmd); 
     else if (cmd.getRoot() == "set")    handleSetPin(cmd);
+    else if (cmd.getRoot() == "scan")   handleScan(cmd);
     else if (cmd.getRoot() == "pullup") handlePullup(cmd);
     else if (cmd.getRoot() == "pulldown") handlePulldown(cmd);
     else if (cmd.getRoot() == "pwm")    handlePwm(cmd);
@@ -86,6 +87,170 @@ void DioController::handleSetPin(const TerminalCommand& cmd) {
         default:
             terminalView.println("Unknown command. Use I, O, H (1), or L (0).");
             break;
+    }
+}
+
+/*
+Scan
+*/
+void DioController::handleScan(const TerminalCommand& cmd) {
+
+    // Default pins 
+    std::vector<uint8_t> defaultPins = state.getJtagScanPins();
+
+    // Protected
+    const std::vector<uint8_t> protectedPins = state.getProtectedPins();
+
+    // Select
+    std::vector<uint8_t> pins = userInputManager.readValidatedPinGroup(
+        "GPIOs to detect activity",
+        defaultPins,
+        protectedPins
+    );
+
+    // Limit
+    if (pins.size() > 8) {
+        terminalView.println("Too many pins selected, limiting to first 8.");
+        pins.resize(8);
+    }
+
+    // Validate
+    std::vector<uint8_t> validPins;
+    for (uint8_t pin : pins) {
+        if (isPinAllowed(pin, "Scan")) {
+            validPins.push_back(pin);
+        }
+    }
+
+    if (validPins.empty()) {
+        terminalView.println("DIO Scan: No valid pins selected.");
+        return;
+    }
+
+    terminalView.println("\nDIO Scan: Detecting activity... Press [ENTER] to stop.\n");
+
+    // Configure pins as INPUT with existing pull
+    for (uint8_t pin : validPins) {
+        auto pull = pinService.getPullType(pin);
+        if (pull == PinService::PULL_UP)        pinService.setInputPullup(pin);
+        else if (pull == PinService::PULL_DOWN) pinService.setInputPullDown(pin);
+        else                                    pinService.setInput(pin);
+    }
+
+    // Init maps
+    std::map<uint8_t, int> lastState;
+    std::map<uint8_t, uint32_t> edgeCount;
+
+    // high/low sample counters
+    std::map<uint8_t, uint32_t> highSamples;
+    std::map<uint8_t, uint32_t> lowSamples;
+
+    for (uint8_t pin : validPins) {
+        int v = pinService.read(pin);
+        lastState[pin] = v;
+        edgeCount[pin] = 0;
+        highSamples[pin] = (v ? 1 : 0);
+        lowSamples[pin]  = (v ? 0 : 1);
+    }
+
+    unsigned long lastPrint = millis();
+
+    while (true) {
+
+        // Stop if ENTER
+        char c = terminalInput.readChar();
+        if (c == '\r' || c == '\n') {
+            terminalView.println("DIO Scan: Stopped by user.");
+            break;
+        }
+
+        // Many samples per loop to have better stats 
+        for (int i = 0; i < 256; i++) {
+            for (uint8_t pin : validPins) {
+                int cur = pinService.read(pin);
+
+                if (cur) highSamples[pin]++; else lowSamples[pin]++;
+
+                int& last = lastState[pin];
+                if (cur != last) {
+                    last = cur;
+                    edgeCount[pin]++;
+                }
+            }
+        }
+
+        // Report each 2 sec
+        unsigned long now = millis();
+        if (now - lastPrint >= 2000) {
+            lastPrint = now;
+
+            terminalView.println("Active pins:");
+
+            // Find max digits for align
+            size_t maxEdgeDigits = 1;
+            bool any = false;
+            for (auto& [pin, edges] : edgeCount) {
+                if (edges == 0) continue;
+                any = true;
+
+                // count digits
+                uint32_t x = edges;
+                size_t d = 1;
+                while (x >= 10) { x /= 10; d++; }
+                if (d > maxEdgeDigits) maxEdgeDigits = d;
+            }
+
+            if (!any) {
+                terminalView.println("  (none)");
+                terminalView.println("");
+            } else {
+                for (uint8_t pin : validPins) {
+                    uint32_t edges = edgeCount[pin];
+                    if (edges == 0) continue;
+
+                    uint32_t hi = highSamples[pin];
+                    uint32_t lo = lowSamples[pin];
+                    uint32_t total = hi + lo;
+
+                    // Percent
+                    uint32_t hiPct = 0;
+                    uint32_t loPct = 0;
+                    if (total != 0) {
+                        hiPct = (hi * 100u + (total / 2u)) / total;
+                        loPct = 100u - hiPct; // keep sum to 100
+                    }
+
+                    // padding for edges alignment
+                    // ex: edges=1 vs edges=32000
+                    size_t digits = 1;
+                    {
+                        uint32_t x = edges;
+                        while (x >= 10) { x /= 10; digits++; }
+                    }
+                    size_t pad = (maxEdgeDigits > digits) ? (maxEdgeDigits - digits) : 0;
+                    std::string padSpaces(pad, ' ');
+
+                    // Pad GPIO
+                    std::string pinStr = std::to_string(pin);
+                    if (pin < 10) pinStr += " ";
+
+                    terminalView.println(
+                        "  GPIO " + pinStr +
+                        " | edges=" + padSpaces + std::to_string(edges) +
+                        " | HIGH=" + std::to_string(hiPct) + "% LOW=" + std::to_string(loPct) + "%"
+                    );
+                }
+
+                terminalView.println("");
+            }
+
+            // Reset window counters
+            for (uint8_t pin : validPins) {
+                edgeCount[pin] = 0;
+                highSamples[pin] = 0;
+                lowSamples[pin] = 0;
+            }
+        }
     }
 }
 
@@ -226,7 +391,6 @@ void DioController::handlePwm(const TerminalCommand& cmd) {
                          std::to_string(duty) + "% duty)... Use 'reset " + 
                          std::to_string(pin) + "' to stop.\n");
 }
-
 
 /*
 Measure edges

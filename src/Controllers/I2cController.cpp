@@ -195,7 +195,7 @@ void I2cController::handleWrite(const TerminalCommand& cmd) {
         }
         reg = argTransformer.parseHexOrDec(args[0]);
     } else {
-        reg = (uint8_t)userInputManager.readValidatedHex("Register to write", 0, 0x00, 0xFF);
+        reg = (uint8_t)userInputManager.readValidatedByte("Register to write", 0, true);
     }
 
     // val
@@ -207,7 +207,7 @@ void I2cController::handleWrite(const TerminalCommand& cmd) {
         }
         val = argTransformer.parseHexOrDec(args[1]);
     } else {
-        val = (uint8_t)userInputManager.readValidatedHex("Value to write", 0, 0x00, 0xFF);
+        val = (uint8_t)userInputManager.readValidatedByte("Value to write", 0, true);
     }
 
     // Ping addr
@@ -258,7 +258,7 @@ void I2cController::handleRead(const TerminalCommand& cmd) {
         }
         reg = argTransformer.parseHexOrDec(cmd.getArgs());
     } else {
-        reg = (uint8_t)userInputManager.readValidatedHex("Register to read", 0, 0x00, 0xFF);
+        reg = (uint8_t)userInputManager.readValidatedByte("Register to read", 0, true);
     }
 
     // Check I2C device presence

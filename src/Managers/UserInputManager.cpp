@@ -195,6 +195,38 @@ uint32_t UserInputManager::readValidatedHex(
     }
 }
 
+uint8_t UserInputManager::readValidatedByte(const std::string& label,
+                                            uint8_t def,
+                                            bool showHex)
+{
+    while (true) {
+        if (showHex) {
+            terminalView.print(label + " [0x" + argTransformer.toHex(def) + "]: ");
+        } else {
+            terminalView.print(label + " [" + std::to_string(def) + "]: ");
+        }
+
+        std::string input = getLine();
+        if (input.empty()) {
+            return def;
+        }
+
+        if (!argTransformer.isValidNumber(input)) {
+            terminalView.println("❌ Invalid number. Use dec (55) or hex (0x37).");
+            continue;
+        }
+
+        uint32_t value = argTransformer.parseHexOrDec32(input);
+
+        if (value > 0xFF) {
+            terminalView.println("❌ Value out of range (0..255).");
+            continue;
+        }
+
+        return static_cast<uint8_t>(value);
+    }
+}
+
 char UserInputManager::readCharChoice(const std::string& label, char def, const std::vector<char>& allowed) {
     while (true) {
         terminalView.print(label + " [" + def + "]: ");

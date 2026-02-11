@@ -311,6 +311,13 @@ UartService::PinActivity UartService::measureUartActivity(uint8_t pin, uint32_t 
     lastEdgeTimeUs = 0;
     intervalCount = 0;
 
+    #ifdef DEVICE_M5STICK
+    if (!isrInited) {
+        gpio_install_isr_service(0);
+        isrInited = true;
+    }
+    #endif
+
     // Configure GPIO
     gpio_config_t io = {};
     io.intr_type = GPIO_INTR_ANYEDGE;

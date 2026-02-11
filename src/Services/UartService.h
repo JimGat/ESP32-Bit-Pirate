@@ -61,6 +61,7 @@ private:
     static File* currentFile;
     int32_t xmodemBlockSize = 128;
     int8_t xmodemIdSize = 1;
+    bool isrInited = false;
     XModem::ProtocolType xmodemProtocol = XModem::ProtocolType::CRC_XMODEM;
 
     static void IRAM_ATTR onGpioEdge(void* arg);

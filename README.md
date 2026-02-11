@@ -2,6 +2,8 @@
 
 ![Logo banner of the ESP32 Bus Pirate firmware](images/logo_protocols_banner_small.png)
 
+## ⚠️ Deprecated Branch Notice
+>This branch contains the legacy version of the project based on the old Arduino core. It is no longer actively developed and is kept for historical reference and maintenance purposes only. All new development and updates now take place on the **pioarduino** branch.
 
 **ESP32 Bus Pirate** is an open-source firmware that turns your device into a multi-protocol hacker's tool, inspired by the [legendary Bus Pirate](https://buspirate.com/).
 

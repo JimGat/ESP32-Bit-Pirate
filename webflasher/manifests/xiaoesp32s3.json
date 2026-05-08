@@ -1,5 +1,5 @@
 {
-  "name": "ESP32 Bus Pirate - XIAO ESP32-S3",
+  "name": "ESP32 Bit Pirate - XIAO ESP32-S3",
   "version": "1.5",
   "new_install_prompt_erase": false,
   "builds": [

@@ -1,5 +1,5 @@
 {
-  "name": "ESP32 Bus Pirate - T-Display S3",
+  "name": "ESP32 Bit Pirate - T-Display S3",
   "version": "1.5",
   "new_install_prompt_erase": false,
   "builds": [

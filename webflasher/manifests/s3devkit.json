@@ -1,5 +1,5 @@
 {
-  "name": "ESP32 Bus Pirate - ESP32-S3 DevKit",
+  "name": "ESP32 Bit Pirate - ESP32-S3 DevKit",
   "version": "1.5",
   "new_install_prompt_erase": false,
   "builds": [

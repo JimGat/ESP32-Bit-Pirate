@@ -1,5 +1,5 @@
 {
-  "name": "ESP32 Bus Pirate - AtomS3 Lite",
+  "name": "ESP32 Bit Pirate - AtomS3 Lite",
   "version": "1.5",
   "new_install_prompt_erase": false,
   "builds": [

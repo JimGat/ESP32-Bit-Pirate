@@ -1,5 +1,5 @@
 {
-  "name": "ESP32 Bus Pirate - ESP32-S3 N16R8",
+  "name": "ESP32 Bit Pirate - ESP32-S3 N16R8",
   "version": "1.5",
   "new_install_prompt_erase": false,
   "builds": [

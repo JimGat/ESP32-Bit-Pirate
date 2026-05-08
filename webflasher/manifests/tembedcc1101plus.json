@@ -1,5 +1,5 @@
 {
-  "name": "ESP32 Bus Pirate - T-Embed CC1101 Plus",
+  "name": "ESP32 Bit Pirate - T-Embed CC1101 Plus",
   "version": "1.5",
   "new_install_prompt_erase": false,
   "builds": [

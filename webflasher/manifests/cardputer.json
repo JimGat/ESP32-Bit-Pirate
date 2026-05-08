@@ -1,5 +1,5 @@
 {
-  "name": "ESP32 Bus Pirate - Cardputer",
+  "name": "ESP32 Bit Pirate - Cardputer",
   "version": "1.5",
   "new_install_prompt_erase": false,
   "builds": [

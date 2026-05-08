@@ -1,5 +1,5 @@
 {
-  "name": "ESP32 Bus Pirate - StampS3",
+  "name": "ESP32 Bit Pirate - StampS3",
   "version": "1.5",
   "new_install_prompt_erase": false,
   "builds": [

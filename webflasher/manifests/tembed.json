@@ -1,5 +1,5 @@
 {
-  "name": "ESP32 Bus Pirate - T-Embed",
+  "name": "ESP32 Bit Pirate - T-Embed",
   "version": "1.5",
   "new_install_prompt_erase": false,
   "builds": [

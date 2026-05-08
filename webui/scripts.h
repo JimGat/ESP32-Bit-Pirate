@@ -15,7 +15,7 @@ const GEMINI_API_KEY_STORAGE_KEY = "gemini_api_key";
 const ECHO_FILTER_WINDOW_MS = 4000;
 
 const GEMINI_TRANSLATOR_CONTEXT = `
-You are a command translator for a custom ESP32 Bus Pirate-style firmware.
+You are a command translator for a custom ESP32 Bit Pirate-style firmware.
 
 Your job is to convert natural language into exact firmware commands.
 
@@ -1528,13 +1528,13 @@ function initTerminalBanner() {
   if (!output) return;
 
   output.value =
-`  ____                    _           _       
- | __ ) _   _ ___   _ __ (_)_ __ __ _| |_ ___ 
- |  _ \\| | | / __| | '_ \\| | '__/ _\` | __/ _ \\
- | |_) | |_| \\__ \\ | |_) | | | | (_| | ||  __/
- |____/ \\__,_|___/ | .__/|_|_|  \\__,_|\\__\\___|
-                   |_|                        
-     Version 1.5           Ready to board
+`   ____  _ _     ____  _           _       
+  | __ )(_) |_  |  _ \\(_)_ __ __ _| |_ ___ 
+  |  _ \\| | __| | |_) | | '__/ _\` | __/ _ \\
+  | |_) | | |_  |  __/| | | | (_| | ||  __/
+  |____/|_|\\__| |_|   |_|_|  \\__,_|\\__\\___|
+
+    Version 1.5           Ready to board
 
  Type 'mode' to start or 'help' for commands
 

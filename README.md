@@ -7,7 +7,7 @@
 
 It supports sniffing, sending, scripting, and interacting with various digital protocols (I2C, UART, 1-Wire, SPI, etc.) via a serial terminal or web-based CLI. It also communicates with radio protocols like Bluetooth, Wi-Fi, Sub-GHz and RFID.
 
-Use the [ESP32 Bit Pirate Web Flasher](https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/) to install the firmware in one click. See the [Wiki](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki) for step-by-step guides on every mode and command. Check [ESP32 Bit Pirate Scripts](https://github.com/geo-tp/ESP32-Bus-Pirate-Scripts) for a collection of scripts.
+Use the [ESP32 Bit Pirate Web Flasher](https://geo-tp.github.io/ESP32-Bit-Pirate/webflasher/) to install the firmware in one click. See the [Wiki](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki) for step-by-step guides on every mode and command. Check [ESP32 Bit Pirate Scripts](https://github.com/geo-tp/ESP32-Bus-Pirate-Scripts) for a collection of scripts.
 
 For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/ESP32-Bus-Expander) for additional radio interfaces, and the [ESP32 Bit Pirate Dock](https://github.com/AndreiVladescu/ESP32-Bus-Pirate-Dock) to use original [Bus Pirate](https://buspirate.com/) adapters and accessories.
 
@@ -79,10 +79,10 @@ For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/
 
 ## Getting Started
 
-[![Banner of the ESP32 Bit Pirate web flasher](images/flasher.jpg)](https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/)
+[![Banner of the ESP32 Bit Pirate web flasher](images/flasher.jpg)](https://geo-tp.github.io/ESP32-Bit-Pirate/webflasher/)
 
 1. 🔧 Flash the firmware  
-   - Use the [ESP32 Bit Pirate Web Flasher](https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/) to burn the firmware directly from a web browser.
+   - Use the [ESP32 Bit Pirate Web Flasher](https://geo-tp.github.io/ESP32-Bit-Pirate/webflasher/) to burn the firmware directly from a web browser.
    - You can also burn it on [M5Burner](https://docs.m5stack.com/en/download), in the M5stick, AtomS3, M5StampS3 or Cardputer category.
 
 2. 🔌 Connect via Serial or Web

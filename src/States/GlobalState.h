@@ -169,7 +169,7 @@ private:
     std::string usbSerialString = "";     // MAC address will be suffixed in runtime for uniqueness
     uint16_t usbVid = 0x303A;   // VID for USB device descriptor
     uint16_t usbPid = 0x1001;   // PID for USB device descriptor
-    std::string webUSBString = "https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/";
+    std::string webUSBString = "https://geo-tp.github.io/ESP32-Bit-Pirate/webflasher/";
 public:
     GlobalState(const GlobalState&) = delete;
     GlobalState& operator=(const GlobalState&) = delete;

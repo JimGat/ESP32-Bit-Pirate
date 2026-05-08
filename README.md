@@ -1,18 +1,18 @@
-# ESP32 Bus Pirate
+# ESP32 Bit Pirate
 
-![Logo banner of the ESP32 Bus Pirate firmware](images/logo_protocols_banner_small.png)
+![Logo banner of the ESP32 Bit Pirate firmware](images/logo_protocols_banner_small.png)
 
 
-**ESP32 Bus Pirate** is an open-source firmware that turns your device into a multi-protocol hacker's tool, inspired by the [legendary Bus Pirate](https://buspirate.com/).
+**ESP32 Bit Pirate** is an open-source firmware that turns your device into a multi-protocol hacker's tool, inspired by the [legendary Bus Pirate](https://buspirate.com/).
 
 It supports sniffing, sending, scripting, and interacting with various digital protocols (I2C, UART, 1-Wire, SPI, etc.) via a serial terminal or web-based CLI. It also communicates with radio protocols like Bluetooth, Wi-Fi, Sub-GHz and RFID.
 
-Use the [ESP32 Bus Pirate Web Flasher](https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/) to install the firmware in one click. See the [Wiki](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki) for step-by-step guides on every mode and command. Check [ESP32 Bus Pirate Scripts](https://github.com/geo-tp/ESP32-Bus-Pirate-Scripts) for a collection of scripts.
+Use the [ESP32 Bit Pirate Web Flasher](https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/) to install the firmware in one click. See the [Wiki](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki) for step-by-step guides on every mode and command. Check [ESP32 Bit Pirate Scripts](https://github.com/geo-tp/ESP32-Bus-Pirate-Scripts) for a collection of scripts.
 
-For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/ESP32-Bus-Expander) for additional radio interfaces, and the [ESP32 Bus Pirate Dock](https://github.com/AndreiVladescu/ESP32-Bus-Pirate-Dock) to use original [Bus Pirate](https://buspirate.com/) adapters and accessories.
+For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/ESP32-Bus-Expander) for additional radio interfaces, and the [ESP32 Bit Pirate Dock](https://github.com/AndreiVladescu/ESP32-Bus-Pirate-Dock) to use original [Bus Pirate](https://buspirate.com/) adapters and accessories.
 
-![Demo showing the different mode of the ESP32 Bus Pirate firmware](images/help.gif)
-![Demo showing the LittleFS file system of the ESP32 Bus Pirate firmware](images/littlefs.gif)
+![Demo showing the different mode of the ESP32 Bit Pirate firmware](images/help.gif)
+![Demo showing the LittleFS file system of the ESP32 Bit Pirate firmware](images/littlefs.gif)
 
 ## Features
 
@@ -79,10 +79,10 @@ For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/
 
 ## Getting Started
 
-[![Banner of the ESP32 Bus Pirate web flasher](images/flasher.jpg)](https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/)
+[![Banner of the ESP32 Bit Pirate web flasher](images/flasher.jpg)](https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/)
 
 1. 🔧 Flash the firmware  
-   - Use the [ESP32 Bus Pirate Web Flasher](https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/) to burn the firmware directly from a web browser.
+   - Use the [ESP32 Bit Pirate Web Flasher](https://geo-tp.github.io/ESP32-Bus-Pirate/webflasher/) to burn the firmware directly from a web browser.
    - You can also burn it on [M5Burner](https://docs.m5stack.com/en/download), in the M5stick, AtomS3, M5StampS3 or Cardputer category.
 
 2. 🔌 Connect via Serial or Web
@@ -100,7 +100,7 @@ For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/
 
 ## Wiki
 
-[![Banner of the ESP32 Bus Pirate Wiki page](images/bus_pirate_wiki.png)](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki/)
+[![Banner of the ESP32 Bit Pirate Wiki page](images/bus_pirate_wiki.png)](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki/)
 
 📚 **[Visit the Wiki](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki)** for detailed documentation on every mode and command.
 
@@ -114,31 +114,31 @@ The wiki is the best place to learn how everything works.
 
 ## Scripting
 
-[![Banner of the ESP32 Bus Pirate Scripts page](images/bus_pirate_scripts.png)](https://github.com/geo-tp/ESP32-Bus-Pirate-Scripts/)
+[![Banner of the ESP32 Bit Pirate Scripts page](images/bus_pirate_scripts.png)](https://github.com/geo-tp/ESP32-Bus-Pirate-Scripts/)
 
-🛠️ [**Automate interactions with the ESP32 Bus Pirate**](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki/99-Python) using **Python scripts over serial.**
+🛠️ [**Automate interactions with the ESP32 Bit Pirate**](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki/99-Python) using **Python scripts over serial.**
 
-**Examples and ready-to-use scripts** are available in the repository: [ESP32 Bus Pirate Scripts](https://github.com/geo-tp/ESP32-Bus-Pirate-Scripts).
+**Examples and ready-to-use scripts** are available in the repository: [ESP32 Bit Pirate Scripts](https://github.com/geo-tp/ESP32-Bus-Pirate-Scripts).
 
 **Including:** Logging data in a file, eeprom and flash dump, interracting with GPIOs, LED animation...
    
 ## Expander
-[![Banner of the ESP32 Bus Pirate Expander page](images/bus_pirate_exp.png)](https://github.com/geo-tp/ESP32-Bus-Expander)
+[![Banner of the ESP32 Bit Pirate Expander page](images/bus_pirate_exp.png)](https://github.com/geo-tp/ESP32-Bus-Expander)
 
 
-🔌 **[Expand the capabilities of the ESP32 Bus Pirate](https://github.com/geo-tp/ESP32-Bus-Expander)** with additional hardware modules.  
+🔌 **[Expand the capabilities of the ESP32 Bit Pirate](https://github.com/geo-tp/ESP32-Bus-Expander)** with additional hardware modules.
 The Expander adds support for the **WiFi 5 GhZ** or other radio protocols.
 
 ![A Cardputer connected to an expander C5](images/cardputer_with_c5.jpg)
 
 
 ## Dock
-[![Banner of the ESP32 Bus Pirate Dock page](images/bus_pirate_dock.png)](https://github.com/AndreiVladescu/ESP32-Bus-Pirate-Dock)
+[![Banner of the ESP32 Bit Pirate Dock page](images/bus_pirate_dock.png)](https://github.com/AndreiVladescu/ESP32-Bus-Pirate-Dock)
 
 🔧 **[A docking station for the ESP32 S3 DevKit](https://github.com/AndreiVladescu/ESP32-Bus-Pirate-Dock) designed to work with original Bus Pirate adapters.**  
 It allows you to plug and use the original [Bus Pirate](https://buspirate.com/) ecosystem of adapters and accessories.
 
-![The ESP32 Bus Pirate dock board](images/bus_pirate_dock_board.png)
+![The ESP32 Bit Pirate dock board](images/bus_pirate_dock_board.png)
 
 (Coming soon)
 
@@ -148,7 +148,7 @@ It allows you to plug and use the original [Bus Pirate](https://buspirate.com/) 
 
 ## Command-Line Interfaces
 
-The ESP32 Bus Pirate firmware provides three command-line interface (CLI) modes:
+The ESP32 Bit Pirate firmware provides three command-line interface (CLI) modes:
 
 | Interface         | Advantages                                                                 | Ideal for...                          |
 |------------------|-----------------------------------------------------------------------------|----------------------------------------|
@@ -160,20 +160,20 @@ The ESP32 Bus Pirate firmware provides three command-line interface (CLI) modes:
 All interfaces share the same command structure and can be used interchangeably ([more details](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki/00-Terminal)).
 
 ## Mobile Web Interface over WiFi
-![An iPhone screenshot showing the Bus Pirate firmware web interface](images/presentation_mobile.png)
+![An iPhone screenshot showing the Bit Pirate firmware web interface](images/presentation_mobile.png)
 
 ## Standalone Mode for the Cardputer
-![A Cardputer running the ESP32 Bus pirate in standalone mode](images/standalonemode_s.png)
+![A Cardputer running the ESP32 Bit Pirate in standalone mode](images/standalonemode_s.png)
 
-## Using the ESP32 Bus Pirate to speak UART over WiFi
-![A demo Using the ESP32 Bus pirate firmware with UART](images/demo2.gif)
+## Using the ESP32 Bit Pirate to speak UART over WiFi
+![A demo Using the ESP32 Bit Pirate firmware with UART](images/demo2.gif)
 
 ## Contribute
 See [How To Contribute](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki/99-Contribute) section, which outlines a **simple way to add a new command** to any mode.
 
 ## Visuals Assets
 
-#### [![Small logo of the ESP32 Bus Pirate firmware](images/logo_square_small.png)](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki/99-Visual-Assets)
+#### [![Small logo of the ESP32 Bit Pirate firmware](images/logo_square_small.png)](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki/99-Visual-Assets)
 
 See [images, logo, presentations, photo, video, illustrations](https://github.com/geo-tp/ESP32-Bus-Pirate/wiki/99-Visual-Assets). These visuals can be **freely used in blog posts, documentation, videos, or articles** to help explain and promote the firmware.
 
@@ -187,5 +187,3 @@ See [images, logo, presentations, photo, video, illustrations](https://github.co
 > - Avoid any unauthorized RF transmissions (e.g., sub-GHz) that could violate local regulations or disrupt networks and communications.
 > - The authors are not responsible for any misuse of this software or hardware, including legal consequences resulting from unauthorized access or signal emission.
 > - Always stay within the bounds of your country’s laws and responsible disclosure policies.
-
-

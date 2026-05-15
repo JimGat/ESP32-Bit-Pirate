@@ -807,6 +807,28 @@ bool SubGhzService::send(const SubGhzFileCommand& cmd) {
     }
 }
 
+void SubGhzService::deinitRfModule() {
+    if (!isConfigured_) return;
+
+    // Stop the CC1101 - exit RX/TX, turn off frequency synthesizer
+    ELECHOUSE_cc1101.setSidle();
+    
+    // Set GDO0 pin LOW
+    pinMode(gdo0_, OUTPUT);
+    digitalWrite(gdo0_, LOW);
+    
+    // Set CS pin HIGH and end SPI transaction
+    ELECHOUSE_cc1101.SpiEnd();
+    
+    // Also set CS as output and high to be safe
+    pinMode(ss_, OUTPUT);
+    digitalWrite(ss_, HIGH);
+    
+    // Return to RX mode on last configured frequency
+    ELECHOUSE_cc1101.SetRx(mhz_);
+}
+
+
 // Tembed S3 CC1101 specific
 
 void SubGhzService::initTembed() {

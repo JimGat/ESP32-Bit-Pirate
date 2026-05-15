@@ -280,6 +280,7 @@ void SubGhzController::handleReplayDecoded(const TerminalCommand&) {
 
     terminalView.println("SUBGHZ: Replay complete.\n");
     subGhzService.stopTxBitBang(); // ensure stopped
+    subGhzService.deinitRfModule();
 }
 
 /*
@@ -320,8 +321,10 @@ void SubGhzController::handleJam(const TerminalCommand&) {
     }
 
     subGhzService.stopTxBitBang();
+    subGhzService.deinitRfModule();
     terminalView.println("SUBGHZ Jam: Stopped by user.\n");
 }
+
 
 /*
 Band Jam
@@ -1179,11 +1182,15 @@ void SubGhzController::handleBruteforce() {
         if (cc == '\n' || cc == '\r') {
             terminalView.println("\nSUBGHZ BruteForce: Stopped by user.\n");
             subGhzService.stopTxBitBang();
+            subGhzService.deinitRfModule();
+
             return;
         }
     }
 
     subGhzService.stopTxBitBang();
+    subGhzService.deinitRfModule();
+
     terminalView.println("\nSUBGHZ Bruteforce: Done.\n");
 }
 

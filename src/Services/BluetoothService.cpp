@@ -187,7 +187,7 @@ void BluetoothService::switchToMode(BluetoothMode newMode) {
 
     // Init new mode
     if (newMode == BluetoothMode::CLIENT || newMode == BluetoothMode::SERVER) {
-        BLEDevice::init(""); 
+        BLEDevice::init("Bus-Pirate-BT"); 
     }
 
     mode = newMode;

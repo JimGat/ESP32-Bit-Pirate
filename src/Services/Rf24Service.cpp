@@ -20,13 +20,24 @@ bool Rf24Service::configure(
         initTembedPlus();
     #endif
 
-    if (radio_) delete radio_;
+    isInitialized = false;
+
+    if (radio_) {
+        delete radio_;
+        radio_ = nullptr;
+    }
+
     spi.end();
     delay(10);
     spi.begin(sckPin_, misoPin_, mosiPin_, csnPin_);
     
     radio_ = new RF24(cePin_, csnPin_);
-    if (!radio_ || !radio_->begin(&spi)) return false;
+    if (!radio_ || !radio_->begin(&spi)) {
+        delete radio_;
+        radio_ = nullptr;
+        return false;
+    }
+
     isInitialized = true;
     return true;
 }

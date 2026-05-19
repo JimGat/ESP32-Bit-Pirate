@@ -130,7 +130,6 @@ class ELECHOUSE_CC1101
 {
 private:
   void SpiStart(void);
-  void SpiEnd(void);
   void GDO_Set (void);
   void GDO0_Set (void);
   bool Reset (void);
@@ -147,6 +146,7 @@ private:
   SPIClass* cc_spi=nullptr;
   bool _begin_end_logic=false;
 public:
+  void SpiEnd(void);
   bool Init(void);
   byte SpiReadStatus(byte addr);
   void setBeginEndLogic(bool state);

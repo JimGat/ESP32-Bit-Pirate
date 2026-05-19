@@ -70,6 +70,8 @@ public:
                           float rxBwKhz      = 200.0f,
                           uint8_t modulation = 2,    // 2 = OOK/ASK
                           bool packetMode    = true);
+    void deinitRfModule();
+
 
 private:
     bool    isConfigured_ = false;

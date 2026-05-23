@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <map>
 #include <algorithm>
 #include <vector>
 
@@ -19,22 +18,25 @@ class LedProtocolEnumMapper {
 public:
     static LedProtocolEnum fromString(const std::string& str) {
         std::string lowered = toLower(str);
-        auto it = stringToEnum.find(lowered);
-        if (it != stringToEnum.end()) return it->second;
+        for (const auto& entry : protocolEntries) {
+            if (lowered == entry.name) return entry.protocol;
+        }
         return LedProtocolEnum::UNKNOWN;
     }
 
     static std::string toString(LedProtocolEnum protocol) {
-        auto it = enumToString.find(protocol);
-        if (it != enumToString.end()) return it->second;
+        for (const auto& entry : protocolEntries) {
+            if (entry.protocol == protocol) return entry.name;
+        }
         return "unknown";
     }
 
     static std::vector<std::string> getAllProtocols() {
         std::vector<std::string> protocols;
-        for (const auto& pair : stringToEnum) {
-            if (pair.second != LedProtocolEnum::UNKNOWN) {
-                protocols.push_back(pair.first);
+        protocols.reserve(protocolEntriesCount);
+        for (const auto& entry : protocolEntries) {
+            if (entry.protocol != LedProtocolEnum::UNKNOWN) {
+                protocols.push_back(entry.name);
             }
         }
         return protocols;
@@ -47,53 +49,49 @@ private:
         return out;
     }
 
-    static const std::map<std::string, LedProtocolEnum> stringToEnum;
-    static const std::map<LedProtocolEnum, std::string> enumToString;
-};
+    struct ProtocolEntry {
+        const char* name;
+        LedProtocolEnum protocol;
+    };
 
-inline const std::map<std::string, LedProtocolEnum> LedProtocolEnumMapper::stringToEnum = {
-    {"neopixel", LedProtocolEnum::NEOPIXEL},
-    {"ws2812", LedProtocolEnum::WS2812},
-    {"ws2812b", LedProtocolEnum::WS2812B},
-    {"ws2811", LedProtocolEnum::WS2811},
-    {"ws2811_400", LedProtocolEnum::WS2811_400},
-    {"ws2813", LedProtocolEnum::WS2813},
-    {"ws2815", LedProtocolEnum::WS2815},
-    {"ws2816", LedProtocolEnum::WS2816},
-    {"ws2852", LedProtocolEnum::WS2852},
-    {"gs1903", LedProtocolEnum::GS1903},
-    {"sk6812", LedProtocolEnum::SK6812},
-    {"sk6822", LedProtocolEnum::SK6822},
-    {"apa104", LedProtocolEnum::APA104},
-    {"apa106", LedProtocolEnum::APA106},
-    {"pl9823", LedProtocolEnum::PL9823},
-    {"ge8822", LedProtocolEnum::GE8822},
-    {"gw6205", LedProtocolEnum::GW6205},
-    {"gw6205_400", LedProtocolEnum::GW6205_400},
-    {"lpd1886", LedProtocolEnum::LPD1886},
-    {"lpd1886_8bit", LedProtocolEnum::LPD1886_8BIT},
-    {"sm16703", LedProtocolEnum::SM16703},
-    {"tm1829", LedProtocolEnum::TM1829},
-    {"tm1812", LedProtocolEnum::TM1812},
-    {"tm1809", LedProtocolEnum::TM1809},
-    {"tm1804", LedProtocolEnum::TM1804},
-    {"tm1803", LedProtocolEnum::TM1803},
-    {"ucs1903", LedProtocolEnum::UCS1903},
-    {"ucs1903b", LedProtocolEnum::UCS1903B},
-    {"ucs1904", LedProtocolEnum::UCS1904},
-    {"ucs2903", LedProtocolEnum::UCS2903},
-    {"ucs1912", LedProtocolEnum::UCS1912},
-    {"lpd6803", LedProtocolEnum::LPD6803},
-    {"lpd8806", LedProtocolEnum::LPD8806},
-    {"sm16716", LedProtocolEnum::SM16716},
-    {"p9813", LedProtocolEnum::P9813},
-    {"unknown", LedProtocolEnum::UNKNOWN}  
+    inline static constexpr ProtocolEntry protocolEntries[] = {
+        {"neopixel", LedProtocolEnum::NEOPIXEL},
+        {"ws2812", LedProtocolEnum::WS2812},
+        {"ws2812b", LedProtocolEnum::WS2812B},
+        {"ws2811", LedProtocolEnum::WS2811},
+        {"ws2811_400", LedProtocolEnum::WS2811_400},
+        {"ws2813", LedProtocolEnum::WS2813},
+        {"ws2815", LedProtocolEnum::WS2815},
+        {"ws2816", LedProtocolEnum::WS2816},
+        {"ws2852", LedProtocolEnum::WS2852},
+        {"gs1903", LedProtocolEnum::GS1903},
+        {"sk6812", LedProtocolEnum::SK6812},
+        {"sk6822", LedProtocolEnum::SK6822},
+        {"apa104", LedProtocolEnum::APA104},
+        {"apa106", LedProtocolEnum::APA106},
+        {"pl9823", LedProtocolEnum::PL9823},
+        {"ge8822", LedProtocolEnum::GE8822},
+        {"gw6205", LedProtocolEnum::GW6205},
+        {"gw6205_400", LedProtocolEnum::GW6205_400},
+        {"lpd1886", LedProtocolEnum::LPD1886},
+        {"lpd1886_8bit", LedProtocolEnum::LPD1886_8BIT},
+        {"sm16703", LedProtocolEnum::SM16703},
+        {"tm1829", LedProtocolEnum::TM1829},
+        {"tm1812", LedProtocolEnum::TM1812},
+        {"tm1809", LedProtocolEnum::TM1809},
+        {"tm1804", LedProtocolEnum::TM1804},
+        {"tm1803", LedProtocolEnum::TM1803},
+        {"ucs1903", LedProtocolEnum::UCS1903},
+        {"ucs1903b", LedProtocolEnum::UCS1903B},
+        {"ucs1904", LedProtocolEnum::UCS1904},
+        {"ucs2903", LedProtocolEnum::UCS2903},
+        {"ucs1912", LedProtocolEnum::UCS1912},
+        {"lpd6803", LedProtocolEnum::LPD6803},
+        {"lpd8806", LedProtocolEnum::LPD8806},
+        {"sm16716", LedProtocolEnum::SM16716},
+        {"p9813", LedProtocolEnum::P9813},
+        {"unknown", LedProtocolEnum::UNKNOWN}
+    };
+    inline static constexpr size_t protocolEntriesCount =
+        sizeof(protocolEntries) / sizeof(protocolEntries[0]);
 };
-
-inline const std::map<LedProtocolEnum, std::string> LedProtocolEnumMapper::enumToString = [] {
-    std::map<LedProtocolEnum, std::string> result;
-    for (const auto& pair : LedProtocolEnumMapper::stringToEnum) {
-        result[pair.second] = pair.first;
-    }
-    return result;
-}();

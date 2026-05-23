@@ -47,7 +47,7 @@ void TdisplayDeviceView::logo() {
   // Sub
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   GlobalState& state = GlobalState::getInstance();
-  auto version = "ESP32 Bit Pirate - " + state.getVersion();
+  auto version = std::string("ESP32 Bit Pirate - ") + state.getVersion();
   drawCenterText(version.c_str(), 130, 2);
 }
 

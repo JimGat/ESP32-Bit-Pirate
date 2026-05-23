@@ -46,7 +46,7 @@ void M5DeviceView::logo() {
     M5.Lcd.setTextSize(1.5);
     M5.Lcd.setTextColor(TEXT_COLOR);
 
-    auto text = "ESP32 Bit Pirate - " + state.getVersion();
+    auto text = std::string("ESP32 Bit Pirate - ") + state.getVersion();
     int textX = (M5.Lcd.width() - M5.Lcd.textWidth(text.c_str())) / 2;
     int textY = boxY + 7;  // alignement vertical
 

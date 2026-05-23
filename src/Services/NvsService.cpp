@@ -6,7 +6,7 @@ NvsService::~NvsService() {
 
 void NvsService::open() {
     // Open nvs namespace
-    preferences.begin(globalState.getNvsNamespace().c_str(), false);
+    preferences.begin(globalState.getNvsNamespace(), false);
 }
 
 void NvsService::close() {

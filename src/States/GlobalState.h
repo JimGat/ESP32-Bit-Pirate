@@ -11,13 +11,17 @@
 class GlobalState {
 private:
     // Version
-    const std::string version = "1.5";
+    static constexpr const char* version = "1.5";
 
     //Pin in use
     std::vector<uint8_t> protectedPins;
 
     // Builtin
-    uint8_t ledPin = 21;
+    #ifdef LED_PIN
+        static constexpr uint8_t ledPin = LED_PIN;
+    #else
+        static constexpr uint8_t ledPin = 21;
+    #endif
 
     // SPI
     uint8_t spiCSPin = 12;
@@ -27,13 +31,13 @@ private:
     uint32_t spiFrequency = 20000000;
 
     // WiFi AP Credentials
-    std::string apName = "ESP32-Bit-Pirate";
-    std::string apPassword = "readytoboard";
+    static constexpr const char* apName = "ESP32-Bit-Pirate";
+    static constexpr const char* apPassword = "readytoboard";
 
     // NVS
-    std::string nvsNamespace = "wifi_settings";
-    std::string nvsSsidField = "ssid";
-    std::string nvsPasswordField = "pass";
+    static constexpr const char* nvsNamespace = "wifi_settings";
+    static constexpr const char* nvsSsidField = "ssid";
+    static constexpr const char* nvsPasswordField = "pass";
 
     // Terminal Web UI
     std::string terminalIp = "0.0.0.0";
@@ -45,7 +49,7 @@ private:
     ModeEnum currentMode = ModeEnum::HIZ;
 
     // PC Terminal Serial Configuration
-    unsigned long serialTerminalBaudRate = 115200;
+    static constexpr unsigned long serialTerminalBaudRate = 115200;
 
     // OneWire Default Pin
     uint8_t oneWirePin = 1; // pin par défaut
@@ -157,11 +161,15 @@ private:
     uint8_t sdCardMisoPin = 39;
     uint8_t sdCardMosiPin = 14;
     uint32_t sdCardFrequency = 20000000; // 20 MHz
-    bool hasInternalSdCard = false;
+    #ifdef SDCARD_CS_PIN
+        static constexpr bool hasInternalSdCard = true;
+    #else
+        static constexpr bool hasInternalSdCard = false;
+    #endif
 
     // SD Card File Limits
-    size_t fileCountLimit = 512;
-    size_t fileCacheLimit = 64;
+    static constexpr size_t fileCountLimit = 512;
+    static constexpr size_t fileCacheLimit = 64;
 
     // USB Default Configuration
     std::string usbProductString = "ESP32-Bit-Pirate";
@@ -180,7 +188,7 @@ public:
     }
 
     // Version
-    const std::string& getVersion() const { return version; }
+    const char* getVersion() const { return version; }
 
     // Builtin
     uint8_t getLedPin() const { return ledPin; }
@@ -199,11 +207,8 @@ public:
     void setSpiFrequency(uint32_t freq) { spiFrequency = freq; }
 
     // AP WiFi
-    const std::string& getApName() const { return apName; }
-    const std::string& getApPassword() const { return apPassword; }
-
-    void setApName(const std::string& name) { apName = name; }
-    void setApPassword(const std::string& pass) { apPassword = pass; }
+    const char* getApName() const { return apName; }
+    const char* getApPassword() const { return apPassword; }
 
     // Terminal IP
     const std::string& getTerminalIp() const { return terminalIp; }
@@ -219,8 +224,6 @@ public:
 
     // Serial Terminal Baud
     unsigned long getSerialTerminalBaudRate() const { return serialTerminalBaudRate; }
-    void setSerialTerminalBaudRate(unsigned long rate) { serialTerminalBaudRate = rate; }
-
     // OneWire
     uint8_t getOneWirePin() const { return oneWirePin; }
     void setOneWirePin(uint8_t pin) { oneWirePin = pin; }
@@ -437,18 +440,11 @@ public:
     size_t getFileCountLimit() const { return fileCountLimit; }
     size_t getFileCacheLimit() const { return fileCacheLimit; }
 
-    void setFileCountLimit(size_t count) { fileCountLimit = count; }
-    void setFileCacheLimit(size_t cache) { fileCacheLimit = cache; }
-
     // NVS
-    const std::string& getNvsNamespace() const { return nvsNamespace; }
-    void setNvsNamespace(const std::string& ns) { nvsNamespace = ns; }
+    const char* getNvsNamespace() const { return nvsNamespace; }
+    const char* getNvsPasswordField() const { return nvsPasswordField; }
 
-    const std::string& getNvsPasswordField() const { return nvsPasswordField; }
-    void setNvsPasswordField(const std::string& f) { nvsPasswordField = f; }
-
-    const std::string& getNvsSsidField() const { return nvsSsidField; }
-    void setNvsSsidField(const std::string& f) { nvsSsidField = f; }
+    const char* getNvsSsidField() const { return nvsSsidField; }
 
     // Protected
     const std::vector<uint8_t>& getProtectedPins() const {
@@ -465,9 +461,6 @@ public:
 
     // Constructor
     GlobalState() {
-        #ifdef LED_PIN
-            ledPin = LED_PIN;
-        #endif
         #ifdef SPI_CS_PIN
             spiCSPin = SPI_CS_PIN;
         #endif
@@ -622,7 +615,6 @@ public:
             rf24MosiPin = RF24_MOSI_PIN;
         #endif
         #ifdef SDCARD_CS_PIN
-            hasInternalSdCard = true;
             sdCardCsPin = SDCARD_CS_PIN;
         #else 
             sdCardCsPin = spiCSPin;

@@ -63,7 +63,7 @@ void SysInfoShell::cmdSummary() {
     terminalView.println("PSRAM total   : " + std::to_string(systemService.getPsramTotal()  / 1024) + " KB");
     terminalView.println("Flash total   : " + std::to_string(systemService.getFlashSizeBytes() / 1024) + " KB");
 
-    terminalView.println("Firmware      : " + std::string("version " + state.getVersion()));
+    terminalView.println("Firmware      : " + (std::string("version ") + state.getVersion()));
     terminalView.println("Build date    : " + std::string(__DATE__) + " " + std::string(__TIME__));
     terminalView.println("Infrared      : " + systemService.getInfraredBackend());
     terminalView.println("IDF version   : " + systemService.getIdfVersion());

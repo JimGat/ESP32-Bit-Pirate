@@ -168,4 +168,12 @@ void TwoWireController::ensureConfigured() {
     );
 }
 
+/*
+Release lazy 2WIRE resources
+*/
+void TwoWireController::ensureReleased() {
+    twoWireService.releaseSniffer();
+    twoWireService.end();
+    configured = false;
+}
 

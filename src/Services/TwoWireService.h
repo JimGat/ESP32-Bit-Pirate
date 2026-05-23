@@ -62,6 +62,9 @@ public:
     // Stop sniffing and restore pins to idle state.
     void stopSniffer();
 
+    // Release sniffer buffers allocated on demand.
+    void releaseSniffer();
+
     bool getNextSniffEvent(uint8_t& type, uint8_t& data);
 
     // Print all available events
@@ -79,6 +82,7 @@ private:
     void IRAM_ATTR onClkRisingISR();
     void IRAM_ATTR onIoChangeISR();
     inline void IRAM_ATTR pushEvent(uint8_t type, uint8_t data);
+    bool ensureSnifferBufferAllocated();
     bool popEvent(uint8_t& type, uint8_t& data);
 
     // Sniffer state
@@ -91,7 +95,7 @@ private:
     // Ring buffer
     struct SniffEvent { uint8_t type; uint8_t data; };
     static constexpr uint16_t SNIFF_Q_SIZE = 1024;
-    volatile SniffEvent sn_q[SNIFF_Q_SIZE];
+    volatile SniffEvent* sn_q = nullptr;
     volatile uint16_t sn_qHead = 0; // written by isrs
     volatile uint16_t sn_qTail = 0; // read by task
     volatile bool sn_inFrame = false;

@@ -1,5 +1,6 @@
 #include "TwoWireService.h"
 #include <Arduino.h>
+#include <esp_heap_caps.h>
 
 void TwoWireService::configure(uint8_t clk, uint8_t io, uint8_t rst) {
     clkPin = clk;
@@ -394,7 +395,28 @@ bool TwoWireService::unlockSmartCard(const uint8_t psc[3]) {
 
 // ================== SNIFFER: helpers ==================
 
+bool TwoWireService::ensureSnifferBufferAllocated() {
+    if (sn_q != nullptr) {
+        return true;
+    }
+
+    sn_q = static_cast<volatile SniffEvent*>(
+        heap_caps_malloc(SNIFF_Q_SIZE * sizeof(SniffEvent), MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)
+    );
+    if (sn_q == nullptr) {
+        return false;
+    }
+
+    sn_qHead = 0;
+    sn_qTail = 0;
+    return true;
+}
+
 inline void IRAM_ATTR TwoWireService::pushEvent(uint8_t type, uint8_t data) {
+    if (sn_q == nullptr) {
+        return;
+    }
+
     portENTER_CRITICAL_ISR(&sn_mux);
 
     uint16_t next = (sn_qHead + 1) % SNIFF_Q_SIZE;
@@ -408,6 +430,7 @@ inline void IRAM_ATTR TwoWireService::pushEvent(uint8_t type, uint8_t data) {
 }
 
 bool TwoWireService::popEvent(uint8_t& type, uint8_t& data) {
+    if (sn_q == nullptr) return false;
     if (sn_qTail == sn_qHead) return false;
 
     portENTER_CRITICAL(&sn_mux);
@@ -487,6 +510,7 @@ void IRAM_ATTR TwoWireService::onIoChangeISR() {
 
 bool TwoWireService::startSniffer() {
     if (clkPin == 0xFF || ioPin == 0xFF) return false;
+    if (!ensureSnifferBufferAllocated()) return false;
 
     // Install ISR service
     static bool isr_service_installed = false;
@@ -558,6 +582,23 @@ void TwoWireService::stopSniffer() {
     gpio_set_direction((gpio_num_t)ioPin, GPIO_MODE_INPUT_OUTPUT_OD);
     gpio_set_pull_mode((gpio_num_t)ioPin, GPIO_PULLUP_ONLY);
     gpio_set_level((gpio_num_t)ioPin, 1); // released
+}
+
+void TwoWireService::releaseSniffer() {
+    stopSniffer();
+
+    portENTER_CRITICAL(&sn_mux);
+    volatile SniffEvent* oldQueue = sn_q;
+    sn_q = nullptr;
+    sn_qHead = 0;
+    sn_qTail = 0;
+    sn_inFrame = false;
+    sn_startPending = false;
+    sn_bitIndex = 0;
+    sn_currentByte = 0;
+    portEXIT_CRITICAL(&sn_mux);
+
+    heap_caps_free(const_cast<SniffEvent*>(oldQueue));
 }
 
 bool TwoWireService::getNextSniffEvent(uint8_t& type, uint8_t& data) {

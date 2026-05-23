@@ -33,6 +33,9 @@ public:
     // Ensure 2WIRE is configured before use
     void ensureConfigured();
 
+    // Release lazy 2WIRE resources
+    void ensureReleased();
+
 private:
     // Sniff 2wire bus
     void handleSniff();

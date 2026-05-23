@@ -32,10 +32,10 @@ bool EthernetService::configure(int8_t pinCS, int8_t pinRST, int8_t pinSCK, int8
   s_self = this;
   Network.onEvent(&EthernetService::onNetEvent);
 
-  // Init SPI 
-  _spi->begin(_pinSCK, _pinMISO, _pinMOSI);
-  _spi->setFrequency(_spiHz);
-
+  if (_configured) {
+    ETH.end();
+    _configured = false;
+  }
 
   // Try to set custom MAC
   if (_mac[0] || _mac[1] || _mac[2] || _mac[3] || _mac[4] || _mac[5]) {
@@ -45,6 +45,16 @@ bool EthernetService::configure(int8_t pinCS, int8_t pinRST, int8_t pinSCK, int8
       (void)e;
     }
   }
+
+  // reset the bus with explicit custom pins immediately
+  // before the driver performs its first transaction
+  _spi->end();
+  delay(1);
+  _spi->begin(_pinSCK, _pinMISO, _pinMOSI, _pinCS);
+  delay(1);
+  pinMode(_pinCS, OUTPUT);
+  digitalWrite(_pinCS, HIGH);
+  _spi->setFrequency(_spiHz);
 
   // Start W5500 driver
   if (!ETH.begin(ETH_PHY_W5500, _phyAddr, _pinCS, _pinIRQ, _pinRST, *_spi, (uint8_t)(_spiHz / 1000000))) {
@@ -129,14 +139,10 @@ void EthernetService::hardReset() {
         return;
     }
     
-    // Reinit SPI bus pins
-    if (_spi) {
-        _spi->begin(_pinSCK, _pinMISO, _pinMOSI);
-        _spi->setFrequency(_spiHz);
-    }
-    
     // Restart ETH 
     ETH.end();
+    _spi->begin(_pinSCK, _pinMISO, _pinMOSI);
+    _spi->setFrequency(_spiHz);
     bool ok = ETH.begin(ETH_PHY_W5500, _phyAddr, _pinCS, _pinIRQ, _pinRST, *_spi, (uint8_t)(_spiHz / 1000000));
     if (ok) {
         ETH.setHostname("esp32-bitpirate-eth");

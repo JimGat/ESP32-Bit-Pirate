@@ -32,6 +32,7 @@
 
 #include "i2c_sniffer.h"
 #include <Arduino.h>
+#include <cstdlib>
 #include "driver/gpio.h"
 
 // --- Minimal internal notes (added): ISR pushes compact events into an event ring.
@@ -60,7 +61,7 @@ static inline uint16_t EVENT_VAL(uint16_t ev) { return (uint16_t)(ev & 0x0FFF); 
 #define EVENT_RING_ORDER 11
 #define EVENT_RING_SIZE  (1u << EVENT_RING_ORDER)   // 2048 events
 #define EVENT_RING_MASK  (EVENT_RING_SIZE - 1u)
-static volatile uint16_t eventRing[EVENT_RING_SIZE];
+static volatile uint16_t* eventRing = nullptr;
 static volatile uint16_t eventW = 0;
 static volatile uint16_t eventR = 0;
 
@@ -68,7 +69,7 @@ static volatile uint16_t eventR = 0;
 #define CHAR_RING_ORDER 13
 #define CHAR_RING_SIZE  (1u << CHAR_RING_ORDER)     // 8192 chars
 #define CHAR_RING_MASK  (CHAR_RING_SIZE - 1u)
-static volatile char charRing[CHAR_RING_SIZE];
+static volatile char* charRing = nullptr;
 static volatile uint16_t charW = 0;
 static volatile uint16_t charR = 0;
 
@@ -87,6 +88,10 @@ static volatile uint16_t sdaDownCnt = 0;
 
 // ---- Helpers (ISR-safe) ----
 static inline void IRAM_ATTR push_event(uint16_t ev) {
+    if (eventRing == nullptr) {
+        return;
+    }
+
     uint16_t next = (uint16_t)((eventW + 1u) & EVENT_RING_MASK);
     if (next == eventR) { // full -> drop oldest
         eventR = (uint16_t)((eventR + 1u) & EVENT_RING_MASK);
@@ -164,6 +169,27 @@ void i2c_sniffer_begin(uint8_t scl, uint8_t sda) {
     sniffer_sda_pin = sda;
 }
 
+static bool ensure_buffers_allocated() {
+    if (eventRing != nullptr && charRing != nullptr) {
+        return true;
+    }
+
+    if (eventRing == nullptr) {
+        eventRing = static_cast<volatile uint16_t*>(std::malloc(EVENT_RING_SIZE * sizeof(uint16_t)));
+    }
+
+    if (charRing == nullptr) {
+        charRing = static_cast<volatile char*>(std::malloc(CHAR_RING_SIZE * sizeof(char)));
+    }
+
+    if (eventRing == nullptr || charRing == nullptr) {
+        i2c_sniffer_release();
+        return false;
+    }
+
+    return true;
+}
+
 static void reset_state_and_buffers() {
     noInterrupts();
     // I2C state
@@ -178,12 +204,17 @@ static void reset_state_and_buffers() {
     interrupts();
 }
 
-void i2c_sniffer_setup() {
+bool i2c_sniffer_setup() {
+    if (!ensure_buffers_allocated()) {
+        return false;
+    }
+
     pinMode(sniffer_scl_pin, INPUT_PULLUP);
     pinMode(sniffer_sda_pin, INPUT_PULLUP);
     reset_state_and_buffers();
     attachInterrupt(digitalPinToInterrupt(sniffer_scl_pin), i2cTriggerOnRaisingSCL, RISING);
     attachInterrupt(digitalPinToInterrupt(sniffer_sda_pin), i2cTriggerOnChangeSDA, CHANGE);
+    return true;
 }
 
 void i2c_sniffer_stop() {
@@ -194,8 +225,27 @@ void i2c_sniffer_stop() {
     interrupts();
 }
 
+void i2c_sniffer_release() {
+    i2c_sniffer_stop();
+    noInterrupts();
+    eventW = eventR = 0;
+    charW = charR = 0;
+    volatile uint16_t* oldEventRing = eventRing;
+    volatile char* oldCharRing = charRing;
+    eventRing = nullptr;
+    charRing = nullptr;
+    interrupts();
+
+    std::free(const_cast<uint16_t*>(oldEventRing));
+    std::free(const_cast<char*>(oldCharRing));
+}
+
 // ---- Output char ring helpers (main context) ----
 static inline void char_push(char c) {
+    if (charRing == nullptr) {
+        return;
+    }
+
     uint16_t next = (uint16_t)((charW + 1u) & CHAR_RING_MASK);
     if (next == charR) { // full -> drop oldest
         charR = (uint16_t)((charR + 1u) & CHAR_RING_MASK);
@@ -280,6 +330,10 @@ static void pump_events_to_text() {
 }
 
 bool i2c_sniffer_available() {
+    if (eventRing == nullptr || charRing == nullptr) {
+        return false;
+    }
+
     // If no chars ready, try pumping events into ASCII
     if (charR == charW) {
         pump_events_to_text();
@@ -288,6 +342,10 @@ bool i2c_sniffer_available() {
 }
 
 char i2c_sniffer_read() {
+    if (eventRing == nullptr || charRing == nullptr) {
+        return '\0';
+    }
+
     // Ensure at least one char is present
     if (charR == charW) {
         pump_events_to_text();
@@ -301,5 +359,9 @@ char i2c_sniffer_read() {
 }
 
 void i2c_sniffer_reset_buffer() {
+    if (eventRing == nullptr || charRing == nullptr) {
+        return;
+    }
+
     reset_state_and_buffers();
 }

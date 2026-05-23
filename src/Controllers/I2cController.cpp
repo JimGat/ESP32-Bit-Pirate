@@ -94,7 +94,10 @@ Sniff
 void I2cController::handleSniff() {
     terminalView.println("I2C Sniffer: Listening on SCL/SDA... Press [ENTER] to stop.\n");
     i2c_sniffer_begin(state.getI2cSclPin(), state.getI2cSdaPin()); // dont need freq to work
-    i2c_sniffer_setup();
+    if (!i2c_sniffer_setup()) {
+        terminalView.println("I2C Sniffer: Not enough memory to allocate buffers.");
+        return;
+    }
 
     std::string line;
 
@@ -1267,4 +1270,13 @@ void I2cController::ensureConfigured() {
     uint8_t scl = state.getI2cSclPin();
     uint32_t freq = state.getI2cFrequency();
     i2cService.configure(sda, scl, freq);
+}
+
+/*
+Release lazy I2C resources
+*/
+void I2cController::ensureReleased() {
+    i2c_sniffer_release();
+    i2cService.end();
+    configured = false;
 }

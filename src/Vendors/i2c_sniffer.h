@@ -34,8 +34,9 @@ extern "C" {
 #endif
 
 void i2c_sniffer_begin(uint8_t scl, uint8_t sda);
-void i2c_sniffer_setup();
+bool i2c_sniffer_setup();
 void i2c_sniffer_stop();
+void i2c_sniffer_release();
 bool i2c_sniffer_available();
 char i2c_sniffer_read();
 void i2c_sniffer_reset_buffer();

@@ -29,6 +29,9 @@ public:
 
     // Ensure I2C is configured before use
     void ensureConfigured();
+
+    // Release lazy resources owned by I2C mode
+    void ensureReleased();
     
 private:
     struct Stats {

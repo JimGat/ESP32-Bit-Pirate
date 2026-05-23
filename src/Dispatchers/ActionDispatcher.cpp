@@ -394,6 +394,14 @@ void ActionDispatcher::releaseMode(ModeEnum currentMode, ModeEnum newMode) {
             provider.getBluetoothController().ensureReleased();
             break;
 
+        case ModeEnum::I2C:
+            provider.getI2cController().ensureReleased();
+            break;
+
+        case ModeEnum::TwoWire:
+            provider.getTwoWireController().ensureReleased();
+            break;
+
         // For now, no realy heavy resources in other modes 
 
         default:

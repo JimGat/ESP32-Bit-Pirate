@@ -32,7 +32,7 @@ bool Rf24Service::configure(
     spi.begin(sckPin_, misoPin_, mosiPin_, csnPin_);
     
     radio_ = new RF24(cePin_, csnPin_);
-    if (!radio_ || !radio_->begin(&spi)) {
+    if (!radio_ || !radio_->begin(&spi, sckPin_, misoPin_, mosiPin_, csnPin_)) {
         delete radio_;
         radio_ = nullptr;
         return false;

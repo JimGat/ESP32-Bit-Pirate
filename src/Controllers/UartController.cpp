@@ -295,8 +295,8 @@ void UartController::handlePing() {
 
     while (millis() - start < 5000) {
         // Envoi progressif
-        if (probeIndex < probes.size()) {
-            uartService.write(probes[probeIndex]);
+        if (probeIndex < kProbesCount) {
+            uartService.write(kProbes[probeIndex]);
             probeIndex++;
         }
 
@@ -482,11 +482,11 @@ void UartController::handleAutoBaud() {
         // Not found, send one probe to wake up device
         uint32_t testBaud = bauds[baudIndex];
         uartService.switchBaudrate(testBaud);
-        uartService.write(probes[probeIndex]);
+        uartService.write(kProbes[probeIndex]);
 
         // Increment
         baudIndex = (baudIndex + 1) % bauds.size();
-        probeIndex = (probeIndex + 1) % probes.size();
+        probeIndex = (probeIndex + 1) % kProbesCount;
     }
 }
 

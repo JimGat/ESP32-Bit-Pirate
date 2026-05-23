@@ -31,6 +31,7 @@ public:
     std::string readLine();
     bool available() const;
     void write(char c);
+    void write(const char* str);
     void write(const std::string& str);
     void setRxFIFOFull(uint8_t fifoBytes);
     void setDefaultRxFIFOFull();

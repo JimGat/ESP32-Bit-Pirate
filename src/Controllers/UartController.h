@@ -125,7 +125,7 @@ private:
     bool scanCancelled = false;
 
     // Predefined probe commands for ping
-    std::vector<std::string> probes = {
+    inline static constexpr const char* const kProbes[] = {
         // Generic AT commands
         "AT\r\n",
         "ATE0\r\n", "ATE1\r\n", "ATI\r\n", "ATI0\r\n", "ATI1\r\n", "ATI2\r\n",
@@ -142,4 +142,5 @@ private:
         "help\r\n", "?\r\n", "\r\n",
         "\x1B", "\x03", "\x04", "\x1A", "\x11", "\x13"  // ESC, Ctrl+C/Z/D, XON/XOFF
     };
+    inline static constexpr size_t kProbesCount = sizeof(kProbes) / sizeof(kProbes[0]);
 };

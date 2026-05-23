@@ -1,4 +1,5 @@
 #include "UartService.h"
+#include <cstring>
 
 void UartService::configure(unsigned long baud,
                             uint32_t config,
@@ -114,6 +115,9 @@ void UartService::write(char c) {
     _serial->write(c);
 }
 
+void UartService::write(const char* str) {
+    _serial->write(reinterpret_cast<const uint8_t*>(str), strlen(str));
+}
 
 void UartService::setRxFIFOFull(uint8_t fifoBytes){
     _serial->setRxFIFOFull(fifoBytes);

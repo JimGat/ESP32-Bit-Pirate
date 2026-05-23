@@ -1,6 +1,5 @@
 #pragma once
 
-#include <map>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -36,45 +35,57 @@ enum class ModeEnum {
 
 class ModeEnumMapper {
 public:
-    inline static const std::map<ModeEnum, std::string> map = {
-        {ModeEnum::None,       "None"},
-        {ModeEnum::HIZ,        "HIZ"},
-        {ModeEnum::OneWire,    "1WIRE"},
-        {ModeEnum::UART,       "UART"},
-        {ModeEnum::HDUART,     "HDUART"},
-        {ModeEnum::I2C,        "I2C"},
-        {ModeEnum::SPI,        "SPI"},
-        {ModeEnum::TwoWire,    "2WIRE"},
-        {ModeEnum::ThreeWire,  "3WIRE"},
-        {ModeEnum::DIO,        "DIO"},
-        {ModeEnum::LED,        "LED"},
-        {ModeEnum::Infrared,   "INFRARED"},
-        {ModeEnum::USB,        "USB"},
-        {ModeEnum::Bluetooth,  "BLUETOOTH"},
-        {ModeEnum::WiFi,       "WIFI"},
-        {ModeEnum::JTAG,       "JTAG"},
-        {ModeEnum::I2S,        "I2S"},
-        {ModeEnum::CAN_,        "CAN"},
-        {ModeEnum::ETHERNET,   "ETHERNET"},
-        {ModeEnum::SUBGHZ,     "SUBGHZ"},
-        {ModeEnum::RFID,       "RFID"},
-        {ModeEnum::RF24_,      "RF24"},
-        {ModeEnum::FM,         "FM"},
-        {ModeEnum::CELL,       "CELL"},
-        {ModeEnum::EXPANDER,   "EXPANDER"},
+    struct ModeEntry {
+        ModeEnum mode;
+        const char* name;
     };
 
-    static std::string toString(ModeEnum proto) {
+    inline static constexpr ModeEntry modeEntries[] = {
+        {ModeEnum::None,      "None"},
+        {ModeEnum::HIZ,       "HIZ"},
+        {ModeEnum::OneWire,   "1WIRE"},
+        {ModeEnum::UART,      "UART"},
+        {ModeEnum::HDUART,    "HDUART"},
+        {ModeEnum::I2C,       "I2C"},
+        {ModeEnum::SPI,       "SPI"},
+        {ModeEnum::TwoWire,   "2WIRE"},
+        {ModeEnum::ThreeWire, "3WIRE"},
+        {ModeEnum::DIO,       "DIO"},
+        {ModeEnum::LED,       "LED"},
+        {ModeEnum::Infrared,  "INFRARED"},
+        {ModeEnum::USB,       "USB"},
+        {ModeEnum::Bluetooth, "BLUETOOTH"},
+        {ModeEnum::WiFi,      "WIFI"},
+        {ModeEnum::JTAG,      "JTAG"},
+        {ModeEnum::I2S,       "I2S"},
+        {ModeEnum::CAN_,      "CAN"},
+        {ModeEnum::ETHERNET,  "ETHERNET"},
+        {ModeEnum::SUBGHZ,    "SUBGHZ"},
+        {ModeEnum::RFID,      "RFID"},
+        {ModeEnum::RF24_,     "RF24"},
+        {ModeEnum::FM,        "FM"},
+        {ModeEnum::CELL,      "CELL"},
+        {ModeEnum::EXPANDER,  "EXPANDER"},
+    };
 
-        auto it = map.find(proto);
-        return it != map.end() ? it->second : "Unknown Protocol";
+    inline static constexpr size_t modeEntriesCount = sizeof(modeEntries) / sizeof(modeEntries[0]);
+
+    static std::string toString(ModeEnum proto) {
+        for (size_t i = 0; i < modeEntriesCount; ++i) {
+            if (modeEntries[i].mode == proto) {
+                return modeEntries[i].name;
+            }
+        }
+        return "Unknown Protocol";
     }
 
     static std::vector<ModeEnum> getProtocols() {
         std::vector<ModeEnum> out;
-        for (auto& kv : map) {
-            if (kv.first != ModeEnum::None)
-                out.push_back(kv.first);
+        out.reserve(modeEntriesCount - 1);
+        for (size_t i = 0; i < modeEntriesCount; ++i) {
+            if (modeEntries[i].mode != ModeEnum::None) {
+                out.push_back(modeEntries[i].mode);
+            }
         }
         return out;
     }
@@ -97,9 +108,9 @@ public:
     static ModeEnum fromString(const std::string& name) {
         std::string upper = toUpper(name);
 
-        for (const auto& kv : map) {
-            if (kv.second == upper) {
-                return kv.first;
+        for (size_t i = 0; i < modeEntriesCount; ++i) {
+            if (modeEntries[i].name == upper) {
+                return modeEntries[i].mode;
             }
         }
         return ModeEnum::None;

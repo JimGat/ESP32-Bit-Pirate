@@ -310,7 +310,7 @@ void SpiFlashShell::cmdRead() {
     if (!checkFlashPresent()) return;
     
     auto addrStr = userInputManager.readValidatedHexString("Start address (e.g., 00FF00) ", 0, true);
-    auto address = argTransformer.parseHexOrDec16("0x" + addrStr);
+    auto address = argTransformer.parseHexOrDec32("0x" + addrStr);
     uint32_t count = userInputManager.readValidatedUint32("Number of bytes to read:", 16);
 
     // Read flash in chunks
@@ -415,7 +415,7 @@ void SpiFlashShell::cmdWrite() {
 
     // Adresse
     auto addrStr = userInputManager.readValidatedHexString("Start address (e.g., 00FF00) ", 0, true);
-    auto addr = argTransformer.parseHexOrDec16("0x" + addrStr);
+    auto addr = argTransformer.parseHexOrDec32("0x" + addrStr);
 
     std::vector<uint8_t> data;
 

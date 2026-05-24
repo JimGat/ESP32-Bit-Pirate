@@ -513,11 +513,11 @@ bool I2cService::initEeprom(uint16_t chipSizeKb, uint8_t addr) {
     return eeprom.begin(addr);
 }
 
-bool I2cService::eepromWriteByte(uint16_t address, uint8_t value) {
+bool I2cService::eepromWriteByte(uint32_t address, uint8_t value) {
     return eeprom.write(address, value);
 }
 
-uint8_t I2cService::eepromReadByte(uint16_t address) {
+uint8_t I2cService::eepromReadByte(uint32_t address) {
     return eeprom.read(address);
 }
 

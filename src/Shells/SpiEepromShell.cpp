@@ -133,7 +133,8 @@ void SpiEepromShell::cmdRead() {
 void SpiEepromShell::cmdWrite() {
     terminalView.println("\n✏️  Write EEPROM");
 
-    uint32_t addr = userInputManager.readValidatedUint32("Start address:", 0);
+   auto addrStr = userInputManager.readValidatedHexString("Start address (e.g., 00FF00) ", 0, true);
+    uint32_t addr = argTransformer.parseHexOrDec32("0x" + addrStr);
 
     if (userInputManager.readYesNo("Write an ASCII string?", true)) {
         terminalView.print("Enter ASCII string: ");

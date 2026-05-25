@@ -70,8 +70,8 @@ public:
 
     // EEPROM
     bool initEeprom(uint16_t chipSizeKb = 512, uint8_t addr=0x50);
-    bool eepromWriteByte(uint16_t address, uint8_t value);
-    uint8_t eepromReadByte(uint16_t address);
+    bool eepromWriteByte(uint32_t address, uint8_t value);
+    uint8_t eepromReadByte(uint32_t address);
     bool eepromPutString(uint32_t address, const std::string& str);
     bool eepromGetString(uint32_t address, std::string& outStr);
     uint32_t eepromLength();

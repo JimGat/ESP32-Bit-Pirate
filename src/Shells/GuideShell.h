@@ -26,6 +26,7 @@ private:
         " 🧰 Instruction syntax",
         " 🐍 Python automation",
         " 📒 File System",
+        " ☠️  Pirate Assistant",
         " ⚠️  Safety (voltage)",
         " 🚪 Exit"
     };
@@ -39,5 +40,6 @@ private:
     void cmdInstructionSyntax();
     void cmdPythonAutomation();
     void cmdLittleFS();
+    void cmdPirateAssistant();
     void cmdSafety();
 };

@@ -24,7 +24,8 @@ void GuideShell::run() {
             case 3: cmdInstructionSyntax(); break;
             case 4: cmdPythonAutomation(); break;
             case 5: cmdLittleFS(); break;
-            case 6: cmdSafety(); break;
+            case 6: cmdPirateAssistant(); break;
+            case 7: cmdSafety(); break;
             default:
                 loop = false;
                 break;
@@ -79,7 +80,7 @@ void GuideShell::cmdQuickStart() {
     terminalView.println("Tip:");
     terminalView.println("  Use 'help' anywhere for full command lists.");
     terminalView.println("  See the Wiki for detailed workflows.");
-    terminalView.println("  https://github.com/geo-tp/ESP32-Bus-Pirate/wiki");
+    terminalView.println("  https://github.com/geo-tp/ESP32-Bit-Pirate/wiki");
 }
 
 void GuideShell::cmdExamples() {
@@ -128,7 +129,7 @@ void GuideShell::cmdExamples() {
     terminalView.println("Note:");
     terminalView.println("  Examples only.");
     terminalView.println("  See the Wiki for detailed workflows.");
-    terminalView.println("  https://github.com/geo-tp/ESP32-Bus-Pirate/wiki");
+    terminalView.println("  https://github.com/geo-tp/ESP32-Bit-Pirate/wiki");
 }
 
 void GuideShell::cmdWebTerminal() {
@@ -220,6 +221,22 @@ void GuideShell::cmdLittleFS() {
     terminalView.println("Limits:");
     terminalView.println("  • ~4.5 MB usable on boards with 8MB flash (approx).");
     terminalView.println("  • Flashing a different firmware may overwrite files.");
+}
+
+void GuideShell::cmdPirateAssistant() {
+    terminalView.println("\n=== Pirate Assistant (AI) ===\n");
+    terminalView.println("Use Pirate Assistant in the Web UI.");
+    terminalView.println("It turns a task into commands.");
+    terminalView.println("");
+    terminalView.println("Open the Web UI and press the AI button.");
+    terminalView.println("Add your Gemini API key if asked.");
+    terminalView.println("Describe what you want in a short sentence.");
+    terminalView.println("");
+    terminalView.println("Example:");
+    terminalView.println("  Ask: How can I read an AT24C EEPROM?");
+    terminalView.println("  The assistant may suggest: mode I2C || eeprom");
+    terminalView.println("");
+    terminalView.println("Check the suggested steps before sending them.");
 }
 
 void GuideShell::cmdSafety() {

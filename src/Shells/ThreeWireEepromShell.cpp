@@ -106,9 +106,8 @@ void ThreeWireEepromShell::cmdProbe() {
 EEPROM Read
 */
 void ThreeWireEepromShell::cmdRead() {
-    auto addrStr = userInputManager.readValidatedHexString("Start address (e.g., 00FF00) ", 0, true);
-    auto addr = argTransformer.parseHexOrDec16("0x" + addrStr);
-    uint8_t count = userInputManager.readValidatedUint8("Number of bytes to read:", 16);
+    auto addr = userInputManager.readValidatedUint16("Start address (dec or 0x hex)", 0, true);
+    uint8_t count = userInputManager.readValidatedUint8("Number of bytes to read (dec or 0x hex)", 16);
     bool isOrg8 = state.isThreeWireOrg8();
 
     terminalView.println("");
@@ -154,8 +153,7 @@ void ThreeWireEepromShell::cmdRead() {
 EEPROM Write
 */
 void ThreeWireEepromShell::cmdWrite() {
-    auto addrStr = userInputManager.readValidatedHexString("Start address:", 0, true);
-    auto addr = argTransformer.parseHexOrDec16("0x" + addrStr);
+    auto addr = userInputManager.readValidatedUint16("Start address (dec or 0x hex)", 0, true);
     auto hexStr = userInputManager.readValidatedHexString("Enter byte values (e.g., 01 A5 FF...) ", 0, true);
     auto data = argTransformer.parseHexList(hexStr);
 

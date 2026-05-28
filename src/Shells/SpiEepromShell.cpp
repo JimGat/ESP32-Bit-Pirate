@@ -95,15 +95,14 @@ void SpiEepromShell::cmdProbe() {
 void SpiEepromShell::cmdRead() {
     terminalView.println("\n📖 Read EEPROM");
 
-    auto addrStr = userInputManager.readValidatedHexString("Start address (e.g., 00FF00) ", 0, true);
-    uint32_t addr = argTransformer.parseHexOrDec32("0x" + addrStr);
+    uint32_t addr = userInputManager.readValidatedUint32("Start address (dec or 0x hex)", 0, true);
 
     if (addr >= eepromSize) {
         terminalView.println("\n ❌ Error: Start address is beyond EEPROM size.\n");
         return;
     }
 
-    uint32_t count = userInputManager.readValidatedUint32("Number of bytes to read:", 16);
+    uint32_t count = userInputManager.readValidatedUint32("Number of bytes to read (dec or 0x hex)", 16);
     if (addr + count > eepromSize) {
         count = eepromSize - addr;
     }
@@ -133,8 +132,7 @@ void SpiEepromShell::cmdRead() {
 void SpiEepromShell::cmdWrite() {
     terminalView.println("\n✏️  Write EEPROM");
 
-   auto addrStr = userInputManager.readValidatedHexString("Start address (e.g., 00FF00) ", 0, true);
-    uint32_t addr = argTransformer.parseHexOrDec32("0x" + addrStr);
+    uint32_t addr = userInputManager.readValidatedUint32("Start address (dec or 0x hex)", 0, true);
 
     if (userInputManager.readYesNo("Write an ASCII string?", true)) {
         terminalView.print("Enter ASCII string: ");

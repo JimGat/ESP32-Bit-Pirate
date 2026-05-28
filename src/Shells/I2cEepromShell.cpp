@@ -110,15 +110,14 @@ void I2cEepromShell::cmdAnalyze() {
 }
 
 void I2cEepromShell::cmdRead() {
-    auto addrStr = userInputManager.readValidatedHexString("Start address (e.g., 00FF00) ", 0, true);
-    auto addr = argTransformer.parseHexOrDec32("0x" + addrStr);
+    auto addr = userInputManager.readValidatedUint32("Start address (dec or 0x hex)", 0, true);
     uint32_t eepromSize = i2cService.eepromLength();
     if (addr >= eepromSize) {
         terminalView.println("\n❌ Error: Start address is beyond EEPROM size.");
         return;
     }
     
-    uint32_t count = userInputManager.readValidatedUint32("Number of bytes to read:", 16);
+    uint32_t count = userInputManager.readValidatedUint32("Number of bytes to read (dec or 0x hex)", 16);
     terminalView.println("");
     if (addr + count > eepromSize) {
         count = eepromSize - addr;
@@ -137,8 +136,7 @@ void I2cEepromShell::cmdRead() {
 }
 
 void I2cEepromShell::cmdWrite() {
-    auto addrStr = userInputManager.readValidatedHexString("Start address:", 0, true);
-    auto addr = argTransformer.parseHexOrDec32("0x" + addrStr);
+    auto addr = userInputManager.readValidatedUint32("Start address (dec or 0x hex)", 0, true);
     auto hexStr = userInputManager.readValidatedHexString("Enter byte values (e.g., 01 A5 FF...) ", 0, true);
     auto data = argTransformer.parseHexList(hexStr);
 

@@ -63,14 +63,14 @@ void OneWireEepromShell::cmdProbe() {
 void OneWireEepromShell::cmdRead() {
     terminalView.println("\n📖 Read EEPROM");
 
-    auto addr = userInputManager.readValidatedUint32("Start address", 0);
+    auto addr = userInputManager.readValidatedUint32("Start address (dec or 0x hex)", 0, true);
 
     if (addr >= eepromSize) {
         terminalView.println("\n ❌ Invalid address.");
         return;
     }
 
-    uint16_t len = userInputManager.readValidatedUint32("Number of bytes to read", 16);
+    uint32_t len = userInputManager.readValidatedUint32("Number of bytes to read (dec or 0x hex)", 16);
     if (addr + len > eepromSize) len = eepromSize - addr;
 
     terminalView.println("");
@@ -83,7 +83,7 @@ void OneWireEepromShell::cmdRead() {
 void OneWireEepromShell::cmdWrite() {
     terminalView.println("\n✏️  Write EEPROM (page-wise)");
 
-    uint16_t addr = userInputManager.readValidatedUint32("Start address", 0);
+    uint32_t addr = userInputManager.readValidatedUint32("Start address (dec or 0x hex)", 0, true);
     if (addr >= eepromSize) {
         terminalView.println("\n ❌ Invalid start address.");
         return;

@@ -309,9 +309,8 @@ void SpiFlashShell::cmdRead() {
     // Check chip presence
     if (!checkFlashPresent()) return;
     
-    auto addrStr = userInputManager.readValidatedHexString("Start address (e.g., 00FF00) ", 0, true);
-    auto address = argTransformer.parseHexOrDec32("0x" + addrStr);
-    uint32_t count = userInputManager.readValidatedUint32("Number of bytes to read:", 16);
+    auto address = userInputManager.readValidatedUint32("Start address (dec or 0x hex)", 0, true);
+    uint32_t count = userInputManager.readValidatedUint32("Number of bytes to read (dec or 0x hex)", 16);
 
     // Read flash in chunks
     terminalView.println("SPI Flash Read: In progress... Press [ENTER] to stop");
@@ -414,8 +413,7 @@ void SpiFlashShell::cmdWrite() {
     if (!checkFlashPresent()) return;
 
     // Adresse
-    auto addrStr = userInputManager.readValidatedHexString("Start address (e.g., 00FF00) ", 0, true);
-    auto addr = argTransformer.parseHexOrDec32("0x" + addrStr);
+    auto addr = userInputManager.readValidatedUint32("Start address (dec or 0x hex)", 0, true);
 
     std::vector<uint8_t> data;
 

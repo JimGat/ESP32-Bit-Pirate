@@ -148,7 +148,7 @@ void I2cController::handlePing(const TerminalCommand& cmd) {
     }
 
     if (ss.fail() || temp < 0 || temp > 127) {
-        terminalView.println("I2C Ping: Invalid address format. Use hex (e.g. 0x3C).");
+        terminalView.println("I2C Ping: Invalid address. Use decimal or 0x-prefixed hex.");
         return;
     }
 

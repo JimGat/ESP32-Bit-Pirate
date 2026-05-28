@@ -214,11 +214,12 @@ uint8_t UserInputManager::readValidatedUint8(const std::string& label, uint8_t d
         if (input.empty()) return def;
 
         if (argTransformer.isValidNumber(input)) {
-            uint8_t val = argTransformer.toUint8(input);
-            if (val >= min && val <= max) return val;
+            uint32_t val = argTransformer.parseHexOrDec32(input);
+            if (val >= min && val <= max) return static_cast<uint8_t>(val);
         }
 
-        terminalView.println("Invalid input. Must be " + std::to_string(min) + "-" + std::to_string(max));
+        terminalView.println("Invalid number. Use decimal or 0x-prefixed hex.");
+        terminalView.println("Must be " + std::to_string(min) + "-" + std::to_string(max) + ".");
     }
 }
 
@@ -229,7 +230,9 @@ uint8_t UserInputManager::readValidatedUint8(const std::string& label, uint8_t d
 uint16_t UserInputManager::readValidatedUint16(const std::string& label, uint16_t def, bool hex) {
     while (true) {
         if (hex) {
-            terminalView.print(label + " [0x" + argTransformer.toHex(def, 4) + "]: ");
+            std::string hint = (label.find("dec or") == std::string::npos && label.find("0x") == std::string::npos)
+                ? " (dec or 0x hex)" : "";
+            terminalView.print(label + hint + " [0x" + argTransformer.toHex(def, 4) + "]: ");
         } else {
             terminalView.print(label + " [" + std::to_string(def) + "]: ");
         }
@@ -237,18 +240,20 @@ uint16_t UserInputManager::readValidatedUint16(const std::string& label, uint16_
         if (input.empty()) return def;
 
         if (argTransformer.isValidNumber(input)) {
-            uint32_t val = argTransformer.parseHexOrDec16(input);
+            uint32_t val = argTransformer.parseHexOrDec32(input);
             if (val <= 0xFFFFU) return static_cast<uint16_t>(val);
         }
 
-        terminalView.println("Invalid number.");
+        terminalView.println("Invalid number. Use decimal or 0x-prefixed hex.");
     }
 }
 
 uint32_t UserInputManager::readValidatedUint32(const std::string& label, uint32_t def, bool hex) {
     while (true) {
         if (hex) {
-            terminalView.print(label + " [0x" + argTransformer.toHex(def) + "]: ");
+            std::string hint = (label.find("dec or") == std::string::npos && label.find("0x") == std::string::npos)
+                ? " (dec or 0x hex)" : "";
+            terminalView.print(label + hint + " [0x" + argTransformer.toHex(def) + "]: ");
         } else {
             terminalView.print(label + " [" + std::to_string(def) + "]: ");
         }
@@ -259,7 +264,7 @@ uint32_t UserInputManager::readValidatedUint32(const std::string& label, uint32_
             return argTransformer.parseHexOrDec32(input);
         }
 
-        terminalView.println("Invalid number.");
+        terminalView.println("Invalid number. Use decimal or 0x-prefixed hex.");
     }
 }
 
@@ -283,7 +288,7 @@ uint32_t UserInputManager::readValidatedHex(
 
         // Check valid number (hex or dec)
         if (!argTransformer.isValidNumber(input)) {
-            terminalView.println("❌ Invalid number.");
+            terminalView.println("❌ Invalid number. Use decimal or 0x-prefixed hex.");
             continue;
         }
 
@@ -309,7 +314,7 @@ uint8_t UserInputManager::readValidatedByte(const std::string& label,
 {
     while (true) {
         if (showHex) {
-            terminalView.print(label + " [0x" + argTransformer.toHex(def) + "]: ");
+            terminalView.print(label + " (dec or 0x hex) [0x" + argTransformer.toHex(def) + "]: ");
         } else {
             terminalView.print(label + " [" + std::to_string(def) + "]: ");
         }

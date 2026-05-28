@@ -107,20 +107,25 @@ EEPROM Read
 */
 void ThreeWireEepromShell::cmdRead() {
     auto addr = userInputManager.readValidatedUint16("Start address (dec or 0x hex)", 0, true);
-    uint8_t count = userInputManager.readValidatedUint8("Number of bytes to read (dec or 0x hex)", 16);
+    uint16_t count = userInputManager.readValidatedUint16("Number of bytes to read (dec or 0x hex)", 16, true);
     bool isOrg8 = state.isThreeWireOrg8();
+    uint16_t eepromSize = threeWireService.sizeBytes();
+    uint32_t startByte = isOrg8 ? addr : static_cast<uint32_t>(addr) * 2;
+
+    if (startByte >= eepromSize) {
+        terminalView.println("\n❌ Error: Start address is beyond EEPROM size.\n");
+        return;
+    }
+
+    if (startByte + count > eepromSize) {
+        count = eepromSize - startByte;
+    }
 
     terminalView.println("");
-    if (count == 1) {
-        if (isOrg8) {
-            uint8_t val = threeWireService.read8(addr);
-            terminalView.println("✅ 3WIRE EEPROM: Read 0x" + argTransformer.toHex(addr, 4) +
-                                 " = 0x" + argTransformer.toHex(val, 2));
-        } else {
-            uint16_t val = threeWireService.read16(addr);
-            terminalView.println("✅ 3WIRE EEPROM: [READ] 0x" + argTransformer.toHex(addr, 4) +
-                                 " = 0x" + argTransformer.toHex(val, 4));
-        }
+    if (count == 1 && isOrg8) {
+        uint8_t val = threeWireService.read8(addr);
+        terminalView.println("✅ 3WIRE EEPROM: Read 0x" + argTransformer.toHex(addr, 4) +
+                             " = 0x" + argTransformer.toHex(val, 2));
     } else {
         if (isOrg8) {
             std::vector<uint8_t> values;
@@ -134,14 +139,20 @@ void ThreeWireEepromShell::cmdRead() {
                 terminalView.println(argTransformer.toAsciiLine(displayAddr, chunk));
             }
         } else {
-            std::vector<uint16_t> values;
-            for (uint16_t i = 0; i < count; ++i) {
-                values.push_back(threeWireService.read16(addr + i));
+            std::vector<uint8_t> values;
+            uint16_t wordCount = (count + 1) / 2;
+            values.reserve(count);
+            for (uint16_t i = 0; i < wordCount; ++i) {
+                uint16_t word = threeWireService.read16(addr + i);
+                values.push_back((word >> 8) & 0xFF);
+                if (values.size() < count) {
+                    values.push_back(word & 0xFF);
+                }
             }
-            for (size_t i = 0; i < values.size(); i += 8) {
-                uint32_t displayAddr = (addr + i) * 2;
-                size_t chunkSize = std::min<size_t>(8, values.size() - i);
-                std::vector<uint16_t> chunk(values.begin() + i, values.begin() + i + chunkSize);
+            for (size_t i = 0; i < values.size(); i += 16) {
+                uint32_t displayAddr = startByte + i;
+                size_t chunkSize = std::min<size_t>(16, values.size() - i);
+                std::vector<uint8_t> chunk(values.begin() + i, values.begin() + i + chunkSize);
                 terminalView.println(argTransformer.toAsciiLine(displayAddr, chunk));
             }
         }

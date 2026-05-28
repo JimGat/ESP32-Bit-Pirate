@@ -60,6 +60,10 @@ std::vector<uint16_t> ThreeWireService::dump16() {
     return result;
 }
 
+uint16_t ThreeWireService::sizeBytes() const {
+    return eepromSizeBytes;
+}
+
 void ThreeWireService::writeEnable() {
     eeprom_ew_enable(&eeprom);
 }

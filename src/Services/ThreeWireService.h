@@ -24,6 +24,7 @@ public:
 
     std::vector<uint8_t> dump8();
     std::vector<uint16_t> dump16();
+    uint16_t sizeBytes() const;
 
     void writeEnable();
     void writeDisable();

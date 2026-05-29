@@ -1,6 +1,23 @@
 #include "UsbS3Service.h"
 #include <sstream>  
 #include <esp_mac.h>
+#include <esp32-hal-tinyusb.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "hal/clk_gate_ll.h"
+#include "soc/periph_defs.h"
+
+extern "C" esp_err_t deinit_usb_hal();
+
+namespace {
+    // Keep USB class instances global so their constructors register interfaces
+    // before Arduino starts the TinyUSB composite device at boot
+    USBHIDKeyboard keyboard;
+    USBHIDMouse mouse;
+    USBHIDGamepad gamepad;
+    USBHIDSystemControl sysCtrl;
+    USBMSC msc;
+}
 
 UsbS3Service::UsbS3Service()
   : keyboardActive(false), storageActive(false), initialized(false) {}
@@ -249,6 +266,27 @@ void UsbS3Service::setupStorageEvent() {
     });
 }
 
+bool UsbS3Service::stopTinyUsbDevice() {
+    tud_disconnect();
+    vTaskDelay(pdMS_TO_TICKS(150));
+
+    // Kill the device task
+    TaskHandle_t usbdTask = xTaskGetHandle("usbd");
+    if (usbdTask) {
+        vTaskDelete(usbdTask);
+        vTaskDelay(pdMS_TO_TICKS(20));
+    }
+
+    bool tinyUsbStopped = tusb_deinit(0);
+    deinit_usb_hal();
+
+    periph_ll_reset(PERIPH_USB_MODULE);
+    periph_ll_disable_clk_set_rst(PERIPH_USB_MODULE);
+    vTaskDelay(pdMS_TO_TICKS(50));
+
+    return tinyUsbStopped;
+}
+
 void UsbS3Service::hostClientEventCb(const usb_host_client_event_msg_t *event_msg, void *arg) {
     auto* self = static_cast<UsbS3Service*>(arg);
     if (!self || !event_msg) return;
@@ -276,6 +314,9 @@ void UsbS3Service::hostClientEventCb(const usb_host_client_event_msg_t *event_ms
 
 bool UsbS3Service::usbHostBegin() {
     if (hostInstalled) return true;
+
+    // The USB port must be freed from the device mode before starting host
+    stopTinyUsbDevice();
 
     usb_host_config_t host_cfg = {};
     host_cfg.skip_phy_setup = false;

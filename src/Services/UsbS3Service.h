@@ -17,13 +17,6 @@
 #include "esp_log.h"
 #include <sstream>
 
-
-// ###############################################################################
-// ⚠️  USB CDC (Serial over USB) can't be used at the same time as other USB modes
-//     (like Mass Storage, HID, MIDI, etc).
-//     ➤ If you enable any other USB mode, USB CDC will automatically stop.
-// ###############################################################################
-
 class UsbS3Service {
 public:
     UsbS3Service();
@@ -76,10 +69,6 @@ private:
     bool initialized;
 
     // HID
-    USBHIDKeyboard keyboard;
-    USBHIDMouse mouse;
-    USBHIDGamepad gamepad;
-    USBHIDSystemControl sysCtrl;
     bool gamepadActive = false;
     bool keyboardActive = false;
     bool mouseActive = false;
@@ -87,15 +76,15 @@ private:
     unsigned long hidInitTime;
 
     // Mass Storage
-    USBMSC msc;
     SPIClass sdSPI;
     bool storageActive;
     static int32_t storageReadCallback(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize);
     static int32_t storageWriteCallback(uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize);
     static bool usbStartStopCallback(uint8_t power_condition, bool start, bool load_eject);
     void setupStorageEvent();
-
+    
     // Host
+    bool stopTinyUsbDevice();
     bool hostInstalled = false;
     usb_host_client_handle_t hostClient = nullptr;
     uint8_t devAddr = 0;

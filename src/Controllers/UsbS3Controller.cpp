@@ -504,28 +504,22 @@ void UsbS3Controller::handleConfig() {
         return;
     };
 
-    if (state.getTerminalMode() == TerminalTypeEnum::SerialPort) {
-        terminalView.println("\n [⚠️  WARNING] ");
-        terminalView.println(" You are using USB Serial terminal mode,");
-        terminalView.println(" using USB commands WILL INTERRUPT the session.");
-        terminalView.println(" Use Web UI or restart if connection is lost.\n");
-    } else {
-        terminalView.println(""); // align
-    }
+    terminalView.println(""); // align
 }
 
 /*
 Host
 */
 void UsbS3Controller::handleHost() {
-    if (usbService.isKeyboardActive() || usbService.isMouseActive() 
-        || usbService.isGamepadActive() || usbService.isSystemControlActive()) {
-        terminalView.println("USB Host: HID is active. Please restart to use host.\n");
-        return;
-    }
-
     if (!usbService.isHostActive()) {
-        terminalView.println("USB Host: Once started, you cannot use USB HID features until restart.");
+        terminalView.println("USB Host: Once started, CDC/HID/MSC will be unavailable until restart.");
+
+        if (state.getTerminalMode() == TerminalTypeEnum::SerialPort) {
+            terminalView.println("\n [⚠️  WARNING] ");
+            terminalView.println(" Active USB Serial interface will be stopped.");
+            terminalView.println(" Use this feature with the WiFi web terminal.");
+        }
+
         auto confirm = userInputManager.readYesNo("\nSwitch to host to connect USB Devices to the ESP32?", false);
         if (!confirm) {
             terminalView.println("USB Host: Action cancelled by user.\n");

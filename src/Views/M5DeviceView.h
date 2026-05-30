@@ -32,6 +32,7 @@ public:
     void welcome(TerminalTypeEnum& terminalType, std::string& terminalInfos) override;
     void show(PinoutConfig& config) override;
     void loading() override;
+    void adapterMode(const std::string& adapterName, const std::string& description, const std::vector<std::string>& details) override;
     void clear() override;
     void setRotation(uint8_t rotation);
     void setBrightness(uint8_t brightness) override;

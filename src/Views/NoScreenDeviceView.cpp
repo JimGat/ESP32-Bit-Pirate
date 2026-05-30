@@ -18,6 +18,8 @@ void NoScreenDeviceView::show(PinoutConfig& config) {}
 
 void NoScreenDeviceView::loading() {}
 
+void NoScreenDeviceView::adapterMode(const std::string& adapterName, const std::string& description, const std::vector<std::string>& details) {}
+
 void NoScreenDeviceView::clear() {}
 
 void NoScreenDeviceView::drawLogicTrace(uint8_t pin, const std::vector<uint8_t>& buffer, uint8_t step) {}

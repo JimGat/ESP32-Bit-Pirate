@@ -190,6 +190,40 @@ void M5DeviceView::welcomeWeb(const std::string& ipStr) {
     M5.Lcd.printf( ip.c_str());
 }
 
+void M5DeviceView::adapterMode(const std::string& adapterName, const std::string& description, const std::vector<std::string>& details) {
+    M5.Lcd.fillScreen(BACKGROUND_COLOR);
+    M5.Lcd.setTextColor(TEXT_COLOR, BACKGROUND_COLOR);
+
+    M5.Lcd.setTextSize(2);
+    int16_t titleX = (M5.Lcd.width() - M5.Lcd.textWidth(adapterName.c_str())) / 2;
+    M5.Lcd.setCursor(titleX, 16);
+    M5.Lcd.println(adapterName.c_str());
+
+    M5.Lcd.setTextSize(1);
+    for (size_t i = 0; i < details.size() && i < 8; ++i) {
+        int col = i % 2;
+        int row = i / 2;
+        int boxX = 12 + (col * 112);
+        int boxY = 44 + (row * 16);
+        int boxW = 104;
+        M5.Lcd.fillRoundRect(boxX, boxY, boxW, 13, DEFAULT_ROUND_RECT, RECT_COLOR_DARK);
+        M5.Lcd.drawRoundRect(boxX, boxY, boxW, 13, DEFAULT_ROUND_RECT, PRIMARY_COLOR);
+        int16_t detailX = boxX + ((boxW - M5.Lcd.textWidth(details[i].c_str())) / 2);
+        M5.Lcd.setCursor(detailX, boxY + 3);
+        M5.Lcd.print(details[i].c_str());
+    }
+
+    M5.Lcd.setTextSize(1);
+    int16_t descX = (M5.Lcd.width() - M5.Lcd.textWidth(description.c_str())) / 2;
+    M5.Lcd.setCursor(descX, 110);
+    M5.Lcd.println(description.c_str());
+    M5.Lcd.setTextColor(TEXT_COLOR_ALT, BACKGROUND_COLOR);
+    const char* returnText = "Press any button to return";
+    int16_t returnX = (M5.Lcd.width() - M5.Lcd.textWidth(returnText)) / 2;
+    M5.Lcd.setCursor(returnX, 124);
+    M5.Lcd.println(returnText);
+}
+
 void M5DeviceView::clear() {
     M5.Lcd.fillScreen(BACKGROUND_COLOR);
 }

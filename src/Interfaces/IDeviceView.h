@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "Enums/ModeEnum.h"
 #include "Enums/TerminalTypeEnum.h"
 #include "Models/PinoutConfig.h"
@@ -31,6 +32,9 @@ public:
 
     // Show loading
     virtual void loading() = 0;
+
+    // Show oneshot adapter mode
+    virtual void adapterMode(const std::string& adapterName, const std::string& description, const std::vector<std::string>& details) = 0;
 
     // Clear the view
     virtual void clear() = 0;

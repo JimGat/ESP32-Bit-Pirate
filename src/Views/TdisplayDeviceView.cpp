@@ -376,6 +376,35 @@ void TdisplayDeviceView::welcomeWeb(const std::string& ipStr) {
   tft.print(ip.c_str());
 }
 
+void TdisplayDeviceView::adapterMode(const std::string& adapterName, const std::string& description, const std::vector<std::string>& details) {
+  tft.fillScreen(TFT_BLACK);
+
+  tft.setTextColor(TFT_GREEN, TFT_BLACK);
+  tft.setTextFont(2);
+  tft.setTextSize(2);
+  tft.setTextDatum(MC_DATUM);
+  tft.drawString(adapterName.c_str(), tft.width() / 2, 28);
+
+  tft.setTextSize(1);
+  for (size_t i = 0; i < details.size() && i < 8; ++i) {
+    int col = i % 2;
+    int row = i / 2;
+    int boxX = 30 + (col * 135);
+    int boxY = 56 + (row * 18);
+    int boxW = 125;
+    tft.fillRoundRect(boxX, boxY, boxW, 15, 5, DARK_GREY_RECT);
+    tft.drawRoundRect(boxX, boxY, boxW, 15, 5, TFT_GREEN);
+    tft.setTextColor(TFT_WHITE, DARK_GREY_RECT);
+    tft.drawString(details[i].c_str(), boxX + (boxW / 2), boxY + 8);
+  }
+
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.drawString(description.c_str(), tft.width() / 2, 135);
+  tft.setTextColor(HELP_COLOR, TFT_BLACK);
+  tft.drawString("Press any button to return", tft.width() / 2, 165);
+  tft.setTextDatum(TL_DATUM);
+}
+
 void TdisplayDeviceView::shutDown() {
   tft.setRotation(3);
   tft.fillScreen(TFT_BLACK);

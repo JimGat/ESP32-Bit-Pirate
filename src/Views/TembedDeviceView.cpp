@@ -387,6 +387,36 @@ void TembedDeviceView::welcomeWeb(const std::string& ipStr) {
   tft.print(ip.c_str());
 }
 
+void TembedDeviceView::adapterMode(const std::string& adapterName, const std::string& description, const std::vector<std::string>& details) {
+  tft.fillScreen(TFT_BLACK);
+
+  tft.setTextColor(TFT_GREEN, TFT_BLACK);
+  tft.setTextFont(2);
+  tft.setTextSize(2);
+  tft.setTextDatum(MC_DATUM);
+  tft.drawString(adapterName.c_str(), tft.width() / 2, 28);
+
+  tft.setTextSize(1);
+  for (size_t i = 0; i < details.size() && i < 8; ++i) {
+    int col = i % 2;
+    int row = i / 2;
+    int boxX = 18 + (col * 146);
+    int boxY = 53 + (row * 21);
+    int boxW = 138;
+    int boxH = 19;
+    tft.fillRoundRect(boxX, boxY, boxW, boxH, 6, DARK_GREY_RECT);
+    tft.drawRoundRect(boxX, boxY, boxW, boxH, 6, TFT_GREEN);
+    tft.setTextColor(TFT_WHITE, DARK_GREY_RECT);
+    tft.drawString(details[i].c_str(), boxX + (boxW / 2), boxY + (boxH / 2));
+  }
+
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.drawString(description.c_str(), tft.width() / 2, 142);
+  tft.setTextColor(0xC618, TFT_BLACK);
+  tft.drawString("Press any button to return", tft.width() / 2, 165);
+  tft.setTextDatum(TL_DATUM);
+}
+
 void TembedDeviceView::shutDown() {
   tft.setRotation(3);
   tft.fillScreen(TFT_BLACK);

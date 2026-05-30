@@ -13,6 +13,7 @@ public:
     void welcome(TerminalTypeEnum& terminalType, std::string& terminalInfos) override;
     void show(PinoutConfig& config) override;
     void loading() override;
+    void adapterMode(const std::string& adapterName, const std::string& description, const std::vector<std::string>& details) override;
     void clear() override;
     void drawLogicTrace(uint8_t pin, const std::vector<uint8_t>& buffer, uint8_t step) override;
     void drawAnalogicTrace(uint8_t pin, const std::vector<uint8_t>& buffer, uint8_t step) override;

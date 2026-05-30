@@ -13,6 +13,7 @@ public:
     void welcome(TerminalTypeEnum& /*terminalType*/, std::string& /*terminalInfos*/) override {}
     void logo() override {}
     void show(PinoutConfig& /*config*/) override {}
+    void adapterMode(const std::string& /*adapterName*/, const std::string& /*description*/, const std::vector<std::string>& /*details*/) override {}
     void topBar(const std::string& /*title*/, bool /*submenu*/, bool /*searchBar*/) override {}
     void horizontalSelection(const std::vector<std::string>& /*options*/,
         uint16_t /*selectedIndex*/,

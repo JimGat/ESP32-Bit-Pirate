@@ -79,6 +79,7 @@ DependencyProvider::DependencyProvider(ITerminalView &terminalView, IDeviceView 
       cellCallShell(terminalView, terminalInput, userInputManager, argTransformer, atTransformer, cellService),
       cellSmsShell(terminalView, terminalInput, userInputManager, argTransformer, atTransformer, cellService),
       fmBroadcastShell(terminalView, terminalInput, userInputManager, argTransformer, fmService),
+      usbAdapterShell(terminalView, terminalInput, userInputManager, nvsService),
 
       // Selectors
       horizontalSelector(deviceView, deviceInput),
@@ -94,7 +95,7 @@ DependencyProvider::DependencyProvider(ITerminalView &terminalView, IDeviceView 
       utilityController(terminalView, deviceView, terminalInput, pinService, i2sService, userInputManager, pinAnalyzer, aliasManager, argTransformer, commandTransformer, sysInfoShell, guideShell, helpShell, profileShell),
       hdUartController(terminalView, terminalInput, deviceInput, hdUartService, uartService, argTransformer, userInputManager, helpShell),
       spiController(terminalView, terminalInput, spiService, sdService, argTransformer, userInputManager, binaryAnalyzer, sdCardShell, spiFlashShell, spiEepromShell, helpShell),
-      jtagController(terminalView, terminalInput, jtagService, userInputManager, helpShell),
+      jtagController(terminalView, terminalInput, jtagService, userInputManager, helpShell, usbAdapterShell),
       twoWireController(terminalView, terminalInput, userInputManager, twoWireService, smartCardShell, helpShell),
       threeWireController(terminalView, terminalInput, userInputManager, threeWireService, argTransformer, threeWireEepromShell, helpShell),
       dioController(terminalView, terminalInput, deviceView, pinService, argTransformer, helpShell, userInputManager),
@@ -107,7 +108,7 @@ DependencyProvider::DependencyProvider(ITerminalView &terminalView, IDeviceView 
       rfidController(terminalView, terminalInput, rfidService, userInputManager, argTransformer, helpShell),
       rf24Controller(terminalView, terminalInput, deviceView, rf24Service, pinService, argTransformer, userInputManager, helpShell),
       ethernetController(terminalView, deviceView, terminalInput, deviceInput, wifiService, wifiScannerService, ethernetService, sshService, netcatService, nmapService, icmpService, nvsService, httpService, telnetService, argTransformer, jsonTransformer, userInputManager, modbusShell, helpShell),
-      usbController(terminalView, terminalInput, deviceInput, usbService, argTransformer, userInputManager, helpShell),
+      usbController(terminalView, terminalInput, deviceInput, usbService, argTransformer, userInputManager, helpShell, usbAdapterShell),
       cellController(terminalView, terminalInput, cellService, argTransformer, atTransformer, userInputManager, helpShell, cellCallShell, cellSmsShell),
       fmController(terminalView, terminalInput, deviceView, fmService, argTransformer, userInputManager, helpShell, fmBroadcastShell),
       expanderController(terminalView, terminalInput, uartService, argTransformer, userInputManager, helpShell)
@@ -216,6 +217,7 @@ ProfileShell &DependencyProvider::getProfileShell() { return profileShell; }
 CellCallShell &DependencyProvider::getCellCallShell() { return cellCallShell; }
 CellSmsShell &DependencyProvider::getCellSmsShell() { return cellSmsShell; }
 FmBroadcastShell &DependencyProvider::getFmBroadcastShell() { return fmBroadcastShell; }
+UsbAdapterShell &DependencyProvider::getUsbAdapterShell() { return usbAdapterShell; }
 
 // Selectors
 HorizontalSelector &DependencyProvider::getHorizontalSelector() { return horizontalSelector; }

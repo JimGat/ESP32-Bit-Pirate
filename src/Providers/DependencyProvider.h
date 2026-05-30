@@ -99,6 +99,7 @@ and injecting shared instances of core components
 #include "Shells/CellCallShell.h"
 #include "Shells/CellSmsShell.h"
 #include "Shells/FmBroadcastShell.h"
+#include "Shells/UsbAdapterShell.h"
 #include "Config/TerminalTypeConfigurator.h"
 
 class DependencyProvider
@@ -217,6 +218,7 @@ public:
     CellCallShell &getCellCallShell();
     CellSmsShell &getCellSmsShell();
     FmBroadcastShell &getFmBroadcastShell();
+    UsbAdapterShell &getUsbAdapterShell();
 
     // Selectors
     HorizontalSelector &getHorizontalSelector();
@@ -336,6 +338,7 @@ private:
     CellCallShell cellCallShell;
     CellSmsShell cellSmsShell;
     FmBroadcastShell fmBroadcastShell;
+    UsbAdapterShell usbAdapterShell;
 
     // Selectors
     HorizontalSelector horizontalSelector;

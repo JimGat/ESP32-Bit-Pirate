@@ -8,18 +8,21 @@ JtagController::JtagController(
     IInput& terminalInput,
     JtagService& jtagService,
     UserInputManager& userInputManager,
-    HelpShell& helpShell
+    HelpShell& helpShell,
+    UsbAdapterShell& usbAdapterShell
 ) : terminalView(terminalView),
     terminalInput(terminalInput),
     jtagService(jtagService),
     userInputManager(userInputManager),
-    helpShell(helpShell) {}
+    helpShell(helpShell),
+    usbAdapterShell(usbAdapterShell) {}
 /*
 Entry point that handles JTAG commands
 */
 void JtagController::handleCommand(const TerminalCommand& cmd) {
     if (cmd.getRoot() == "scan") handleScan(cmd); 
     else if (cmd.getRoot() == "config") handleConfig();
+    else if (cmd.getRoot() == "openocd") handleOpenOcd();
     else handleHelp();
 }
 
@@ -126,6 +129,16 @@ void JtagController::handleConfig() {
         terminalView.print(std::to_string(pin) + " ");
     }
     terminalView.println("\r\nJTAG/SWD configured.\n");
+}
+
+void JtagController::handleOpenOcd() {
+    terminalView.println("\nOpenOCD requires a dedicated USB adapter mode.");
+    terminalView.println("This will reboot into the OpenOCD Bus Pirate JTAG/SWD adapter.\n");
+
+    auto confirm = userInputManager.readYesNo("Reboot into OpenOCD Bus Pirate adapter mode? (y/n)", false);
+    if (!confirm) return;
+
+    usbAdapterShell.rebootOpenOcdBusPirate();
 }
 
 /*

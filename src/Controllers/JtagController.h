@@ -7,11 +7,17 @@
 #include "States/GlobalState.h"
 #include "Managers/UserInputManager.h"
 #include "Shells/HelpShell.h"
+#include "Shells/UsbAdapterShell.h"
 
 class JtagController {
 public:
     // Constructor
-    JtagController(ITerminalView& terminalView, IInput& terminalInput, JtagService& jtagService, UserInputManager& userInputManager, HelpShell& helpShell);
+    JtagController(ITerminalView& terminalView,
+                   IInput& terminalInput,
+                   JtagService& jtagService,
+                   UserInputManager& userInputManager,
+                   HelpShell& helpShell,
+                   UsbAdapterShell& usbAdapterShell);
 
     // Entry point for dispatch incoming JTAG command
     void handleCommand(const TerminalCommand& cmd);
@@ -25,6 +31,7 @@ private:
     JtagService& jtagService;
     UserInputManager& userInputManager;
     HelpShell& helpShell;
+    UsbAdapterShell& usbAdapterShell;
     bool configured = false;
     GlobalState& state = GlobalState::getInstance();
 
@@ -39,6 +46,9 @@ private:
 
     // Handle user configuration
     void handleConfig();
+
+    // Reboot into OpenOCD USB adapter mode
+    void handleOpenOcd();
 
     // Show available commands
     void handleHelp();

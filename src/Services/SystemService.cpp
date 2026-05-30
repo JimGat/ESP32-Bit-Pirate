@@ -10,6 +10,8 @@
 #include <esp_ota_ops.h>
 #include <nvs.h>
 #include <esp_mac.h>
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
 #include "esp_image_format.h"
 
 namespace {
@@ -393,6 +395,12 @@ void SystemService::reboot(bool hard) const {
     } else {
         esp_restart();    // IDF reset
     }
+}
+
+void SystemService::rebootToBootloader() const {
+    REG_WRITE(RTC_CNTL_OPTION1_REG, RTC_CNTL_FORCE_DOWNLOAD_BOOT);
+    delay(100);
+    esp_restart();
 }
 
 // -----------------------------

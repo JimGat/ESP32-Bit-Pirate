@@ -38,7 +38,8 @@ void SysInfoShell::run() {
             case 7: cmdNet(); break;
             case 8: cmdDebugLogs(); break;
             case 9: cmdReboot(); break;
-            case 10: // Exit
+            case 10: cmdUsbBootloaderMode(); break;
+            case 11: // Exit
             default:
                 loop = false;
                 break;
@@ -296,6 +297,20 @@ void SysInfoShell::cmdReboot(bool hard) {
     if (confirmation) {
         terminalView.println("\nRebooting, your session will be lost...");
         systemService.reboot(hard);
+    }
+}
+
+void SysInfoShell::cmdUsbBootloaderMode() {
+    terminalView.println("\n=== USB Bootloader Mode ===");
+    terminalView.println("This mode restarts the ESP32 into USB BOOT MODE.");
+    terminalView.println("Use it when you want to flash the device firmware.\n");
+
+    auto confirmation = userInputManager.readYesNo("Reboot into USB bootloader mode? (y/n)", false);
+    if (confirmation) {
+        terminalView.println("\nRebooting into USB bootloader mode, the terminal will close...");
+        deviceView.clear();
+        deviceView.topBar("USB BOOT MODE", false, false);
+        systemService.rebootToBootloader();
     }
 }
 

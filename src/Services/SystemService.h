@@ -50,6 +50,7 @@ public:
 
     // Boot
     void reboot(bool hard = false) const;
+    void rebootToBootloader() const;
 
     // Debug
     void setDebugOutput(bool enabled) const;

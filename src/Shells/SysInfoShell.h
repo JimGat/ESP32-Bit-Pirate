@@ -35,8 +35,9 @@ private:
         "  📁 LittleFS",
         "  🧰 NVS",
         "  🌐 Network",
-        "  🐞 Debug Logs",
+        "  🐞 Debug",
         " 🔄 Reboot",
+        " 🔌 Bootloader",
         " 🚪 Exit"
     };
 
@@ -82,6 +83,7 @@ private:
     void cmdNet();
     void cmdDebugLogs();
     void cmdReboot(bool hard = false);
+    void cmdUsbBootloaderMode();
 
     void fsListFiles();
     void fsDeleteFile();

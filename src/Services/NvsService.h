@@ -2,8 +2,18 @@
 #define NVS_SERVICE_H
 
 #include <Preferences.h>
+#include <cstdint>
 #include <string>
 #include "States/GlobalState.h"
+
+enum class OneShotBootMode : uint8_t {
+    None = 0,
+    UsbUartBridge = 1,
+    FlashromSerprog = 2,
+    SumpLogicAnalyzer = 3,
+    OpenOcdBusPirate = 4,
+    AvrDudeBusPirate = 6,
+};
 
 class NvsService {
 public:
@@ -25,6 +35,27 @@ public:
     // Utils
     void remove(const std::string& key);
     void clearNamespace();
+
+    // Oneshot boot mode
+    void saveOneShotBootMode(OneShotBootMode mode);
+    OneShotBootMode getOneShotBootMode();
+    void clearOneShotBootMode();
+    OneShotBootMode consumeOneShotBootMode();
+    void saveOneShotUsbUartBridgeConfig(uint8_t rxPin, uint8_t txPin, bool inverted);
+    void getOneShotUsbUartBridgeConfig(uint8_t defaultRxPin, uint8_t defaultTxPin, bool defaultInverted, uint8_t& rxPin, uint8_t& txPin, bool& inverted);
+    void clearOneShotUsbUartBridgeConfig();
+    void saveOneShotFlashromSerprogConfig(uint8_t csPin, uint8_t sckPin, uint8_t misoPin, uint8_t mosiPin, uint32_t frequency);
+    void getOneShotFlashromSerprogConfig(uint8_t defaultCsPin, uint8_t defaultSckPin, uint8_t defaultMisoPin, uint8_t defaultMosiPin, uint32_t defaultFrequency, uint8_t& csPin, uint8_t& sckPin, uint8_t& misoPin, uint8_t& mosiPin, uint32_t& frequency);
+    void clearOneShotFlashromSerprogConfig();
+    void saveOneShotSumpLogicAnalyzerConfig(const uint8_t* pins, uint8_t channelCount);
+    void getOneShotSumpLogicAnalyzerConfig(uint8_t* pins, uint8_t defaultChannelCount, uint8_t& channelCount);
+    void clearOneShotSumpLogicAnalyzerConfig();
+    void saveOneShotOpenOcdBusPirateConfig(uint8_t tckPin, uint8_t tmsPin, uint8_t tdiPin, uint8_t tdoPin, uint8_t swclkPin, uint8_t swdioPin);
+    void getOneShotOpenOcdBusPirateConfig(uint8_t defaultTckPin, uint8_t defaultTmsPin, uint8_t defaultTdiPin, uint8_t defaultTdoPin, uint8_t defaultSwclkPin, uint8_t defaultSwdioPin, uint8_t& tckPin, uint8_t& tmsPin, uint8_t& tdiPin, uint8_t& tdoPin, uint8_t& swclkPin, uint8_t& swdioPin);
+    void clearOneShotOpenOcdBusPirateConfig();
+    void saveOneShotAvrDudeBusPirateConfig(uint8_t csPin, uint8_t sckPin, uint8_t misoPin, uint8_t mosiPin, uint32_t frequency);
+    void getOneShotAvrDudeBusPirateConfig(uint8_t defaultCsPin, uint8_t defaultSckPin, uint8_t defaultMisoPin, uint8_t defaultMosiPin, uint32_t defaultFrequency, uint8_t& csPin, uint8_t& sckPin, uint8_t& misoPin, uint8_t& mosiPin, uint32_t& frequency);
+    void clearOneShotAvrDudeBusPirateConfig();
 
 private:
     Preferences preferences;

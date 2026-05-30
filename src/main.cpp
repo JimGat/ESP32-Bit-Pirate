@@ -19,10 +19,12 @@
 #include <Dispatchers/ActionDispatcher.h>
 #include <Servers/HttpServer.h>
 #include <Servers/WebSocketServer.h>
+#include <Services/NvsService.h>
 #include <Inputs/WebTerminalInput.h>
 #include <Selectors/HorizontalSelector.h>
 #include <Config/TerminalTypeConfigurator.h>
 #include <Config/WifiTypeConfigurator.h>
+#include <Config/BootModeConfigurator.h>
 #include <Enums/TerminalTypeEnum.h>
 #include <States/GlobalState.h>
 
@@ -133,8 +135,14 @@ void setup() {
         S3DevKitInput deviceInput;
     #endif
 
-    GlobalState& state = GlobalState::getInstance();
+    NvsService bootNvsService;
+    BootModeConfigurator bootModeConfigurator(deviceView, deviceInput, bootNvsService);
+    if (bootModeConfigurator.configure()) {
+        return;
+    }
+
     LittleFsService littleFsService;
+    GlobalState& state = GlobalState::getInstance();
 
     // Select the terminal type
     HorizontalSelector selector(deviceView, deviceInput);

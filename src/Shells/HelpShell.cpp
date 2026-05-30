@@ -293,13 +293,14 @@ void HelpShell::cmdInfrared() {
 void HelpShell::cmdUsb() {
     printHeader("USB");
     static const char* const lines[] = {
-        "stick                - Mount SD as USB",
+        "storage              - Mount SD as USB",
         "keyboard [text]      - Start keyboard bridge",
         "mouse [action]       - Mouse move and click",
         "mouse jiggle [ms]    - Random mouse moves",
         "gamepad [key]        - Gamepad button press",
         "sysctrl [action]     - Hardware control actions",
         "host                 - Connect device to ESP32",
+        "adapters             - Dedicated USB adapters",
         "reset                - Reset interface",
         "config               - Configure settings"
     };
@@ -362,6 +363,7 @@ void HelpShell::cmdJtag() {
     static const char* const lines[] = {
         "scan swd             - Scan SWD pins",
         "scan jtag            - Scan JTAG pins",
+        "openocd              - Reboot into OpenOCD adapter",
         "config               - Configure settings"
     };
     printLines(lines, (int)(sizeof(lines) / sizeof(lines[0])));

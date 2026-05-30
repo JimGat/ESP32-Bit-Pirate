@@ -32,7 +32,7 @@ static const char* const autoCompleteWords[] = {
     "send","receive","devicebgone","remote","replay","record","load",
 
     // --- USB ---
-    "stick","keyboard","mouse","gamepad","jiggle", "host", "sysctrl",
+    "stick","keyboard","mouse","gamepad","jiggle", "host", "sysctrl", "adapter",
 
     // --- BLUETOOTH ---
     "pair","spoof","status","server",
@@ -43,7 +43,7 @@ static const char* const autoCompleteWords[] = {
     "http","lookup","webui", "flood",
 
     // --- JTAG ---
-    "scan swd","scan jtag",
+    "scan swd","scan jtag","openocd",
 
     // --- I2S ---
     "play","test",

@@ -11,6 +11,7 @@
 #include "Managers/UserInputManager.h"
 #include "Services/UsbS3Service.h"
 #include "Shells/HelpShell.h"
+#include "Shells/UsbAdapterShell.h"
 
 class UsbS3Controller {
 public:
@@ -22,7 +23,8 @@ public:
         UsbS3Service& usbService, 
         ArgTransformer& argTransformer, 
         UserInputManager& userInputManager,
-        HelpShell& helpShell
+        HelpShell& helpShell,
+        UsbAdapterShell& usbAdapterShell
     );
 
     // Entry point for handle raw terminal command
@@ -62,6 +64,9 @@ private:
     // Handle USB host mode with infos and device dump
     void handleHost();
 
+    // List dedicated USB adapter modes
+    void handleAdapters();
+
     // Handle system control (sleep/wake/poweroff)
     void handleSysCtrl(const TerminalCommand& cmd);
 
@@ -83,4 +88,5 @@ private:
     GlobalState& state = GlobalState::getInstance();
     UserInputManager& userInputManager;
     HelpShell& helpShell;
+    UsbAdapterShell& usbAdapterShell;
 };

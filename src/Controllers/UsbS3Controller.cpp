@@ -10,7 +10,8 @@ UsbS3Controller::UsbS3Controller(
     UsbS3Service& usbService,
     ArgTransformer& argTransformer,
     UserInputManager& userInputManager,
-    HelpShell& helpShell
+    HelpShell& helpShell,
+    UsbAdapterShell& usbAdapterShell
 )
     : terminalView(terminalView),
       terminalInput(terminalInput),
@@ -18,19 +19,21 @@ UsbS3Controller::UsbS3Controller(
       usbService(usbService),
       argTransformer(argTransformer),
       userInputManager(userInputManager),
-      helpShell(helpShell)
+      helpShell(helpShell),
+      usbAdapterShell(usbAdapterShell)
 {}
 
 /*
 Entry point for command
 */
 void UsbS3Controller::handleCommand(const TerminalCommand& cmd) {
-    if (cmd.getRoot() == "stick") handleUsbStick();
+    if (cmd.getRoot() == "stick" || cmd.getRoot() == "storage") handleUsbStick();
     else if (cmd.getRoot() == "keyboard") handleKeyboard(cmd);
     else if (cmd.getRoot() == "mouse") handleMouse(cmd);
     else if (cmd.getRoot() == "gamepad") handleGamepad(cmd);
     else if (cmd.getRoot() == "sysctrl") handleSysCtrl(cmd);
     else if (cmd.getRoot() == "host") handleHost();
+    else if (cmd.getRoot() == "adapter" || cmd.getRoot() == "adapters") handleAdapters();
     else if (cmd.getRoot() == "reset") handleReset();
     else if (cmd.getRoot() == "config") handleConfig();
     else handleHelp();
@@ -553,6 +556,11 @@ void UsbS3Controller::handleHost() {
     // TODO: usbService.usbHostEnd(); can't be called because it will stop the host 
     // and make the USB interface instable, find a way to switch back to default mode
     terminalView.println("\nUSB Host: Stopped by user.\n");
+}
+
+/* Adapters */
+void UsbS3Controller::handleAdapters() {
+    usbAdapterShell.run();
 }
 
 /*

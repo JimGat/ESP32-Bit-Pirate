@@ -8,6 +8,7 @@
 #include "Adapters/SumpLogicAnalyzerAdapter.h"
 #include "Adapters/OpenOcdBusPirateAdapter.h"
 #include "Adapters/AvrDudeBusPirateAdapter.h"
+#include "Adapters/InfraredToyAdapter.h"
 
 class BootModeConfigurator {
 public:
@@ -21,7 +22,8 @@ private:
                              const FlashromSerprogConfig& flashromSerprogConfig,
                              const AvrDudeBusPirateConfig& busPirateAvrdudeConfig,
                              const SumpLogicAnalyzerConfig& sumpLogicAnalyzerConfig,
-                             const OpenOcdBusPirateConfig& openOcdBusPirateConfig);
+                             const OpenOcdBusPirateConfig& openOcdBusPirateConfig,
+                             const InfraredToyConfig& infraredToyConfig);
 
     IDeviceView& deviceView;
     IInput& deviceInput;

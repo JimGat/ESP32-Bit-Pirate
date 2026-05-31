@@ -19,6 +19,7 @@ public:
     void rebootAvrDudeBusPirate();
     void rebootSumpLogicAnalyzer();
     void rebootOpenOcdBusPirate();
+    void rebootInfraredToy();
 
 private:
     void rebootIntoAdapter(const char* title,
@@ -38,6 +39,7 @@ private:
         " AVRDUDE Bus Pirate SPI",
         " SUMP logic analyzer",
         " OpenOCD JTAG/SWD",
+        " USB IR Toy / LIRC",
         " Exit"
     };
     inline static constexpr size_t actionsCount = sizeof(actions) / sizeof(actions[0]);

@@ -37,6 +37,10 @@ void UsbAdapterShell::run() {
         rebootOpenOcdBusPirate();
         return;
     }
+    if (choice == 5) {
+        rebootInfraredToy();
+        return;
+    }
 
     terminalView.println("Exiting USB adapters...\n");
 }
@@ -220,5 +224,29 @@ void UsbAdapterShell::rebootFlashromSerprog() {
         "Flashrom SPI adapter",
         "Use flashrom with serprog on the new CDC serial port.",
         "Example: flashrom -p serprog:dev=/dev/ttyACM0:921600,spispeed=4M"
+    );
+}
+
+void UsbAdapterShell::rebootInfraredToy() {
+    auto forbidden = state.getProtectedPins();
+
+    terminalView.println("\nUSB IR Toy / LIRC adapter GPIOs:");
+    terminalView.println("This mode exposes IR TX/RX as an USB IR compatible CDC adapter.");
+    terminalView.println("Use it with LIRC irtoy, xmode2/mode2, or compatible IR tools.\n");
+
+    uint8_t txPin = userInputManager.readValidatedPinNumber("IR TX GPIO", state.getInfraredTxPin(), forbidden);
+    forbidden.push_back(txPin);
+
+    uint8_t rxPin = userInputManager.readValidatedPinNumber("IR RX GPIO", state.getInfraredRxPin(), forbidden);
+
+    nvsService.open();
+    nvsService.saveOneShotInfraredToyConfig(txPin, rxPin);
+    nvsService.saveOneShotBootMode(OneShotBootMode::InfraredToy);
+    nvsService.close();
+
+    rebootIntoAdapter(
+        "USB IR Toy / LIRC adapter",
+        "The device will expose one CDC serial port for LIRC's irtoy driver.",
+        "Example: mode2 --driver=irtoy --device=/dev/ttyACM0"
     );
 }

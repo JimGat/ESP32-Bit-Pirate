@@ -7,29 +7,7 @@
 #include "soc/soc.h"
 #include <algorithm>
 
-namespace {
-constexpr uint8_t SUMP_RESET = 0x00;
-constexpr uint8_t SUMP_RUN = 0x01;
-constexpr uint8_t SUMP_ID = 0x02;
-constexpr uint8_t SUMP_METADATA = 0x04;
-constexpr uint8_t SUMP_XON = 0x11;
-constexpr uint8_t SUMP_XOFF = 0x13;
-constexpr uint8_t SUMP_SET_DIVIDER = 0x80;
-constexpr uint8_t SUMP_SET_READ_DELAY = 0x81;
-constexpr uint8_t SUMP_SET_FLAGS = 0x82;
-
-constexpr uint32_t MIN_SAMPLE_RATE = 1;
-constexpr uint32_t SUMP_CLOCK_HZ = 100000000UL;
-constexpr uint32_t MAX_SAMPLE_RATE = 200000000UL;
-
-constexpr uint32_t DEFAULT_SAMPLE_COUNT = 4096;
-constexpr uint32_t MIN_CAPTURE_HEAP_RESERVE = 8 * 1024;
-constexpr uint32_t MAX_PROTOCOL_SAMPLE_COUNT = 0x00FFFFFF;
-constexpr uint8_t MAX_CHANNELS = 8;
-constexpr uint32_t CAPTURE_ABORT_CHECK_INTERVAL = 256;
-constexpr uint32_t UPLOAD_ABORT_CHECK_INTERVAL = 256;
-
-uint32_t calibrateCycleCounterHz() {
+uint32_t SumpLogicAnalyzerAdapter::calibrateCycleCounterHz() {
     uint32_t c0 = ESP.getCycleCount();
     int64_t t0 = esp_timer_get_time();
 
@@ -56,10 +34,9 @@ uint32_t calibrateCycleCounterHz() {
     return measuredHz;
 }
 
-inline void waitUntilCycle(uint32_t targetCycle) {
+void IRAM_ATTR SumpLogicAnalyzerAdapter::waitUntilCycle(uint32_t targetCycle) {
     while (static_cast<int32_t>(ESP.getCycleCount() - targetCycle) < 0) {
     }
-}
 }
 
 void SumpLogicAnalyzerAdapter::run(const SumpLogicAnalyzerConfig& config, IInput& input) {

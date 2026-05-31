@@ -33,6 +33,27 @@ public:
     static SumpCaptureDebugInfo getLastCaptureDebugInfo();
 
 private:
+    static constexpr uint8_t SUMP_RESET = 0x00;
+    static constexpr uint8_t SUMP_RUN = 0x01;
+    static constexpr uint8_t SUMP_ID = 0x02;
+    static constexpr uint8_t SUMP_METADATA = 0x04;
+    static constexpr uint8_t SUMP_XON = 0x11;
+    static constexpr uint8_t SUMP_XOFF = 0x13;
+    static constexpr uint8_t SUMP_SET_DIVIDER = 0x80;
+    static constexpr uint8_t SUMP_SET_READ_DELAY = 0x81;
+    static constexpr uint8_t SUMP_SET_FLAGS = 0x82;
+
+    static constexpr uint32_t MIN_SAMPLE_RATE = 1;
+    static constexpr uint32_t SUMP_CLOCK_HZ = 100000000UL;
+    static constexpr uint32_t MAX_SAMPLE_RATE = 200000000UL;
+
+    static constexpr uint32_t DEFAULT_SAMPLE_COUNT = 4096;
+    static constexpr uint32_t MIN_CAPTURE_HEAP_RESERVE = 8 * 1024;
+    static constexpr uint32_t MAX_PROTOCOL_SAMPLE_COUNT = 0x00FFFFFF;
+    static constexpr uint8_t MAX_CHANNELS = 8;
+    static constexpr uint32_t CAPTURE_ABORT_CHECK_INTERVAL = 256;
+    static constexpr uint32_t UPLOAD_ABORT_CHECK_INTERVAL = 256;
+
     static void configure(const SumpLogicAnalyzerConfig& config, IInput& input);
     static void handleCommand(uint8_t command);
     static void handleRun();
@@ -51,6 +72,8 @@ private:
     static void discardBytes(uint8_t count);
     static void writeBe32(uint32_t value);
     static bool allocateSampleBuffer(uint32_t requestedSampleCount);
+    static uint32_t calibrateCycleCounterHz();
+    static void IRAM_ATTR waitUntilCycle(uint32_t targetCycle);
     static void IRAM_ATTR capture();
     static void captureTimed();
     static void IRAM_ATTR captureAsFastAsPossible();

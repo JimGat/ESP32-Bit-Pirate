@@ -187,3 +187,18 @@ void NvsService::clearOneShotAvrDudeBusPirateConfig() {
     preferences.remove("oneshot_avr_mosi");
     preferences.remove("oneshot_avr_freq");
 }
+
+void NvsService::saveOneShotInfraredToyConfig(uint8_t txPin, uint8_t rxPin) {
+    preferences.putUChar("oneshot_irt_tx", txPin);
+    preferences.putUChar("oneshot_irt_rx", rxPin);
+}
+
+void NvsService::getOneShotInfraredToyConfig(uint8_t defaultTxPin, uint8_t defaultRxPin, uint8_t& txPin, uint8_t& rxPin) {
+    txPin = preferences.getUChar("oneshot_irt_tx", defaultTxPin);
+    rxPin = preferences.getUChar("oneshot_irt_rx", defaultRxPin);
+}
+
+void NvsService::clearOneShotInfraredToyConfig() {
+    preferences.remove("oneshot_irt_tx");
+    preferences.remove("oneshot_irt_rx");
+}

@@ -83,7 +83,7 @@ void InfraredToyAdapter::begin() {
 
 bool InfraredToyAdapter::allocateLazyBuffers() {
     if (rxRing == nullptr) {
-        rxRing = new (std::nothrow) uint16_t[RX_RING_CAPACITY];
+        rxRing = new uint16_t[RX_RING_CAPACITY];
         if (rxRing == nullptr) {
             return false;
         }

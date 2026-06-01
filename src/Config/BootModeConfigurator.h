@@ -9,6 +9,7 @@
 #include "Adapters/OpenOcdBusPirateAdapter.h"
 #include "Adapters/AvrDudeBusPirateAdapter.h"
 #include "Adapters/InfraredToyAdapter.h"
+#include "Adapters/SubGhzRawCdcAdapter.h"
 
 class BootModeConfigurator {
 public:
@@ -23,7 +24,8 @@ private:
                              const AvrDudeBusPirateConfig& busPirateAvrdudeConfig,
                              const SumpLogicAnalyzerConfig& sumpLogicAnalyzerConfig,
                              const OpenOcdBusPirateConfig& openOcdBusPirateConfig,
-                             const InfraredToyConfig& infraredToyConfig);
+                             const InfraredToyConfig& infraredToyConfig,
+                             const SubGhzRawCdcConfig& subGhzRawCdcConfig);
 
     IDeviceView& deviceView;
     IInput& deviceInput;

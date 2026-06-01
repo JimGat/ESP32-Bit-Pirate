@@ -202,3 +202,36 @@ void NvsService::clearOneShotInfraredToyConfig() {
     preferences.remove("oneshot_irt_tx");
     preferences.remove("oneshot_irt_rx");
 }
+
+void NvsService::saveOneShotSubGhzRawCdcConfig(uint8_t sckPin, uint8_t misoPin, uint8_t mosiPin, uint8_t csPin, uint8_t gdo0Pin, float frequencyMhz, int8_t paDbm, uint32_t baudrate) {
+    preferences.putUChar("sgraw_sck", sckPin);
+    preferences.putUChar("sgraw_miso", misoPin);
+    preferences.putUChar("sgraw_mosi", mosiPin);
+    preferences.putUChar("sgraw_cs", csPin);
+    preferences.putUChar("sgraw_gdo0", gdo0Pin);
+    preferences.putFloat("sgraw_freq", frequencyMhz);
+    preferences.putChar("sgraw_pa", paDbm);
+    preferences.putUInt("sgraw_baud", baudrate);
+}
+
+void NvsService::getOneShotSubGhzRawCdcConfig(uint8_t defaultSckPin, uint8_t defaultMisoPin, uint8_t defaultMosiPin, uint8_t defaultCsPin, uint8_t defaultGdo0Pin, float defaultFrequencyMhz, int8_t defaultPaDbm, uint32_t defaultBaudrate, uint8_t& sckPin, uint8_t& misoPin, uint8_t& mosiPin, uint8_t& csPin, uint8_t& gdo0Pin, float& frequencyMhz, int8_t& paDbm, uint32_t& baudrate) {
+    sckPin = preferences.getUChar("sgraw_sck", defaultSckPin);
+    misoPin = preferences.getUChar("sgraw_miso", defaultMisoPin);
+    mosiPin = preferences.getUChar("sgraw_mosi", defaultMosiPin);
+    csPin = preferences.getUChar("sgraw_cs", defaultCsPin);
+    gdo0Pin = preferences.getUChar("sgraw_gdo0", defaultGdo0Pin);
+    frequencyMhz = preferences.getFloat("sgraw_freq", defaultFrequencyMhz);
+    paDbm = preferences.getChar("sgraw_pa", defaultPaDbm);
+    baudrate = preferences.getUInt("sgraw_baud", defaultBaudrate);
+}
+
+void NvsService::clearOneShotSubGhzRawCdcConfig() {
+    preferences.remove("sgraw_sck");
+    preferences.remove("sgraw_miso");
+    preferences.remove("sgraw_mosi");
+    preferences.remove("sgraw_cs");
+    preferences.remove("sgraw_gdo0");
+    preferences.remove("sgraw_freq");
+    preferences.remove("sgraw_pa");
+    preferences.remove("sgraw_baud");
+}

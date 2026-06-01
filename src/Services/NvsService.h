@@ -14,6 +14,7 @@ enum class OneShotBootMode : uint8_t {
     OpenOcdBusPirate = 4,
     AvrDudeBusPirate = 6,
     InfraredToy = 7,
+    SubGhzRawCdc = 8,
 };
 
 class NvsService {
@@ -60,6 +61,9 @@ public:
     void saveOneShotInfraredToyConfig(uint8_t txPin, uint8_t rxPin);
     void getOneShotInfraredToyConfig(uint8_t defaultTxPin, uint8_t defaultRxPin, uint8_t& txPin, uint8_t& rxPin);
     void clearOneShotInfraredToyConfig();
+    void saveOneShotSubGhzRawCdcConfig(uint8_t sckPin, uint8_t misoPin, uint8_t mosiPin, uint8_t csPin, uint8_t gdo0Pin, float frequencyMhz, int8_t paDbm, uint32_t baudrate);
+    void getOneShotSubGhzRawCdcConfig(uint8_t defaultSckPin, uint8_t defaultMisoPin, uint8_t defaultMosiPin, uint8_t defaultCsPin, uint8_t defaultGdo0Pin, float defaultFrequencyMhz, int8_t defaultPaDbm, uint32_t defaultBaudrate, uint8_t& sckPin, uint8_t& misoPin, uint8_t& mosiPin, uint8_t& csPin, uint8_t& gdo0Pin, float& frequencyMhz, int8_t& paDbm, uint32_t& baudrate);
+    void clearOneShotSubGhzRawCdcConfig();
 
 private:
     Preferences preferences;

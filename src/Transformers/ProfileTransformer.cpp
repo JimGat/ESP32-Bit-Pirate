@@ -84,14 +84,6 @@ std::string ProfileTransformer::toProfileText() {
     o << "sd.mosi=" << (int)gs.getSdCardMosiPin() << "\n";
     o << "sd.freq=" << gs.getSdCardFrequency() << "\n";
 
-    // USB
-    o << "usb.product=" << gs.getUSBProductString() << "\n";
-    o << "usb.manufacturer=" << gs.getUSBManufacturerString() << "\n";
-    o << "usb.serial=" << gs.getUSBSerialString() << "\n";
-    o << "usb.vid=" << gs.getUSBVid() << "\n";
-    o << "usb.pid=" << gs.getUSBPid() << "\n";
-    o << "usb.webusb=" << gs.getWebUSBString() << "\n";
-
     // Ethernet
     o << "eth.cs=" << (int)gs.getEthernetCsPin() << "\n";
     o << "eth.clk=" << (int)gs.getEthernetSckPin() << "\n";
@@ -391,30 +383,6 @@ bool ProfileTransformer::fromProfileText(
 
     if (getStr(kv, "sd.freq", v) && !parseU32(v, u32)) { error = "Invalid sd.freq";}
     else if (!v.empty()) gs.setSdCardFrequency(u32);
-
-    // -----------------------------
-    // USB
-    // -----------------------------
-    if (getStr(kv, "usb.product", v)) {
-        gs.setUSBProductString(v);
-    }
-    if (getStr(kv, "usb.manufacturer", v)) {
-        gs.setUSBManufacturerString(v);
-    }
-    if (getStr(kv, "usb.serial", v)) {
-        gs.setUSBSerialString(v);
-    }
-    if (getStr(kv, "usb.webusb", v)) {
-        gs.setWebUSBString(v);
-    }
-    if (getStr(kv, "usb.vid", v)) {
-        if (!parseU16(v, u16)) { error = "Invalid usb.vid";}
-        gs.setUSBVid(u16);
-    }
-    if (getStr(kv, "usb.pid", v)) {
-        if (!parseU16(v, u16)) { error = "Invalid usb.pid";}
-        gs.setUSBPid(u16);
-    }
 
     // -----------------------------
     // ETHERNET

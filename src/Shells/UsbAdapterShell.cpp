@@ -41,6 +41,10 @@ void UsbAdapterShell::run() {
         rebootInfraredToy();
         return;
     }
+    if (choice == 6) {
+        rebootSubGhzRawCdc();
+        return;
+    }
 
     terminalView.println("Exiting USB adapters...\n");
 }
@@ -248,5 +252,52 @@ void UsbAdapterShell::rebootInfraredToy() {
         "USB IR Toy / LIRC adapter",
         "The device will expose one CDC serial port for LIRC's irtoy driver.",
         "Example: mode2 --driver=irtoy --device=/dev/ttyACM0"
+    );
+}
+
+void UsbAdapterShell::rebootSubGhzRawCdc() {
+    auto forbidden = state.getProtectedPins();
+
+    terminalView.println("\nSubGHz Raw CDC CC1101 adapter GPIOs:");
+    terminalView.println("Exposes CC1101 RAW OOK over a CDC serial adapter.");
+    terminalView.println("Use with terminal tools or serial scripts.\n");
+
+    uint8_t sckPin = userInputManager.readValidatedPinNumber("CC1101 SCK GPIO", state.getSubGhzSckPin(), forbidden);
+    forbidden.push_back(sckPin);
+
+    uint8_t misoPin = userInputManager.readValidatedPinNumber("CC1101 MISO GPIO", state.getSubGhzMisoPin(), forbidden);
+    forbidden.push_back(misoPin);
+
+    uint8_t mosiPin = userInputManager.readValidatedPinNumber("CC1101 MOSI GPIO", state.getSubGhzMosiPin(), forbidden);
+    forbidden.push_back(mosiPin);
+
+    uint8_t csPin = userInputManager.readValidatedPinNumber("CC1101 SS/CS GPIO", state.getSubGhzCsPin(), forbidden);
+    forbidden.push_back(csPin);
+
+    uint8_t gdo0Pin = userInputManager.readValidatedPinNumber("CC1101 GDO0 GPIO", state.getSubGhzGdoPin(), forbidden);
+    forbidden.push_back(gdo0Pin);
+
+    float frequencyMhz = userInputManager.readValidatedFloat("Frequency MHz", state.getSubGhzFrequency(), 0.0f, 1000.0f);
+    int paDbm = userInputManager.readValidatedInt("TX power dBm", 10, -30, 12);
+    uint32_t baudrate = static_cast<uint32_t>(userInputManager.readValidatedInt("CDC baudrate", 38400, 1200, 921600));
+
+    nvsService.open();
+    nvsService.saveOneShotSubGhzRawCdcConfig(
+        sckPin,
+        misoPin,
+        mosiPin,
+        csPin,
+        gdo0Pin,
+        frequencyMhz,
+        static_cast<int8_t>(paDbm),
+        baudrate
+    );
+    nvsService.saveOneShotBootMode(OneShotBootMode::SubGhzRawCdc);
+    nvsService.close();
+
+    rebootIntoAdapter(
+        "SubGHz Raw CDC CC1101 adapter",
+        "The device will expose one CDC serial port with raw SubGHz ASCII commands.",
+        "Example: screen /dev/ttyACM0 38400"
     );
 }

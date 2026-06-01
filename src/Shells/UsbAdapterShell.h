@@ -20,6 +20,7 @@ public:
     void rebootSumpLogicAnalyzer();
     void rebootOpenOcdBusPirate();
     void rebootInfraredToy();
+    void rebootSubGhzRawCdc();
 
 private:
     void rebootIntoAdapter(const char* title,
@@ -35,11 +36,12 @@ private:
 
     inline static constexpr const char* actions[] = {
         " USB-UART bridge",
-        " Flashrom SPI",
+        " Flashrom serprog",
         " AVRDUDE Bus Pirate SPI",
         " SUMP logic analyzer",
         " OpenOCD JTAG/SWD",
         " USB IR Toy / LIRC",
+        " SubGHz CDC CC1101",
         " Exit"
     };
     inline static constexpr size_t actionsCount = sizeof(actions) / sizeof(actions[0]);

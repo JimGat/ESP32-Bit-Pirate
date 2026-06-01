@@ -317,8 +317,7 @@ void HelpShell::cmdBluetooth() {
         "status               - Show current status",
         "server               - Create an HID server",
         "keyboard [text]      - Start keyboard bridge",
-        "mouse <x> <y>        - Move mouse cursor",
-        "mouse click          - Mouse left click",
+        "mouse [action]       - Move and click mouse",
         "mouse jiggle [ms]    - Random mouse moves",
         "reset                - Reset interface"
     };

@@ -10,14 +10,16 @@ BluetoothController::BluetoothController(
     BluetoothService& bluetoothService,
     ArgTransformer& argTransformer,
     UserInputManager& userInputManager,
-    HelpShell& helpShell
+    HelpShell& helpShell,
+    MouseShell& mouseShell
 ) : terminalView(terminalView),
     terminalInput(terminalInput),
     deviceInput(deviceInput),
     bluetoothService(bluetoothService),
     argTransformer(argTransformer),
     userInputManager(userInputManager),
-    helpShell(helpShell) {}
+    helpShell(helpShell),
+    mouseShell(mouseShell) {}
 
 /*
 Entry point for BT command
@@ -140,14 +142,14 @@ void BluetoothController::handleSniff(const TerminalCommand& cmd) {
 Server
 */
 void BluetoothController::handleServer(const TerminalCommand& cmd) {
-    if (bluetoothService.getMode() == BluetoothMode::SERVER && bluetoothService.isConnected()) {
-        terminalView.println("Bluetooth Server: Already Started");
-        return;
-    }
-
     std::string name = cmd.getSubcommand();
     if (name.empty()) {
         name = "Bit-Pirate-Bluetooth";
+    }
+
+    if (bluetoothService.getMode() == BluetoothMode::SERVER && bluetoothService.isConnected()) {
+        terminalView.println("Bluetooth Server: Already Started");
+        return;
     }
 
     terminalView.println("Bluetooth Server: Starting BLE HID server as \"" + name + "\"...");
@@ -225,22 +227,12 @@ void BluetoothController::handleKeyboardBridge() {
 Mouse
 */
 void BluetoothController::handleMouse(const TerminalCommand& cmd) {
-    if (bluetoothService.getMode() != BluetoothMode::SERVER) {
-        terminalView.println("Bluetooth Mouse: Start the server before sending data");
-        return;
-    }
-
-    // TEMPORARY TODO: Mouse HID report disabled.
-    // Creating multiple HID input reports with the same characteristic UUID
-    // currently causes the second report to be attached without a valid service
-    // in NimBLE, leading to a crash on notify().
-    // Until the root cause is fixed in the BLE HID stack, we only enable
-    // a single HID report (keyboard).
-    terminalView.println("Bluetooth Mouse: HID report currently unavailable due to issues.\n");
-    return;
-
     // mouse click
     if (cmd.getSubcommand() == "click") {
+        if (bluetoothService.getMode() != BluetoothMode::SERVER) {
+            terminalView.println("Bluetooth Mouse: Start the server before sending data");
+            return;
+        }
         bluetoothService.clickMouse();
         terminalView.println("Bluetooth Mouse: Click sent.");
         return;
@@ -248,7 +240,40 @@ void BluetoothController::handleMouse(const TerminalCommand& cmd) {
 
     // mouse jiggle
     if (cmd.getSubcommand() == "jiggle") {
+        if (bluetoothService.getMode() != BluetoothMode::SERVER) {
+            terminalView.println("Bluetooth Mouse: Start the server before sending data");
+            return;
+        }
         handleMouseJiggle(cmd);
+        return;
+    }
+
+    if (cmd.getSubcommand().empty()) {
+        if (bluetoothService.getMode() != BluetoothMode::SERVER) {
+            TerminalCommand serverCmd("server", "", "");
+            handleServer(serverCmd);
+        }
+
+        if (bluetoothService.getMode() != BluetoothMode::SERVER) {
+            terminalView.println("Bluetooth Mouse: Start the server before sending data");
+            return;
+        }
+
+        mouseShell.run(
+            "Bluetooth Mouse",
+            [this](int x, int y) { bluetoothService.mouseMove(x, y); },
+            [this]() { bluetoothService.clickMouse(); },
+            [this]() {
+                bluetoothService.sendMouseReport(0, 0, 0x02);
+                delay(50);
+                bluetoothService.sendMouseReport(0, 0, 0x00);
+            }
+        );
+        return;
+    }
+
+    if (bluetoothService.getMode() != BluetoothMode::SERVER) {
+        terminalView.println("Bluetooth Mouse: Start the server before sending data");
         return;
     }
 

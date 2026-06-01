@@ -11,7 +11,8 @@ UsbS3Controller::UsbS3Controller(
     ArgTransformer& argTransformer,
     UserInputManager& userInputManager,
     HelpShell& helpShell,
-    UsbAdapterShell& usbAdapterShell
+    UsbAdapterShell& usbAdapterShell,
+    MouseShell& mouseShell
 )
     : terminalView(terminalView),
       terminalInput(terminalInput),
@@ -20,8 +21,8 @@ UsbS3Controller::UsbS3Controller(
       argTransformer(argTransformer),
       userInputManager(userInputManager),
       helpShell(helpShell),
-      usbAdapterShell(usbAdapterShell)
-{}
+      usbAdapterShell(usbAdapterShell),
+      mouseShell(mouseShell) {}
 
 /*
 Entry point for command
@@ -173,56 +174,12 @@ void UsbS3Controller::handleMouse(const TerminalCommand& cmd)  {
 
     // Interactive menu if no subcommand
     if (cmd.getSubcommand().empty()) {
-        std::vector<std::string> actions = {
-            " ↑ Move up",
-            " ↓ Move down",
-            " ← Move left",
-            " → Move right",
-            " ◀ Left click",
-            " ▶ Right click",
-            " ⚙ Configure move",
-            " ⏹ Exit"
-        };
-
-        
-        bool loop = true;
-        int lastIndex = actions.size() - 1; // keeps selection between inputs
-        uint8_t step = 50; // default step for moves
-        while (loop) {
-            terminalView.println("\n=== USB Mouse ===");
-            int choice = userInputManager.readValidatedChoiceIndex("Select action", actions, lastIndex);
-
-            // keep last index only for real actions (not exit)
-            if (choice >= 0 && choice <= 5) lastIndex = choice;
-
-            switch (choice) {
-                case 0: usbService.mouseMove(0, step * -1); terminalView.println("\nUSB Mouse: Up."); break;
-                case 1: usbService.mouseMove(0,  step); terminalView.println("\nUSB Mouse: Down."); break;
-                case 2: usbService.mouseMove(step * -1, 0); terminalView.println("\nUSB Mouse: Left."); break;
-                case 3: usbService.mouseMove(step, 0); terminalView.println("\nUSB Mouse: Right."); break;
-
-                case 4:
-                    usbService.mouseClick(1);
-                    terminalView.println("\nUSB Mouse: Left click.");
-                    break;
-
-                case 5:
-                    usbService.mouseClick(2);
-                    terminalView.println("\nUSB Mouse: Right click.");
-                    break;
-
-                case 6:
-                    step = userInputManager.readValidatedUint8("Configure step for moves", step, 1, 127);
-                    terminalView.println("\nUSB Mouse: Step configured to " + std::to_string(step) + ".");
-                    break;
-
-                default:
-                    loop = false;
-                    break;
-            }
-        }
-
-        terminalView.println("Exiting USB Mouse...\n");
+        mouseShell.run(
+            "USB Mouse",
+            [this](int x, int y) { usbService.mouseMove(x, y); },
+            [this]() { usbService.mouseClick(1); },
+            [this]() { usbService.mouseClick(2); }
+        );
         return;
     }
 
@@ -483,22 +440,6 @@ void UsbS3Controller::handleConfig() {
         state.setSdCardMosiPin(mosi);
         forbidden.push_back(mosi);
     }
-
-    std::string productString = userInputManager.readSanitizedString("USB Product String", state.getUSBProductString(), false);
-    state.setUSBProductString(productString);
-
-    std::string manufacturerString = userInputManager.readSanitizedString("USB Manufacturer String", state.getUSBManufacturerString(), false);
-    state.setUSBManufacturerString(manufacturerString);
-
-    auto serialStr = state.getUSBSerialString().empty() ? usbService.getUsbSerialFromEfuseMac() : state.getUSBSerialString();
-    std::string serialString = userInputManager.readSanitizedString("USB Serial String", serialStr, false);
-    state.setUSBSerialString(serialString);
-
-    uint16_t vid = userInputManager.readValidatedUint16("USB VID", state.getUSBVid(), true);
-    state.setUSBVid(vid);
-
-    uint16_t pid = userInputManager.readValidatedUint16("USB PID", state.getUSBPid(), true);
-    state.setUSBPid(pid);
 
     terminalView.println("USB Configured.");
 

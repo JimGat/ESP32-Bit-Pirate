@@ -34,17 +34,14 @@ void BluetoothService::startServer(const std::string& deviceName) {
     BLEServer* server = BLEDevice::createServer();
     server->setCallbacks(new BluetoothServerCallbacks(*this));
 
-    // TEMP: Mouse disabled due to NimBLE bug when registering multiple HID reports
-    // with identical characteristic UUIDs (service not attached -> notify() crash)
-
     hid = new BLEHIDDevice(server);
-    // mouseInput = hid->inputReport(1);
-    keyboardInput = hid->inputReport(2);
+    keyboardInput = hid->inputReport(0);
+    mouseInput = keyboardInput;
+    hid->reportMap((uint8_t*)HID_REPORT_MAP, HID_REPORT_MAP_SIZE);
 
     hid->manufacturer()->setValue("M5Stack");
     hid->pnp(0x02, 0x1234, 0x5678, 0x0100);
     hid->hidInfo(0x00, 0x01);
-    hid->reportMap((uint8_t*)HID_REPORT_MAP, 117);
     hid->startServices();
 
     BLEAdvertising* advertising = server->getAdvertising();
@@ -56,7 +53,7 @@ void BluetoothService::startServer(const std::string& deviceName) {
     security->setCapability(ESP_IO_CAP_NONE);
     security->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
     mode = BluetoothMode::SERVER;
-    connected = true;
+    connected = false;
 }
 
 void BluetoothService::stopServer() {
@@ -103,7 +100,7 @@ void BluetoothService::mouseMove(int16_t x, int16_t y) {
 void BluetoothService::sendKeyboardReport(uint8_t modifier, const std::array<uint8_t, 6>& keys) {
     if (mode != BluetoothMode::SERVER) return;
     if (!connected || !keyboardInput) return;
-    uint8_t report[8] = {modifier, 0, keys[0], keys[1], keys[2], keys[3], keys[4], keys[5]};
+    uint8_t report[12] = {0, 0, 0, 0, modifier, 0, keys[0], keys[1], keys[2], keys[3], keys[4], keys[5]};
     keyboardInput->setValue(report, sizeof(report));
     keyboardInput->notify();
 }
@@ -147,13 +144,8 @@ std::string BluetoothService::getMacAddress() {
 
 void BluetoothService::sendEmptyReports() {
     if (mode != BluetoothMode::SERVER) return;
-    if (mouseInput) {
-        uint8_t emptyMouseReport[4] = {0, 0, 0, 0};
-        mouseInput->setValue(emptyMouseReport, sizeof(emptyMouseReport));
-        mouseInput->notify();
-    }
     if (keyboardInput) {
-        uint8_t emptyKeyboardReport[8] = {0};
+        uint8_t emptyKeyboardReport[12] = {0};
         keyboardInput->setValue(emptyKeyboardReport, sizeof(emptyKeyboardReport));
         keyboardInput->notify();
     }
@@ -167,7 +159,7 @@ void BluetoothService::pairWithAddress(const std::string& addrStr) {
 void BluetoothService::sendMouseReport(int16_t x, int16_t y, uint8_t buttons) {
     if (mode != BluetoothMode::SERVER) return;
     if (!connected || !mouseInput) return;
-    uint8_t report[4] = {buttons, (uint8_t)x, (uint8_t)y, 0};
+    uint8_t report[12] = {buttons, (uint8_t)x, (uint8_t)y, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     mouseInput->setValue(report, sizeof(report));
     mouseInput->notify();
 }
@@ -555,13 +547,12 @@ std::string BluetoothService::parseAdTypes(const uint8_t* payload, size_t len) {
 }
 
 const uint8_t BluetoothService::HID_REPORT_MAP[] = {
-    // Mouse report
+    // Mouse input: bytes 0..3 of the shared input report
     0x05, 0x01,        // Usage Page (Generic Desktop)
     0x09, 0x02,        // Usage (Mouse)
     0xA1, 0x01,        // Collection (Application)
     0x09, 0x01,        //   Usage (Pointer)
     0xA1, 0x00,        //   Collection (Physical)
-    0x85, 0x01,        //     Report ID (1)
     0x05, 0x09,        //     Usage Page (Button)
     0x19, 0x01,        //     Usage Minimum (0x01)
     0x29, 0x03,        //     Usage Maximum (0x03)
@@ -581,14 +572,19 @@ const uint8_t BluetoothService::HID_REPORT_MAP[] = {
     0x75, 0x08,        //     Report Size (8)
     0x95, 0x02,        //     Report Count (2)
     0x81, 0x06,        //     Input (Data,Var,Rel)
+    0x09, 0x38,        //     Usage (Wheel)
+    0x15, 0x81,        //     Logical Minimum (-127)
+    0x25, 0x7F,        //     Logical Maximum (127)
+    0x75, 0x08,        //     Report Size (8)
+    0x95, 0x01,        //     Report Count (1)
+    0x81, 0x06,        //     Input (Data,Var,Rel)
     0xC0,              //   End Collection
     0xC0,              // End Collection
 
-    // Keyboard report
+    // Keyboard input: bytes 4..11 of the shared input report
     0x05, 0x01,        // Usage Page (Generic Desktop)
     0x09, 0x06,        // Usage (Keyboard)
     0xA1, 0x01,        // Collection (Application)
-    0x85, 0x02,        //   Report ID (2)
     0x05, 0x07,        //   Usage Page (Key Codes)
     0x19, 0xE0,        //   Usage Minimum (224)
     0x29, 0xE7,        //   Usage Maximum (231)

@@ -9,6 +9,7 @@
 #include "Managers/UserInputManager.h"
 #include "States/GlobalState.h"
 #include "Shells/HelpShell.h"
+#include "Shells/MouseShell.h"
 
 class BluetoothController {
 public:
@@ -19,7 +20,8 @@ public:
         BluetoothService& bluetoothService,
         ArgTransformer& argTransformer,
         UserInputManager& userInputManager,
-        HelpShell& helpShell
+        HelpShell& helpShell,
+        MouseShell& mouseShell
     );
 
     // Entry point for BT command
@@ -39,6 +41,7 @@ private:
     ArgTransformer& argTransformer;
     UserInputManager& userInputManager;
     HelpShell& helpShell;
+    MouseShell& mouseShell;
     GlobalState& state = GlobalState::getInstance();
     bool configured = false;
     

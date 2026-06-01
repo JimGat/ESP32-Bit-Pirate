@@ -12,6 +12,7 @@
 #include "Services/UsbS3Service.h"
 #include "Shells/HelpShell.h"
 #include "Shells/UsbAdapterShell.h"
+#include "Shells/MouseShell.h"
 
 class UsbS3Controller {
 public:
@@ -24,7 +25,8 @@ public:
         ArgTransformer& argTransformer, 
         UserInputManager& userInputManager,
         HelpShell& helpShell,
-        UsbAdapterShell& usbAdapterShell
+        UsbAdapterShell& usbAdapterShell,
+        MouseShell& mouseShell
     );
 
     // Entry point for handle raw terminal command
@@ -89,4 +91,5 @@ private:
     UserInputManager& userInputManager;
     HelpShell& helpShell;
     UsbAdapterShell& usbAdapterShell;
+    MouseShell& mouseShell;
 };

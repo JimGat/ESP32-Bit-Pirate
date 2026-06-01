@@ -29,6 +29,7 @@ private:
     BLECharacteristic* keyboardInput = nullptr;
     bool connected = false;
     static const uint8_t HID_REPORT_MAP[];
+    static constexpr uint16_t HID_REPORT_MAP_SIZE = 125;
     BluetoothMode mode = BluetoothMode::NONE;
     static BLEScan* bleScan;
     static std::string lastAdParsed;
@@ -41,7 +42,7 @@ public:
     };
 
     // begin / end server BT
-    void startServer(const std::string& deviceName = "Bit-Pirate-Blueooth");
+    void startServer(const std::string& deviceName = "Bit-Pirate-Bluetooth");
     void stopServer();
     void releaseBtClassic();
 

@@ -386,7 +386,9 @@ void TdisplayDeviceView::adapterMode(const std::string& adapterName, const std::
   tft.drawString(adapterName.c_str(), tft.width() / 2, 28);
 
   tft.setTextSize(1);
-  for (size_t i = 0; i < details.size() && i < 8; ++i) {
+  size_t detailCount = std::min<size_t>(details.size(), 8);
+  size_t detailRows = (detailCount + 1) / 2;
+  for (size_t i = 0; i < detailCount; ++i) {
     int col = i % 2;
     int row = i / 2;
     int boxX = 30 + (col * 135);
@@ -399,9 +401,10 @@ void TdisplayDeviceView::adapterMode(const std::string& adapterName, const std::
   }
 
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString(description.c_str(), tft.width() / 2, 135);
+  int descY = detailRows > 2 ? 135 : 112;
+  tft.drawString(description.c_str(), tft.width() / 2, descY);
   tft.setTextColor(HELP_COLOR, TFT_BLACK);
-  tft.drawString("Press any button to return", tft.width() / 2, 165);
+  tft.drawString("Press any button to return", tft.width() / 2, descY + 30);
   tft.setTextDatum(TL_DATUM);
 }
 

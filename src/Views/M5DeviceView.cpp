@@ -200,7 +200,9 @@ void M5DeviceView::adapterMode(const std::string& adapterName, const std::string
     M5.Lcd.println(adapterName.c_str());
 
     M5.Lcd.setTextSize(1);
-    for (size_t i = 0; i < details.size() && i < 8; ++i) {
+    size_t detailCount = std::min<size_t>(details.size(), 8);
+    size_t detailRows = (detailCount + 1) / 2;
+    for (size_t i = 0; i < detailCount; ++i) {
         int col = i % 2;
         int row = i / 2;
         int boxX = 12 + (col * 112);
@@ -215,12 +217,13 @@ void M5DeviceView::adapterMode(const std::string& adapterName, const std::string
 
     M5.Lcd.setTextSize(1);
     int16_t descX = (M5.Lcd.width() - M5.Lcd.textWidth(description.c_str())) / 2;
-    M5.Lcd.setCursor(descX, 110);
+    int descY = detailRows > 2 ? 112 : 86;
+    M5.Lcd.setCursor(descX, descY);
     M5.Lcd.println(description.c_str());
     M5.Lcd.setTextColor(TEXT_COLOR_ALT, BACKGROUND_COLOR);
     const char* returnText = "Press any button to return";
     int16_t returnX = (M5.Lcd.width() - M5.Lcd.textWidth(returnText)) / 2;
-    M5.Lcd.setCursor(returnX, 124);
+    M5.Lcd.setCursor(returnX, descY + 14);
     M5.Lcd.println(returnText);
 }
 

@@ -1,4 +1,5 @@
 #include "UsbUartBridgeAdapter.h"
+#include "driver/gpio.h"
 #include <USBCDC.h>
 #include <algorithm>
 
@@ -47,6 +48,9 @@ void UsbUartBridgeAdapter::configureUart(unsigned long baudRate, uint32_t uartCo
     currentUartConfig = uartConfig;
 
     Serial1.end();
+
+    gpio_reset_pin(static_cast<gpio_num_t>(bridgeConfig.uartRxPin));
+    gpio_reset_pin(static_cast<gpio_num_t>(bridgeConfig.uartTxPin));
 
     Serial1.setRxBufferSize(UART_RX_BUFFER_SIZE);
     Serial1.setTxBufferSize(UART_TX_BUFFER_SIZE);

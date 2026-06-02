@@ -11,7 +11,7 @@
 class GlobalState {
 private:
     // Version
-    static constexpr const char* version = "1.5";
+    static constexpr const char* version = "1.6";
 
     //Pin in use
     std::vector<uint8_t> protectedPins;
@@ -171,13 +171,13 @@ private:
     static constexpr size_t fileCountLimit = 512;
     static constexpr size_t fileCacheLimit = 64;
 
-    // USB Default Configuration
-    std::string usbProductString = "ESP32-Bit-Pirate";
-    std::string usbManufacturerString = "Free Open Source";
-    std::string usbSerialString = "";     // MAC address will be suffixed in runtime for uniqueness
-    uint16_t usbVid = 0x303A;   // VID for USB device descriptor
-    uint16_t usbPid = 0x1001;   // PID for USB device descriptor
-    std::string webUSBString = "https://geo-tp.github.io/ESP32-Bit-Pirate/webflasher/";
+    // USB Default Configuration (not used atm)
+    static constexpr const char* usbProductString = "ESP32-Bit-Pirate";
+    static constexpr const char* usbManufacturerString = "Free Open Source";
+    static constexpr const char* usbSerialString = "";
+    static constexpr uint16_t usbVid = 0x303A;   // VID for USB device descriptor
+    static constexpr uint16_t usbPid = 0x1001;   // PID for USB device descriptor
+    static constexpr const char* webUSBString = "https://geo-tp.github.io/ESP32-Bit-Pirate/webflasher/";
 public:
     GlobalState(const GlobalState&) = delete;
     GlobalState& operator=(const GlobalState&) = delete;
@@ -423,18 +423,12 @@ public:
     void setSdCardFrequency(uint32_t freq) { sdCardFrequency = freq; }
 
     // USB
-    const std::string& getUSBProductString() const { return usbProductString; }
-    const std::string& getUSBManufacturerString() const { return usbManufacturerString; }
-    const std::string& getUSBSerialString() const { return usbSerialString; }
+    const char* getUSBProductString() const { return usbProductString; }
+    const char* getUSBManufacturerString() const { return usbManufacturerString; }
+    const char* getUSBSerialString() const { return usbSerialString; }
     uint16_t getUSBVid() const { return usbVid; }
     uint16_t getUSBPid() const { return usbPid; }
-    const std::string& getWebUSBString() const { return webUSBString; }
-    void setUSBSerialString(const std::string& serialStr) {usbSerialString = serialStr; }
-    void setUSBProductString(const std::string& productStr) { usbProductString = productStr; }
-    void setUSBManufacturerString(const std::string& manufacturerStr) { usbManufacturerString = manufacturerStr; }
-    void setUSBVid(uint16_t vid) { usbVid = vid; }
-    void setUSBPid(uint16_t pid) { usbPid = pid; }
-    void setWebUSBString(const std::string& webUSBStr) { webUSBString = webUSBStr; }
+    const char* getWebUSBString() const { return webUSBString; }
     
     // SD File Limits
     size_t getFileCountLimit() const { return fileCountLimit; }

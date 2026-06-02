@@ -22,13 +22,13 @@ namespace {
 UsbS3Service::UsbS3Service()
   : keyboardActive(false), storageActive(false), initialized(false) {}
 
-void UsbS3Service::configure(const std::string& productStr, const std::string& manufacturerStr, const std::string& serialStr, uint16_t vid, uint16_t pid, const std::string& webUSBString) {
-    USB.productName(productStr.c_str());
-    USB.manufacturerName(manufacturerStr.c_str());
-    USB.serialNumber(serialStr.c_str());
+void UsbS3Service::configure(const char* productStr, const char* manufacturerStr, const char* serialStr, uint16_t vid, uint16_t pid, const char* webUSBString) {
+    USB.productName(productStr);
+    USB.manufacturerName(manufacturerStr);
+    USB.serialNumber(serialStr);
     USB.VID(vid);
     USB.PID(pid);
-    USB.webUSBURL(webUSBString.c_str());
+    USB.webUSBURL(webUSBString);
 }
 
 void UsbS3Service::keyboardBegin() {

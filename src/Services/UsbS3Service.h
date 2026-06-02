@@ -61,7 +61,7 @@ public:
     void systemPowerOff(uint32_t holdMs = 10);
 
     // Config
-    void configure(const std::string& productStr, const std::string& manufacturerStr, const std::string& serialStr, uint16_t vid, uint16_t pid, const std::string& webUSBString);
+    void configure(const char* productStr, const char* manufacturerStr, const char* serialStr, uint16_t vid, uint16_t pid, const char* webUSBString);
     void reset();
     std::string getUsbSerialFromEfuseMac();
 

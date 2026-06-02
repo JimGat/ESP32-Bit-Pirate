@@ -29,7 +29,7 @@ private:
     static constexpr uint32_t INPUT_POLL_INTERVAL_MS = 25;
     static constexpr uint32_t RSSI_HOLD_MS = 20;
     static constexpr size_t MAX_COMMAND_LENGTH = 32 * 1024;
-    static constexpr size_t MAX_TX_TIMINGS = 1024;
+    static constexpr size_t MAX_TX_TIMINGS = 4096;
     static constexpr bool RAW_RX_INVERT_LEVEL = true;
     static constexpr bool RAW_TX_INVERT_POLARITY = true;
 

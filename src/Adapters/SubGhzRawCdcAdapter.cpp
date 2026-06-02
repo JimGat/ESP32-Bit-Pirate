@@ -317,7 +317,7 @@ void SubGhzRawCdcAdapter::handleRawSendCommand(const std::string& value) {
 }
 
 void SubGhzRawCdcAdapter::pollRawRx() {
-    std::vector<rmt_symbol_word_t> frame = subGhzService->readRawFrame();
+    std::vector<rmt_symbol_word_t> frame = subGhzService->readRawChunk();
     if (!frame.empty() && printRawFrame(frame)) {
         int rssi = subGhzService->measurePeakRssi(1);
         Serial.print("RSSI:");

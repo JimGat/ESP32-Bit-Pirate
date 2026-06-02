@@ -373,7 +373,7 @@ void BluetoothController::handleSpoof(const TerminalCommand& cmd) {
 Reset
 */
 void BluetoothController::handleReset() {
-    bluetoothService.stopServer();
+    bluetoothService.deinit();
     terminalView.println("Bluetooth: Reset complete.");
 }
 

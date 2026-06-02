@@ -4,6 +4,7 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
+#include <BLESecurity.h>
 #include "BLEHIDDevice.h"
 #include "HIDTypes.h"
 #include "Data/AsciiHid.h"
@@ -24,6 +25,8 @@ struct ScannedDevice {
 
 class BluetoothService {
 private:
+    BLEServer* server = nullptr;
+    BLESecurity* security = nullptr;
     BLEHIDDevice* hid = nullptr;
     BLECharacteristic* mouseInput = nullptr;
     BLECharacteristic* keyboardInput = nullptr;

@@ -28,10 +28,11 @@ public:
 
 void BluetoothService::startServer(const std::string& deviceName) {
     stopServer();
+    stopPassiveBluetoothSniffing();
 
     delay(200);
     BLEDevice::init(String(deviceName.c_str()));
-    BLEServer* server = BLEDevice::createServer();
+    server = BLEDevice::createServer();
     server->setCallbacks(new BluetoothServerCallbacks(*this));
 
     hid = new BLEHIDDevice(server);
@@ -48,7 +49,12 @@ void BluetoothService::startServer(const std::string& deviceName) {
     advertising->addServiceUUID(hid->hidService()->getUUID());
     advertising->start();
 
-    BLESecurity* security = new BLESecurity();
+    if (security) {
+        delete security;
+        security = nullptr;
+    }
+
+    security = new BLESecurity();
     security->setAuthenticationMode(ESP_LE_AUTH_BOND);
     security->setCapability(ESP_IO_CAP_NONE);
     security->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
@@ -57,10 +63,24 @@ void BluetoothService::startServer(const std::string& deviceName) {
 }
 
 void BluetoothService::stopServer() {
+    if (server) {
+        BLEAdvertising* advertising = server->getAdvertising();
+        if (advertising) {
+            advertising->stop();
+        }
+    }
+
     if (hid) {
         delete hid;
         hid = nullptr;
     }
+
+    if (security) {
+        delete security;
+        security = nullptr;
+    }
+
+    server = nullptr;
 
     mouseInput = nullptr;
     keyboardInput = nullptr;
@@ -247,13 +267,12 @@ void BluetoothService::init(const std::string& deviceName) {
 }
 
 void BluetoothService::deinit() {
-    if (hid) {
-        delete hid;
-        hid = nullptr;
-    }
+    stopPassiveBluetoothSniffing();
 
-    mouseInput = nullptr;
-    keyboardInput = nullptr;
+    if (mode == BluetoothMode::SERVER || hid || server || security) {
+        stopServer();
+        return;
+    }
 
     if (BLEDevice::getInitialized()) {
         BLEDevice::deinit();

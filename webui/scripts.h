@@ -801,6 +801,9 @@ function openAiPanel() {
   aiPanelOverlay.style.display = "block";
   aiPanel.style.display = "flex";
   aiPanelOverlay.addEventListener("click", onAiOverlayClick);
+
+  // Focus the prompt after the panel becomes visible.
+  setTimeout(() => byId("ai-prompt")?.focus(), 0);
 }
 
 function closeAiPanel() {
@@ -1534,7 +1537,7 @@ function initTerminalBanner() {
   | |_) | | |_  |  __/| | | | (_| | ||  __/
   |____/|_|\\__| |_|   |_|_|  \\__,_|\\__\\___|
 
-    Version 1.5           Ready to board
+    Version 1.6           Ready to board
 
  Type 'mode' to start or 'help' for commands
 

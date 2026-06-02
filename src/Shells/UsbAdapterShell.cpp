@@ -14,7 +14,8 @@ UsbAdapterShell::UsbAdapterShell(ITerminalView& tv,
 void UsbAdapterShell::run() {
     terminalView.println("\n=== USB Adapters ===");
     terminalView.println("Adapters reboot the device into a dedicated USB mode.");
-    terminalView.println("The next reset automatically returns to normal mode.\n");
+    terminalView.println("The next reset automatically returns to normal mode.");
+    terminalView.println("https://github.com/geo-tp/ESP32-Bit-Pirate/wiki/99-Adapters\n");
 
     int choice = userInputManager.readValidatedChoiceIndex("Select adapter", actions, actionsCount, actionsCount - 1);
     if (choice == 0) {

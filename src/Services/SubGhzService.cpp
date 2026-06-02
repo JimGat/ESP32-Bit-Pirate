@@ -221,6 +221,38 @@ void SubGhzService::stopRawSniffer() {
     last_symbols_ = 0;
 }
 
+std::vector<rmt_symbol_word_t> SubGhzService::readRawChunk() {
+    std::vector<rmt_symbol_word_t> out;
+    if (!rx_chan_ || !rx_done_) return out;
+
+    size_t symCount = (size_t)last_symbols_;
+    if (symCount > rx_buf_.size()) symCount = rx_buf_.size();
+    if (symCount == 0) {
+        rx_done_ = false;
+        last_symbols_ = 0;
+        rmt_receive_config_t rcfg{};
+        rcfg.signal_range_min_ns = 1000;
+        rcfg.signal_range_max_ns = 20'000'000;
+        rcfg.flags.en_partial_rx = 1;
+        (void)rmt_receive(rx_chan_, rx_buf_.data(),
+                          rx_buf_.size() * sizeof(rmt_symbol_word_t), &rcfg);
+        return out;
+    }
+
+    out.insert(out.end(), rx_buf_.begin(), rx_buf_.begin() + symCount);
+
+    rx_done_ = false;
+    last_symbols_ = 0;
+    rmt_receive_config_t rcfg{};
+    rcfg.signal_range_min_ns = 1000;
+    rcfg.signal_range_max_ns = 20'000'000;
+    rcfg.flags.en_partial_rx = 1;
+    (void)rmt_receive(rx_chan_, rx_buf_.data(),
+                      rx_buf_.size() * sizeof(rmt_symbol_word_t), &rcfg);
+
+    return out;
+}
+
 std::vector<rmt_symbol_word_t> SubGhzService::readRawFrame() {
     const size_t MIN_SYMS = 16;
 

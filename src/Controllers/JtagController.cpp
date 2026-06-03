@@ -16,6 +16,7 @@ JtagController::JtagController(
     userInputManager(userInputManager),
     helpShell(helpShell),
     usbAdapterShell(usbAdapterShell) {}
+    
 /*
 Entry point that handles JTAG commands
 */
@@ -131,6 +132,9 @@ void JtagController::handleConfig() {
     terminalView.println("\r\nJTAG/SWD configured.\n");
 }
 
+/*
+OpenOCD
+*/
 void JtagController::handleOpenOcd() {
     terminalView.println("\nOpenOCD requires a dedicated USB adapter mode.");
     terminalView.println("This will reboot into the OpenOCD Bus Pirate JTAG/SWD adapter.\n");

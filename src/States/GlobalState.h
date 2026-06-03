@@ -41,6 +41,7 @@ private:
 
     // Terminal Web UI
     std::string terminalIp = "0.0.0.0";
+    std::string activeApName = apName;
 
     // Terminal transmission mode
     TerminalTypeEnum terminalMode = TerminalTypeEnum::SerialPort;
@@ -209,6 +210,8 @@ public:
     // AP WiFi
     const char* getApName() const { return apName; }
     const char* getApPassword() const { return apPassword; }
+    const std::string& getActiveApName() const { return activeApName; }
+    void setActiveApName(const std::string& ssid) { activeApName = ssid; }
 
     // Terminal IP
     const std::string& getTerminalIp() const { return terminalIp; }

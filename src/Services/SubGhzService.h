@@ -6,6 +6,7 @@
 #include <cstdint>
 #include "freertos/FreeRTOS.h"
 #include "freertos/ringbuf.h"
+#include "freertos/task.h"
 #include "ELECHOUSE_CC1101_SRC_DRV.h"
 #include "Data/SugGhzFreqs.h"
 #include "Models/SubghzFileCommand.h"
@@ -71,6 +72,7 @@ public:
                           float rxBwKhz      = 200.0f,
                           uint8_t modulation = 2,    // 2 = OOK/ASK
                           bool packetMode    = true);
+    void releaseSnifferResources();
     void deinitRfModule();
 
 
@@ -89,10 +91,21 @@ private:
 
     rmt_channel_handle_t rx_chan_ = nullptr;
     std::vector<rmt_symbol_word_t> rx_buf_;
+    std::vector<rmt_symbol_word_t> rx_ring_;
+    size_t rx_ring_head_ = 0;
+    size_t rx_ring_tail_ = 0;
     size_t last_symbols_ = 0;
     bool rx_done_ = false;
     uint32_t rx_resolution_hz_ = 0;
     uint32_t rx_tick_per_us_   = 0;
+    TaskHandle_t rx_task_ = nullptr;
+    bool rx_task_running_ = false;
+    portMUX_TYPE rx_ring_mux_ = portMUX_INITIALIZER_UNLOCKED;
+    
+    static constexpr size_t kRxDmaSymbols = 1024;
+    static constexpr size_t kRxRingSymbols = 2048;
+    static constexpr size_t kRxChunkSymbols = 256;
+    static constexpr uint32_t kRxTaskStackWords = 3072;
 
     // Tembed S3 CC1101 specific
     void initTembed();
@@ -102,4 +115,9 @@ private:
     static bool IRAM_ATTR on_rx_done(rmt_channel_handle_t,
                                 const rmt_rx_done_event_data_t* edata,
                                 void* user);
+    static void rxTaskEntry(void* arg);
+    void rxTaskLoop();
+    bool restartRxReceive();
+    void pushRxSymbols(const rmt_symbol_word_t* src, size_t count);
+    size_t popRxSymbols(std::vector<rmt_symbol_word_t>& out, size_t maxSymbols);
 };

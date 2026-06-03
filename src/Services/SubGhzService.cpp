@@ -185,8 +185,16 @@ bool SubGhzService::startRawSniffer(int pin) {
         return false;
     }
 
-    // --- buffer 
-    rx_buf_.assign(1024, {});
+    // --- buffers
+    rx_buf_.assign(kRxDmaSymbols, {});
+    rx_ring_.assign(kRxRingSymbols, {});
+    rx_ring_head_ = 0;
+    rx_ring_tail_ = 0;
+
+    if (rx_buf_.empty() || rx_ring_.empty()) {
+        stopRawSniffer();
+        return false;
+    }
 
     // --- receive config
     rmt_receive_config_t rcfg{};
@@ -207,48 +215,56 @@ bool SubGhzService::startRawSniffer(int pin) {
         return false;
     }
 
+    rx_task_running_ = true;
+    BaseType_t taskOk = xTaskCreatePinnedToCore(
+        &SubGhzService::rxTaskEntry,
+        "subghz_rx",
+        kRxTaskStackWords,
+        this,
+        2,
+        &rx_task_,
+        tskNO_AFFINITY
+    );
+    if (taskOk != pdPASS || rx_task_ == nullptr) {
+        stopRawSniffer();
+        return false;
+    }
+
     return true;
 }
 
 void SubGhzService::stopRawSniffer() {
+    rx_task_running_ = false;
+    if (rx_task_ != nullptr) {
+        const unsigned long waitStart = millis();
+        while (rx_task_ != nullptr && (millis() - waitStart) < 50) {
+            vTaskDelay(pdMS_TO_TICKS(1));
+        }
+        if (rx_task_ != nullptr) {
+            vTaskDelete(rx_task_);
+            rx_task_ = nullptr;
+        }
+    }
+
     if (rx_chan_) {
         rmt_disable(rx_chan_);
         rmt_del_channel(rx_chan_);
         rx_chan_ = nullptr;
     }
-    rx_buf_.clear();
+
+    std::vector<rmt_symbol_word_t>().swap(rx_buf_);
+    std::vector<rmt_symbol_word_t>().swap(rx_ring_);
+    rx_ring_head_ = 0;
+    rx_ring_tail_ = 0;
     rx_done_ = false;
     last_symbols_ = 0;
 }
 
 std::vector<rmt_symbol_word_t> SubGhzService::readRawChunk() {
     std::vector<rmt_symbol_word_t> out;
-    if (!rx_chan_ || !rx_done_) return out;
-
-    size_t symCount = (size_t)last_symbols_;
-    if (symCount > rx_buf_.size()) symCount = rx_buf_.size();
-    if (symCount == 0) {
-        rx_done_ = false;
-        last_symbols_ = 0;
-        rmt_receive_config_t rcfg{};
-        rcfg.signal_range_min_ns = 1000;
-        rcfg.signal_range_max_ns = 20'000'000;
-        rcfg.flags.en_partial_rx = 1;
-        (void)rmt_receive(rx_chan_, rx_buf_.data(),
-                          rx_buf_.size() * sizeof(rmt_symbol_word_t), &rcfg);
-        return out;
-    }
-
-    out.insert(out.end(), rx_buf_.begin(), rx_buf_.begin() + symCount);
-
-    rx_done_ = false;
-    last_symbols_ = 0;
-    rmt_receive_config_t rcfg{};
-    rcfg.signal_range_min_ns = 1000;
-    rcfg.signal_range_max_ns = 20'000'000;
-    rcfg.flags.en_partial_rx = 1;
-    (void)rmt_receive(rx_chan_, rx_buf_.data(),
-                      rx_buf_.size() * sizeof(rmt_symbol_word_t), &rcfg);
+    if (!rx_chan_) return out;
+    out.reserve(kRxChunkSymbols);
+    (void)popRxSymbols(out, kRxChunkSymbols);
 
     return out;
 }
@@ -257,34 +273,14 @@ std::vector<rmt_symbol_word_t> SubGhzService::readRawFrame() {
     const size_t MIN_SYMS = 16;
 
     std::vector<rmt_symbol_word_t> out;
-    if (!rx_chan_ || !rx_done_) return out;
+    if (!rx_chan_) return out;
 
-    size_t symCount = (size_t)last_symbols_;
-    if (symCount > rx_buf_.size()) symCount = rx_buf_.size();
-    if (symCount < MIN_SYMS) {
-        // restart RX
-        rx_done_ = false; last_symbols_ = 0;
-        rmt_receive_config_t rcfg{};
-        rcfg.signal_range_min_ns = 1000;
-        rcfg.signal_range_max_ns = 20'000'000;
-        rcfg.flags.en_partial_rx = 1;
-        (void)rmt_receive(rx_chan_, rx_buf_.data(),
-                          rx_buf_.size() * sizeof(rmt_symbol_word_t), &rcfg);
+    std::vector<rmt_symbol_word_t> snap;
+    snap.reserve(kRxDmaSymbols);
+    (void)popRxSymbols(snap, kRxDmaSymbols);
+    if (snap.size() < MIN_SYMS) {
         return out;
     }
-
-    // snapshot content
-    std::vector<rmt_symbol_word_t> snap(rx_buf_.begin(), rx_buf_.begin() + symCount);
-
-    rx_done_ = false;
-    last_symbols_ = 0;
-    rmt_receive_config_t rcfg{};
-    rcfg.signal_range_min_ns = 1000;
-    rcfg.signal_range_max_ns = 20'000'000;
-    rcfg.flags.en_partial_rx = 1;
-    (void)rmt_receive(rx_chan_, rx_buf_.data(),
-                      rx_buf_.size() * sizeof(rmt_symbol_word_t), &rcfg);
-
 
     const uint32_t GAP_US = 2000;
 
@@ -315,17 +311,17 @@ std::vector<rmt_symbol_word_t> SubGhzService::readRawFrame() {
 }
 
 std::pair<std::string, size_t> SubGhzService::readRawPulses() {
-    if (!rx_done_) return {"", 0};
-
-    size_t n = last_symbols_;
-    if (n > rx_buf_.size()) n = rx_buf_.size();
+    std::vector<rmt_symbol_word_t> chunk;
+    chunk.reserve(kRxChunkSymbols);
+    const size_t n = popRxSymbols(chunk, kRxChunkSymbols);
+    if (n == 0) return {"", 0};
 
     std::ostringstream oss;
     oss << "[raw " << n << " symbols | freq=" << mhz_ << " MHz]\r\n";
 
     int col = 0;
     for (size_t i = 0; i < n; ++i) {
-        const auto& s = rx_buf_[i];
+        const auto& s = chunk[i];
         oss << (s.level0 ? 'H' : 'L') << ":" << s.duration0
             << " | "
             << (s.level1 ? 'H' : 'L') << ":" << s.duration1
@@ -333,15 +329,6 @@ std::pair<std::string, size_t> SubGhzService::readRawPulses() {
         if (++col % 4 == 0) oss << "\r\n";
     }
     oss << "\r\n";
-
-    rx_done_ = false;
-    last_symbols_ = 0;
-    rmt_receive_config_t rcfg{};
-    rcfg.signal_range_min_ns = 1000;
-    rcfg.signal_range_max_ns = 20000000;
-    rmt_receive(rx_chan_, rx_buf_.data(),
-                rx_buf_.size() * sizeof(rmt_symbol_word_t),
-                &rcfg);
 
     return {oss.str(), n};
 }
@@ -362,36 +349,93 @@ std::vector<rmt_symbol_word_t> SubGhzService::readRawSymbolsUntil(size_t numSamp
 
     while (out.size() < numSamples && (millis() - t0) < timeoutMs)
     {
-        if (!rx_done_) {
+        const size_t canTake = numSamples - out.size();
+        const size_t took = popRxSymbols(out, canTake);
+        if (took == 0) {
             delay(1);
+        }
+    }
+
+    return out;
+}
+
+void SubGhzService::rxTaskEntry(void* arg) {
+    auto* self = static_cast<SubGhzService*>(arg);
+    self->rxTaskLoop();
+    self->rx_task_ = nullptr;
+    vTaskDelete(nullptr);
+}
+
+void SubGhzService::rxTaskLoop() {
+    while (rx_task_running_) {
+        if (!rx_done_) {
+            vTaskDelay(pdMS_TO_TICKS(1));
             continue;
         }
 
         size_t n = (size_t)last_symbols_;
-        if (n > rx_buf_.size())
-            n = rx_buf_.size();
-
+        if (n > rx_buf_.size()) n = rx_buf_.size();
         if (n > 0) {
-            size_t canTake = std::min(n, numSamples - out.size());
-            out.insert(out.end(), rx_buf_.begin(), rx_buf_.begin() + canTake);
+            pushRxSymbols(rx_buf_.data(), n);
         }
 
-        // restart RX 
         rx_done_ = false;
         last_symbols_ = 0;
-
-        rmt_receive_config_t rcfg{};
-        rcfg.signal_range_min_ns = 1000;
-        rcfg.signal_range_max_ns = 20'000'000;
-        rcfg.flags.en_partial_rx = 1;
-
-        (void)rmt_receive(rx_chan_,
-                          rx_buf_.data(),
-                          rx_buf_.size() * sizeof(rmt_symbol_word_t),
-                          &rcfg);
+        (void)restartRxReceive();
     }
+}
 
-    return out;
+bool SubGhzService::restartRxReceive() {
+    if (!rx_chan_ || rx_buf_.empty()) return false;
+
+    rmt_receive_config_t rcfg{};
+    rcfg.signal_range_min_ns = 1000;
+    rcfg.signal_range_max_ns = 20'000'000;
+    rcfg.flags.en_partial_rx = 1;
+
+    return rmt_receive(
+        rx_chan_,
+        rx_buf_.data(),
+        rx_buf_.size() * sizeof(rmt_symbol_word_t),
+        &rcfg
+    ) == ESP_OK;
+}
+
+void SubGhzService::pushRxSymbols(const rmt_symbol_word_t* src, size_t count) {
+    if (src == nullptr || count == 0 || rx_ring_.empty()) return;
+
+    const size_t cap = rx_ring_.size();
+    taskENTER_CRITICAL(&rx_ring_mux_);
+    for (size_t i = 0; i < count; ++i) {
+        const size_t next = (rx_ring_head_ + 1) % cap;
+        if (next == rx_ring_tail_) {
+            rx_ring_tail_ = (rx_ring_tail_ + 1) % cap;
+        }
+        rx_ring_[rx_ring_head_] = src[i];
+        rx_ring_head_ = next;
+    }
+    taskEXIT_CRITICAL(&rx_ring_mux_);
+}
+
+size_t SubGhzService::popRxSymbols(std::vector<rmt_symbol_word_t>& out, size_t maxSymbols) {
+    if (maxSymbols == 0 || rx_ring_.empty()) return 0;
+
+    size_t moved = 0;
+    const size_t cap = rx_ring_.size();
+
+    taskENTER_CRITICAL(&rx_ring_mux_);
+    while (moved < maxSymbols && rx_ring_tail_ != rx_ring_head_) {
+        out.push_back(rx_ring_[rx_ring_tail_]);
+        rx_ring_tail_ = (rx_ring_tail_ + 1) % cap;
+        ++moved;
+    }
+    taskEXIT_CRITICAL(&rx_ring_mux_);
+
+    return moved;
+}
+
+void SubGhzService::releaseSnifferResources() {
+    stopRawSniffer();
 }
 
 bool SubGhzService::sendRawFrame(int pin, const std::vector<rmt_symbol_word_t>& items, uint32_t tick_per_us) {
@@ -840,6 +884,8 @@ bool SubGhzService::send(const SubGhzFileCommand& cmd) {
 }
 
 void SubGhzService::deinitRfModule() {
+    releaseSnifferResources();
+
     if (!isConfigured_) return;
 
     // Stop the CC1101 - exit RX/TX, turn off frequency synthesizer

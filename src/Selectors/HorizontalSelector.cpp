@@ -38,14 +38,24 @@ int HorizontalSelector::select(
 }
 
 int HorizontalSelector::selectHeadless() {
-    int selected = 1;  // default
+    int selected = 2;  // default: Serial
+    const unsigned long longPressMs = 800;
 
     // 3 sec to press the button
     const unsigned long timeout = millis() + 3000;
     while (millis() < timeout) {
         char c = input.readChar();
         if (c == KEY_OK) {
-            selected = 0; 
+            const unsigned long pressStart = millis();
+            while (input.readChar() == KEY_OK) {
+                if (millis() - pressStart >= longPressMs) {
+                    selected = 1; // WiFi Hotspot
+                    return selected;
+                }
+                delay(10);
+            }
+
+            selected = 0; // WiFi Connect
             break;
         }
         delay(10);

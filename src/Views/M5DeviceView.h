@@ -60,6 +60,7 @@ public:
 private:
     void welcomeSerial(const std::string& baudStr);
     void welcomeWeb(const std::string& ipStr);
+    void welcomeHotspot(const std::string& ipStr);
     void showDetailedConfig(const PinoutConfig& config, int selectedIndex);
     void drawRect(bool selected, uint8_t margin, uint16_t startY, uint16_t sizeX, uint16_t sizeY);
     void showModeName(std::string& mode, int y);

@@ -52,7 +52,8 @@ void TdisplayDeviceView::logo() {
 }
 
 void TdisplayDeviceView::welcome(TerminalTypeEnum& terminalType, std::string& terminalInfos) {
-  if (terminalType == TerminalTypeEnum::WiFiClient) welcomeWeb(terminalInfos);
+  if (terminalType == TerminalTypeEnum::WiFiAp) welcomeHotspot(terminalInfos);
+  else if (terminalType == TerminalTypeEnum::WiFiClient) welcomeWeb(terminalInfos);
   else welcomeSerial(terminalInfos);
 }
 
@@ -349,8 +350,8 @@ void TdisplayDeviceView::welcomeSerial(const std::string& baudStr) {
 
   // Sub
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setCursor(80, 107);
-  tft.println("Then press a key to start");
+  tft.setCursor(65, 107);
+  tft.println("Then press any key in terminal");
 }
 
 void TdisplayDeviceView::welcomeWeb(const std::string& ipStr) {
@@ -374,6 +375,20 @@ void TdisplayDeviceView::welcomeWeb(const std::string& ipStr) {
   tft.setTextColor(TFT_WHITE, DARK_GREY_RECT);
   tft.setCursor((tft.width() - textW) / 2, 73);
   tft.print(ip.c_str());
+
+}
+
+void TdisplayDeviceView::welcomeHotspot(const std::string& ipStr) {
+  GlobalState& state = GlobalState::getInstance();
+  PinoutConfig config;
+  config.setMode("HOTSPOT");
+  config.setMappings({
+    state.getActiveApName(),
+    std::string("PW ") + state.getApPassword(),
+    std::string("IP ") + ipStr,
+    "ANY URL WORKS"
+  });
+  show(config);
 }
 
 void TdisplayDeviceView::adapterMode(const std::string& adapterName, const std::string& description, const std::vector<std::string>& details) {

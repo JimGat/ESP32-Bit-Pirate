@@ -18,6 +18,8 @@ void* M5DeviceView::getScreen() {
 void M5DeviceView::welcome(TerminalTypeEnum& terminalType, std::string& terminalInfos) {
     if (terminalType == TerminalTypeEnum::SerialPort) {
         welcomeSerial(terminalInfos);
+    } else if (terminalType == TerminalTypeEnum::WiFiAp) {
+        welcomeHotspot(terminalInfos);
     } else {
         welcomeWeb(terminalInfos);
     }
@@ -167,8 +169,8 @@ void M5DeviceView::welcomeSerial(const std::string& baudStr) {
     
     // Sub
     M5.Lcd.setTextSize(1.5);
-    M5.Lcd.setCursor(8, 100);
-    M5.Lcd.println("Then press a key to start");
+    M5.Lcd.setCursor(10, 100);
+    M5.Lcd.println("Press any key in terminal");
 }
 
 void M5DeviceView::welcomeWeb(const std::string& ipStr) {
@@ -188,6 +190,20 @@ void M5DeviceView::welcomeWeb(const std::string& ipStr) {
     int16_t x = (M5.Lcd.width() - M5.Lcd.textWidth(ip.c_str())) / 2;
     M5.Lcd.setCursor(x, 73);
     M5.Lcd.printf( ip.c_str());
+
+}
+
+void M5DeviceView::welcomeHotspot(const std::string& ipStr) {
+    GlobalState& state = GlobalState::getInstance();
+    PinoutConfig config;
+    config.setMode("HOTSPOT");
+    config.setMappings({
+        state.getActiveApName(),
+        std::string("PW ") + state.getApPassword(),
+        std::string("IP ") + ipStr,
+        "ANY URL WORKS"
+    });
+    show(config);
 }
 
 void M5DeviceView::adapterMode(const std::string& adapterName, const std::string& description, const std::vector<std::string>& details) {

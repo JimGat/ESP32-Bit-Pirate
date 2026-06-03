@@ -132,6 +132,7 @@ private:
 
   void drawCenterText(const std::string& text, int y, int fontSize);
   void welcomeWeb(const std::string& ip);
+  void welcomeHotspot(const std::string& ip);
   void welcomeSerial(const std::string& baud);
 };
 

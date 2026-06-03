@@ -81,7 +81,28 @@ void HttpServer::setupRoutes() {
     };
     httpd_register_uri_handler(server, &lfs_dl_uri);
 
-    // Note: We can't have more than 8 handlers (ws + 7 above)
+    // Note: AP captive portal uses one extra handler beyond the default 8.
+}
+
+void HttpServer::setupCaptivePortalRoutes(const std::string& apIp) {
+    captivePortalUrl = "http://" + apIp + "/";
+
+    auto* captiveUri = new httpd_uri_t{};
+    if (!captiveUri) {
+        return;
+    }
+
+    captiveUri->uri = "/*";
+    captiveUri->method = HTTP_GET;
+    captiveUri->handler = [](httpd_req_t *req) -> esp_err_t {
+        HttpServer* self = static_cast<HttpServer*>(req->user_ctx);
+        return self->handleCaptivePortalRequest(req);
+    };
+    captiveUri->user_ctx = this;
+
+    if (httpd_register_uri_handler(server, captiveUri) != ESP_OK) {
+        delete captiveUri;
+    }
 }
 
 esp_err_t HttpServer::handleRootRequest(httpd_req_t *req) {
@@ -97,6 +118,17 @@ esp_err_t HttpServer::handleCssRequest(httpd_req_t *req) {
 esp_err_t HttpServer::handleJsRequest(httpd_req_t *req) {
     httpd_resp_set_type(req, "application/javascript");
     return httpd_resp_send(req, (const char*)scripts_js, strlen((const char*)scripts_js));
+}
+
+esp_err_t HttpServer::handleCaptivePortalRequest(httpd_req_t *req) {
+    httpd_resp_set_hdr(req, "Cache-Control", "no-store");
+    if (!captivePortalUrl.empty()) {
+        httpd_resp_set_hdr(req, "Location", captivePortalUrl.c_str());
+        httpd_resp_set_status(req, "302 Found");
+        return httpd_resp_send(req, nullptr, 0);
+    }
+
+    return handleRootRequest(req);
 }
 
 esp_err_t HttpServer::handleLittlefsList(httpd_req_t *req) {
@@ -238,7 +270,7 @@ esp_err_t HttpServer::handleLittlefsDownload(httpd_req_t* req) {
     const std::string userPath = "/" + name;
     fs::File f = LittleFS.open(userPath.c_str(), "r");
     const size_t CHUNK = 1024;
-    std::unique_ptr<uint8_t[]> buf(new (std::nothrow) uint8_t[CHUNK]);
+    std::unique_ptr<uint8_t[]> buf(new uint8_t[CHUNK]);
     while (true) {
         int n = f.read(buf.get(), CHUNK);
         if (n < 0) { f.close(); return -1; }
@@ -284,7 +316,7 @@ esp_err_t HttpServer::handleLittlefsUpload(httpd_req_t* req) {
 
     // Init buffer
     const size_t CHUNK = 1024;
-    std::unique_ptr<uint8_t[]> buf(new (std::nothrow) uint8_t[CHUNK]);
+    std::unique_ptr<uint8_t[]> buf(new uint8_t[CHUNK]);
     if (!buf) {
         out.close();
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OOM");
@@ -363,4 +395,3 @@ std::string HttpServer::sanitizeUploadFilename(const char* raw) {
 
     return safe;
 }
-

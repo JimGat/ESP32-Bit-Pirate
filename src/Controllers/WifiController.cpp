@@ -99,6 +99,10 @@ void WifiController::handleConnect(const TerminalCommand &cmd)
 
         // Select network if no creds or not confirmed
         if (!confirmation) {
+            if (state.getTerminalMode() == TerminalTypeEnum::WiFiAp) {
+                wifiService.recoverStaForRetry(true);
+            }
+
             terminalView.println("Wifi: Scanning for available networks...");
             auto networks = wifiService.scanNetworks();
             if (networks.empty()) {
@@ -148,8 +152,13 @@ void WifiController::handleConnect(const TerminalCommand &cmd)
         nvsService.close();
     } else {
         terminalView.println("WiFi: Connection failed.");
-        wifiService.reset();
-        delay(100);
+        if (state.getTerminalMode() == TerminalTypeEnum::WiFiAp) {
+            wifiService.recoverStaForRetry(true);
+            terminalView.println("WiFi Hotspot: Still available at http://" + wifiService.getApIp());
+        } else {
+            wifiService.reset();
+            delay(100);
+        }
     }
 }
 
@@ -774,6 +783,30 @@ Web Interface
 */
 void WifiController::handleWebUi(const TerminalCommand &)
 {
+    if (state.getTerminalMode() == TerminalTypeEnum::WiFiAp)
+    {
+        terminalView.println("");
+        if (wifiService.isConnected()) {
+            terminalView.println("WiFi: Connected to " + wifiService.getSsid() + ".");
+            terminalView.println("WiFi Hotspot: Still running for this setup session.");
+            terminalView.println("");
+            terminalView.println("Web CLI addresses:");
+            terminalView.println("  Hotspot : http://" + wifiService.getApIp());
+            terminalView.println("  Network : http://" + wifiService.getLocalIP());
+            terminalView.println("  Tip: You have to reset and select WiFi Connect");
+        } else {
+            terminalView.println("WiFi Hotspot UI:");
+            terminalView.println("  Hotspot : http://" + wifiService.getApIp());
+        }
+        terminalView.println("");
+        terminalView.println("Hotspot credentials:");
+        terminalView.println("  SSID    : " + state.getActiveApName());
+        terminalView.println("  Password: " + std::string(state.getApPassword()));
+        terminalView.println("  Captive : open any URL from a device connected to the hotspot");
+        terminalView.println("");
+        return;
+    }
+
     if (wifiService.isConnected())
     {
         auto ip = wifiService.getLocalIP();
@@ -781,18 +814,20 @@ void WifiController::handleWebUi(const TerminalCommand &)
         terminalView.println(" [⚠️  WARNING] ");
         terminalView.println(" If you're connected via serial,");
         terminalView.println(" the web UI will not be active.");
-        terminalView.println(" Reset the device and choose WiFi Web.");
+        terminalView.println(" Reset the device and choose WiFi Connect.");
         terminalView.println("");
         terminalView.println("[BAREBONE] To launch the WebUI without a screen:");
         terminalView.println("  1. Reset the device (don’t hold the board button during boot)");
-        terminalView.println("  2. Once the device is powered, you have 3 seconds to press the board button");
+        terminalView.println("  2. Once powered, press the board button within 3 seconds:");
+        terminalView.println("     • Short press = WiFi Connect");
+        terminalView.println("     • Hold press  = WiFi Hotspot");
         terminalView.println("  3. The built-in LED shows the following status:");
         terminalView.println("     • Blue  = No Wi-Fi credentials saved.");
         terminalView.println("     • White = Connecting in progress");
         terminalView.println("     • Green = Connected, open the WebUI in your browser.");
         terminalView.println("     • Red   = Connection failed, try connect again with serial");
         terminalView.println("");
-        terminalView.println("WiFi Web UI: http://" + ip + " (reset and select WiFi terminal)");
+        terminalView.println("WiFi Web UI: http://" + ip + " (reset and select WiFi Connect)");
     }
     else
     {
@@ -811,6 +846,12 @@ void WifiController::handleConfig()
         terminalView.println(" executing some Wi-Fi commands will cause ");
         terminalView.println(" the terminal session to disconnect.");
         terminalView.println(" Don't use: sniff, probe, connect, scan, spoof...");
+        terminalView.println(" Use USB serial or restart if connection is lost.\n");
+    } else if (state.getTerminalMode() == TerminalTypeEnum::WiFiAp) {
+        terminalView.println(" [⚠️  WARNING] ");
+        terminalView.println(" You are in Wi-Fi Hotspot mode, some commands");
+        terminalView.println(" may cause the hotspot to stop or disconnect.");
+        terminalView.println(" Don't use: sniff, ap, flood, spoof, reset...");
         terminalView.println(" Use USB serial or restart if connection is lost.\n");
     }
 }

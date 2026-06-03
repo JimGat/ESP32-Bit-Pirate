@@ -22,10 +22,10 @@ void TembedInput::tick() {
 
     int pos = encoder.getPosition();
     if (pos < lastPos) {
-        lastInput = KEY_ARROW_LEFT;
+        lastInput = KEY_ARROW_RIGHT;
         lastPos = pos;
     } else if (pos > lastPos) {
-        lastInput = KEY_ARROW_RIGHT;
+        lastInput = KEY_ARROW_LEFT;
         lastPos = pos;
     } else if (!digitalRead(TEMBED_PIN_ENCODE_BTN) && !lastButton) {
         lastInput = KEY_OK;

@@ -68,6 +68,7 @@ public:
     int getWifiStatusRaw() const; // wl_status_t
     bool isProvisioningEnabled() const;
     void reset();
+    void recoverStaForRetry(bool keepApMode);
     
     // Access point
     bool startAccessPoint(const std::string& ssid, const std::string& password = "", int channel = 1, int maxConn = 4);

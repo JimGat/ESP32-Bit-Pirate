@@ -1,7 +1,9 @@
 #include "WifiService.h"
 
 WifiService::WifiService() : connected(false) {
-    WiFi.mode(WIFI_STA);
+    if (WiFi.getMode() == WIFI_MODE_NULL) {
+        WiFi.mode(WIFI_STA);
+    }
 }
 
 bool WifiService::connect(const std::string& ssid, const std::string& password, unsigned long timeoutMs) {
@@ -105,6 +107,21 @@ bool WifiService::stopAccessPoint() {
 void WifiService::reset() {
     disconnect();
     WiFi.mode(WIFI_STA);
+    connected = false;
+}
+
+void WifiService::recoverStaForRetry(bool keepApMode) {
+    // Stop any station connection attempt that can break subsequent scans
+    esp_wifi_disconnect();
+    WiFi.scanDelete();
+    delay(100);
+
+    if (keepApMode) {
+        WiFi.mode(WIFI_AP_STA);
+    } else {
+        WiFi.mode(WIFI_STA);
+    }
+
     connected = false;
 }
 

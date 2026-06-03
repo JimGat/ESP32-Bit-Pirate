@@ -190,6 +190,7 @@ void HelpShell::cmdI2c() {
         "flood <addr>         - Saturate target I/O",
         "health <addr>        - Perform timing test",
         "monitor <addr> [ms]  - Monitor register changes",
+        "trace <a> [reg] [ms] - Monitor one register",
         "eeprom [addr]        - I2C EEPROM operations",
         "recover              - Attempt bus recovery",
         "jam                  - Jam I2C bus with noise",

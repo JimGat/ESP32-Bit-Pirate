@@ -158,6 +158,7 @@ glitch <addr>
 flood <addr>
 health <addr>
 monitor <addr> [ms]
+trace <addr> [reg] [ms]
 eeprom [addr] (24XX and AT24C series)
 recover
 jam 

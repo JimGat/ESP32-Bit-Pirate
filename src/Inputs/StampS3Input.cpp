@@ -16,7 +16,9 @@ char StampS3Input::mapButton() {
 }
 
 char StampS3Input::readChar() {
-    return mapButton();
+    M5.update();
+    if (M5.BtnA.isPressed()) return KEY_OK;
+    return KEY_NONE;
 }
 
 char StampS3Input::handler() {

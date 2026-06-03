@@ -14,8 +14,8 @@ public:
     static std::string toString(TerminalTypeEnum type) {
         switch (type) {
             case TerminalTypeEnum::SerialPort:  return "USB Serial";
-            case TerminalTypeEnum::WiFiAp:      return "WiFi AP";
-            case TerminalTypeEnum::WiFiClient:  return "WiFi Web";
+            case TerminalTypeEnum::WiFiAp:      return "WiFi Hotspot";
+            case TerminalTypeEnum::WiFiClient:  return "WiFi Connect";
             case TerminalTypeEnum::Standalone:  return "Standalone";
             case TerminalTypeEnum::None:        return "None";
             default:                            return "Unknown";

@@ -1,4 +1,5 @@
 #include "I2cController.h"
+#include <iomanip>
 
 /*
 Constructor
@@ -41,6 +42,7 @@ void I2cController::handleCommand(const TerminalCommand& cmd) {
     else if (cmd.getRoot() == "eeprom") handleEeprom(cmd);
     else if (cmd.getRoot() == "recover") handleRecover();
     else if (cmd.getRoot() == "monitor") handleMonitor(cmd);
+    else if (cmd.getRoot() == "trace") handleTrace(cmd);
     else if (cmd.getRoot() == "swap") handleSwap();
     else if (cmd.getRoot() == "health") handleHealth(cmd);
     else if (cmd.getRoot() == "config") handleConfig();
@@ -219,6 +221,15 @@ void I2cController::handleWrite(const TerminalCommand& cmd) {
     uint8_t pingResult = i2cService.endTransmission();
     if (pingResult != 0) {
         terminalView.println("I2C Ping: 0x" + argTransformer.toHex(addr) + " no response. Aborting write.");
+        return;
+    }
+
+    if (!userInputManager.readYesNo(
+            "Write 0x" + argTransformer.toHex(val) +
+            " to reg 0x" + argTransformer.toHex(reg) +
+            " @ dev 0x" + argTransformer.toHex(addr) + "?",
+            true)) {
+        terminalView.println("I2C Write: Cancelled.");
         return;
     }
 
@@ -827,6 +838,85 @@ void I2cController::handleMonitor(const TerminalCommand& cmd) {
     }
 
     terminalView.println("\nI2C Monitor: Stopped.");
+}
+
+/*
+Trace
+*/
+void I2cController::handleTrace(const TerminalCommand& cmd) {
+    if (!argTransformer.isValidNumber(cmd.getSubcommand())) {
+        terminalView.println("Usage: trace <addr> [reg] [delay_ms]");
+        return;
+    }
+
+    auto args = argTransformer.splitArgs(cmd.getArgs());
+    if (args.size() >= 2 && !argTransformer.isValidNumber(args[1])) {
+        terminalView.println("Usage: trace <addr> [reg] [delay_ms]");
+        return;
+    }
+
+    uint8_t addr = argTransformer.parseHexOrDec(cmd.getSubcommand());
+
+    uint8_t reg = 0;
+    if (args.size() >= 1) {
+        if (!argTransformer.isValidNumber(args[0])) {
+            terminalView.println("Error: Invalid register. Use decimal or 0x-prefixed hex.");
+            return;
+        }
+        reg = argTransformer.parseHexOrDec(args[0]);
+    } else {
+        reg = (uint8_t)userInputManager.readValidatedByte("Register to trace", 0, true);
+    }
+
+    uint32_t delayMs = 500;
+    if (args.size() >= 2) {
+        delayMs = argTransformer.parseHexOrDec32(args[1]);
+    }
+
+    // Check device presence
+    i2cService.beginTransmission(addr);
+    if (i2cService.endTransmission()) {
+        terminalView.println("I2C Trace: No device found at 0x" + argTransformer.toHex(addr));
+        return;
+    }
+
+    uint8_t prev = 0;
+    if (!i2cService.readReg(addr, reg, &prev, nullptr)) {
+        terminalView.println("I2C Trace: Unable to read reg 0x" + argTransformer.toHex(reg) +
+                             " @ dev 0x" + argTransformer.toHex(addr) + ".");
+        return;
+    }
+
+    terminalView.println("I2C Trace: Monitoring reg 0x" + argTransformer.toHex(reg) +
+                         " @ dev 0x" + argTransformer.toHex(addr) +
+                         "... Press [ENTER] to stop.\n");
+    terminalView.println("Initial: 0x" + argTransformer.toHex(prev) +
+                         " (" + argTransformer.toBinString(prev) + ")");
+
+    while (true) {
+        uint8_t curr = 0;
+        if (i2cService.readReg(addr, reg, &curr, nullptr) && curr != prev) {
+            std::stringstream ss;
+            ss << "0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)reg
+               << ": 0x" << std::setw(2) << (int)prev
+               << " (" << argTransformer.toBinString(prev) << ")"
+               << " -> 0x" << std::setw(2) << (int)curr
+               << " (" << argTransformer.toBinString(curr) << ")";
+            terminalView.println(ss.str());
+            prev = curr;
+        }
+
+        uint32_t elapsed = 0;
+        while (elapsed < delayMs) {
+            char key = terminalInput.readChar();
+            if (key == '\r' || key == '\n') {
+                terminalView.println("\nI2C Trace: Stopped by user.");
+                return;
+            }
+            delay(10);
+            elapsed += 10;
+        }
+    }
 }
 
 /*

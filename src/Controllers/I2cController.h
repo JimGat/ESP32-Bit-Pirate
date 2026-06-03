@@ -101,8 +101,11 @@ private:
     // Swap SDA and SCL pins
     void handleSwap();
 
-    // Monitor I2C device registers
+    // Monitor all I2C device registers
     void handleMonitor(const TerminalCommand& cmd);
+
+    // Trace a single I2C device register
+    void handleTrace(const TerminalCommand& cmd);
 
     // I2C EEPROM operations
     void handleEeprom(const TerminalCommand& cmd);

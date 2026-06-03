@@ -138,13 +138,14 @@ void GuideShell::cmdWebTerminal() {
     terminalView.println("Use the web interface:");
     terminalView.println(" mode wifi");
     terminalView.println(" connect");
-    terminalView.println(" reboot, pick WiFi Web");
+    terminalView.println(" reboot, pick WiFi Connect");
     terminalView.println("");
 
     terminalView.println("Barebone boards (no screen):");
-    terminalView.println("  Boot Wi-Fi Web mode:");
+    terminalView.println("  Boot Web terminal modes:");
     terminalView.println("    • Reset device");
-    terminalView.println("    • Press board button < 3s");
+    terminalView.println("    • Press board button shortly: WiFi Connect");
+    terminalView.println("    • Hold board button 1sec: WiFi Hotspot");
     terminalView.println("    • LED status:");
     terminalView.println("       White : connecting");
     terminalView.println("       Blue  : no Wi-Fi saved");
@@ -158,11 +159,10 @@ void GuideShell::cmdWebTerminal() {
     terminalView.println("Notes:");
     terminalView.println("  • Some commands cut sessions");
     terminalView.println("    ex: wifi disconnect with Web Terminal");
-    terminalView.println("    ex: usb reset / usb mode with Serial Terminal");
     terminalView.println("");
     terminalView.println("Tip:");
     terminalView.println("  Use Serial for heavy output.");
-    terminalView.println("  ex: sniffers (I2C/1WIRE).");
+    terminalView.println("  ex: sniffers (I2C/1WIRE), BT/Wi-Fi.");
 }
 
 void GuideShell::cmdInstructionSyntax() {

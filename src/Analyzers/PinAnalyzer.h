@@ -36,14 +36,25 @@ public:
         uint32_t maxPulseUs = 0;
         uint32_t medianPulseUs = 0;
         uint32_t basePulseUs = 0; 
+        uint32_t normalMinPulseUs = 0;
+        uint32_t normalMaxPulseUs = 0;
+        uint32_t pulseClusterAUs = 0;
+        uint32_t pulseClusterBUs = 0;
         float dutyPct = 0.f;  
         float approxHz = 0.f;
         float jitterPct = 0.f;   
+        float normalJitterPct = 0.f;
 
         // Activity structure
         int bursts = 0;
         int burstEdges = 0;
         uint32_t maxGapUs = 0;
+        int timingBinsUsed = 0;
+        int dominantTimingBinPct = 0;
+        int oneTBinPct = 0;
+        bool hasLongGaps = false;
+        bool timingReliable = true;
+        bool maxGapWasHigh = false;
 
         // Derived guesses
         Guess top1, top2, top3;
@@ -88,6 +99,7 @@ private:
     int bursts = 0;
     int burstEdges = 0;
     uint32_t maxGapUs = 0;
+    bool maxGapWasHigh = false;
     bool inBurst = false;
 
     // Pulse ring buffer
@@ -116,13 +128,37 @@ private:
     static uint32_t estimateBaseT(const std::vector<uint32_t>& pulses);
     static float jitterScorePct(const std::vector<uint32_t>& pulses, uint32_t ref);
     static int clampInt(int v, int lo, int hi);
+    static void analyzeTimingBins(const std::vector<uint32_t>& pulses,
+                                  uint32_t baseT,
+                                  int& binsUsed,
+                                  int& dominantPct,
+                                  int& oneTPct);
+    static void collectNormalPulses(const std::vector<uint32_t>& pulses,
+                                    uint32_t baseT,
+                                    std::vector<uint32_t>& normal);
+    static void estimateTwoPulseClusters(const std::vector<uint32_t>& pulses,
+                                         uint32_t baseT,
+                                         uint32_t& clusterA,
+                                         uint32_t& clusterB);
 
     // Pattern detectors
     Guess detectIdle(float approxHz, float dutyPct, uint32_t edges, bool startLevel) const;
     Guess detectNoiseOrFloating(const std::vector<uint32_t>& pulses, float jitterPct, uint32_t minPulseUs, uint32_t edges) const;
-    Guess detectClockPwm(float approxHz, float dutyPct, float jitterPct, uint32_t edges) const;
+    Guess detectClockPwm(float approxHz,
+                         float dutyPct,
+                         uint32_t normalMinPulseUs,
+                         uint32_t normalMaxPulseUs,
+                         uint32_t pulseClusterAUs,
+                         uint32_t pulseClusterBUs,
+                         float normalJitterPct,
+                         uint32_t edges) const;
     Guess detectServo(const std::vector<uint32_t>& risePeriods, const std::vector<uint32_t>& highPulses) const;
-    Guess detectDataLike(const std::vector<uint32_t>& pulses, uint32_t baseT) const;
+    Guess detectDataLike(const std::vector<uint32_t>& pulses,
+                         uint32_t baseT,
+                         int binsUsed,
+                         int dominantPct,
+                         int oneTPct,
+                         bool hasLongGaps) const;
     Guess detectBurstData(int bursts, uint32_t edges, float approxHz, float jitterPct) const;
 
     // Pull tests

@@ -30,6 +30,7 @@ void PinAnalyzer::begin(uint8_t pin_) {
     bursts = 0;
     burstEdges = 0;
     maxGapUs = 0;
+    maxGapWasHigh = false;
     inBurst = false;
 
     pulseCount = 0;
@@ -83,7 +84,10 @@ void PinAnalyzer::onEdge(bool newLevel, uint32_t nowUs) {
     if (dt >= gapThresholdUs) {
         if (inBurst) inBurst = false;
         bursts++;
-        if (dt > maxGapUs) maxGapUs = dt;
+        if (dt > maxGapUs) {
+            maxGapUs = dt;
+            maxGapWasHigh = lastLevel;
+        }
     } else {
         inBurst = true;
         burstEdges++;
@@ -116,6 +120,12 @@ void PinAnalyzer::closeTail(uint32_t nowUs) {
     if (lastLevel) highUs += dt;
     else           lowUs  += dt;
 
+    const uint32_t gapThresholdUs = 5000; // 5ms
+    if (dt >= gapThresholdUs && dt > maxGapUs) {
+        maxGapUs = dt;
+        maxGapWasHigh = lastLevel;
+    }
+
     // Don’t push tail into pulse ring
     lastChangeUs = nowUs;
 }
@@ -135,6 +145,7 @@ void PinAnalyzer::resetWindow() {
     bursts = 0;
     burstEdges = 0;
     maxGapUs = 0;
+    maxGapWasHigh = false;
     inBurst = false;
 
     pulseCount = 0;
@@ -227,6 +238,100 @@ int PinAnalyzer::clampInt(int v, int lo, int hi) {
     return v;
 }
 
+void PinAnalyzer::analyzeTimingBins(const std::vector<uint32_t>& pulses,
+                                    uint32_t baseT,
+                                    int& binsUsed,
+                                    int& dominantPct,
+                                    int& oneTPct) {
+    binsUsed = 0;
+    dominantPct = 0;
+    oneTPct = 0;
+    if (pulses.size() < 10 || baseT == 0) return;
+
+    int bins[8] = {0,0,0,0,0,0,0,0};
+    int total = 0;
+    float tol = baseT * 0.25f;
+
+    for (auto p : pulses) {
+        if (p < baseT / 2) continue;
+
+        int bestN = 0;
+        float bestErr = 1e9f;
+        for (int n = 1; n <= 8; n++) {
+            float target = (float)baseT * n;
+            float err = fabsf((float)p - target);
+            if (err < bestErr) {
+                bestErr = err;
+                bestN = n;
+            }
+        }
+
+        if (bestN > 0 && bestErr <= tol) {
+            bins[bestN - 1]++;
+            total++;
+        }
+    }
+
+    if (total == 0) return;
+
+    int dominant = 0;
+    for (int i = 0; i < 8; i++) {
+        if (bins[i] > 0) binsUsed++;
+        if (bins[i] > dominant) dominant = bins[i];
+    }
+
+    dominantPct = (dominant * 100) / total;
+    oneTPct = (bins[0] * 100) / total;
+}
+
+void PinAnalyzer::collectNormalPulses(const std::vector<uint32_t>& pulses,
+                                      uint32_t baseT,
+                                      std::vector<uint32_t>& normal) {
+    normal.clear();
+    if (pulses.empty()) return;
+
+    uint32_t limit = baseT ? (baseT * 16) : 0;
+    if (limit == 0) return;
+
+    normal.reserve(pulses.size());
+    for (auto p : pulses) {
+        if (p >= baseT / 2 && p <= limit) {
+            normal.push_back(p);
+        }
+    }
+}
+
+void PinAnalyzer::estimateTwoPulseClusters(const std::vector<uint32_t>& pulses,
+                                           uint32_t baseT,
+                                           uint32_t& clusterA,
+                                           uint32_t& clusterB) {
+    clusterA = 0;
+    clusterB = 0;
+    if (pulses.size() < 6 || baseT == 0) return;
+
+    std::vector<uint32_t> v;
+    v.reserve(pulses.size());
+
+    uint32_t gapLimit = baseT * 64;
+    for (auto p : pulses) {
+        if (p >= baseT / 2 && p <= gapLimit) {
+            v.push_back(p);
+        }
+    }
+
+    if (v.size() < 6) return;
+
+    std::sort(v.begin(), v.end());
+    clusterA = v[v.size() / 4];
+    clusterB = v[(v.size() * 3) / 4];
+
+    if (clusterA > clusterB) {
+        uint32_t t = clusterA;
+        clusterA = clusterB;
+        clusterB = t;
+    }
+}
+
 const char* PinAnalyzer::kindToStr(SignalKind k) {
     switch (k) {
         case SignalKind::Idle: return "Idle";
@@ -280,24 +385,30 @@ PinAnalyzer::Guess PinAnalyzer::detectNoiseOrFloating(const std::vector<uint32_t
 }
 
 PinAnalyzer::Guess PinAnalyzer::detectClockPwm(float approxHz,
-                                                          float dutyPct,
-                                                          float /*jitterPct*/,
-                                                          uint32_t edges_) const {
+                                               float dutyPct,
+                                               uint32_t normalMinPulseUs,
+                                               uint32_t normalMaxPulseUs,
+                                               uint32_t pulseClusterAUs,
+                                               uint32_t pulseClusterBUs,
+                                               float normalJitterPct,
+                                               uint32_t edges_) const {
+    (void)approxHz;
     Guess g;
     if (edges_ < 40) return g;
-    if (maxPulseUs == 0) return g;
-    uint32_t a = basePulseUs ? basePulseUs : minPulseUs;
-    uint32_t b = maxPulseUs;
+    uint32_t a = pulseClusterAUs ? pulseClusterAUs : normalMinPulseUs;
+    uint32_t b = pulseClusterBUs ? pulseClusterBUs : normalMaxPulseUs;
 
     if (a == 0 || a == 0xFFFFFFFF) return g;
 
-    // Ignore tiny
-    if (a < 4) return g;
+    // Very short pulses are timing-rough in polling, but still classify
+    // regular fast PWM/clock as signal activity instead of floating noise.
+    if (a < 1) return g;
 
     if (a > b) { uint32_t t = a; a = b; b = t; }
 
-    // Ratio check
-    if (b > a * 16) return g;
+    // Ratio check on clustered pulse widths, not on raw max gap.
+    if (b > a * 64) return g;
+    if (normalJitterPct > 35.f && b <= a * 2) return g;
 
     uint32_t periodUs = a + b;
     if (periodUs == 0) return g;
@@ -312,6 +423,10 @@ PinAnalyzer::Guess PinAnalyzer::detectClockPwm(float approxHz,
     if (edges_ > 2000) conf += 10;
     if (b <= a * 3)    conf += 10;
     if (b <= a * 2)    conf += 5;
+    if (b > a * 16)    conf -= 18;
+    if (a < 4)         conf -= 10;
+    if (normalJitterPct < 8.f) conf += 8;
+    else if (normalJitterPct > 20.f && b <= a * 2) conf -= 12;
 
     conf = clampInt(conf, 0, 90);
 
@@ -350,7 +465,12 @@ PinAnalyzer::Guess PinAnalyzer::detectServo(const std::vector<uint32_t>& risePer
     return g;
 }
 
-PinAnalyzer::Guess PinAnalyzer::detectDataLike(const std::vector<uint32_t>& pulses, uint32_t baseT) const {
+PinAnalyzer::Guess PinAnalyzer::detectDataLike(const std::vector<uint32_t>& pulses,
+                                               uint32_t baseT,
+                                               int binsUsed,
+                                               int dominantPct,
+                                               int oneTPct,
+                                               bool hasLongGaps) const {
     Guess g;
     if (pulses.size() < 30 || baseT < 2 || baseT > 2000) return g;
 
@@ -376,16 +496,29 @@ PinAnalyzer::Guess PinAnalyzer::detectDataLike(const std::vector<uint32_t>& puls
     if (total < 20) return g;
 
     float score = (float)ok / (float)total;
+    bool variedTiming = (binsUsed >= 2 && dominantPct < 88);
+    bool stronglyVariedTiming = (binsUsed >= 3 && dominantPct < 80);
+    bool pureOneT = (binsUsed <= 1 && oneTPct >= 85);
+
+    // A perfect clock or 50% PWM also matches 1*T. That is not data by itself.
+    if (pureOneT && !hasLongGaps) return g;
+    if (!variedTiming && !hasLongGaps) return g;
+
     if (score > 0.60f) {
         int baud = (baseT > 0) ? (int)(1000000.0f / (float)baseT + 0.5f) : 0;
 
         // confidence shaped by score
-        int conf = (int)(40 + score * 60);
+        int conf = (int)(35 + score * 45);
+        if (stronglyVariedTiming) conf += 12;
+        else if (variedTiming) conf += 5;
+        if (hasLongGaps) conf += 8;
+        if (dominantPct > 85) conf -= 18;
+        if (oneTPct > 80) conf -= 12;
         if (baud < 1200 || baud > 2000000) conf = (int)(conf * 0.7f);
 
         g.kind = SignalKind::DataLike;
         g.confidencePct = clampInt(conf, 0, 95);
-        g.note = "Timings match a bit-time";
+        g.note = "Structured timing.";
         g.extra = "baud~" + std::to_string(baud);
         return g;
     }
@@ -473,6 +606,7 @@ PinAnalyzer::Report PinAnalyzer::buildReport(bool doPullTest) {
     r.bursts = bursts;
     r.burstEdges = burstEdges;
     r.maxGapUs = maxGapUs;
+    r.maxGapWasHigh = maxGapWasHigh;
 
     uint32_t totalUs = highUs + lowUs;
     r.dutyPct = (totalUs ? (100.0f * (float)highUs) / (float)totalUs : 0.f);
@@ -491,10 +625,30 @@ PinAnalyzer::Report PinAnalyzer::buildReport(bool doPullTest) {
         r.basePulseUs = estimateBaseT(pulses);
         basePulseUs = r.basePulseUs;
         r.jitterPct = jitterScorePct(pulses, r.basePulseUs ? r.basePulseUs : r.medianPulseUs);
+
+        analyzeTimingBins(pulses, r.basePulseUs, r.timingBinsUsed, r.dominantTimingBinPct, r.oneTBinPct);
+        r.hasLongGaps = (r.basePulseUs > 0 && r.maxGapUs > (r.basePulseUs * 16));
+        estimateTwoPulseClusters(pulses, r.basePulseUs, r.pulseClusterAUs, r.pulseClusterBUs);
+
+        std::vector<uint32_t> normalPulses;
+        collectNormalPulses(pulses, r.basePulseUs, normalPulses);
+        if (!normalPulses.empty()) {
+            r.normalMinPulseUs = normalPulses[0];
+            r.normalMaxPulseUs = normalPulses[0];
+            for (auto p : normalPulses) {
+                if (p < r.normalMinPulseUs) r.normalMinPulseUs = p;
+                if (p > r.normalMaxPulseUs) r.normalMaxPulseUs = p;
+            }
+            r.normalJitterPct = jitterScorePct(normalPulses, r.basePulseUs ? r.basePulseUs : r.medianPulseUs);
+        }
+
+        r.timingReliable = (r.minPulseUs == 0xFFFFFFFF || r.minPulseUs > 8);
     } else {
         r.medianPulseUs = 0;
         r.basePulseUs = 0;
         r.jitterPct = 100.f;
+        r.normalJitterPct = 100.f;
+        r.timingReliable = true;
     }
 
     // Rise periods (servo)
@@ -511,13 +665,25 @@ PinAnalyzer::Report PinAnalyzer::buildReport(bool doPullTest) {
     auto gNoise = detectNoiseOrFloating(pulses, r.jitterPct, r.minPulseUs, r.edges);
     if (gNoise.confidencePct) guesses.push_back(gNoise);
 
-    auto gCP = detectClockPwm(r.approxHz, r.dutyPct, r.jitterPct, r.edges);
+    auto gCP = detectClockPwm(r.approxHz,
+                              r.dutyPct,
+                              r.normalMinPulseUs,
+                              r.normalMaxPulseUs,
+                              r.pulseClusterAUs,
+                              r.pulseClusterBUs,
+                              r.normalJitterPct,
+                              r.edges);
     if (gCP.confidencePct) guesses.push_back(gCP);
 
     auto gServo = detectServo(risePeriods, {});
     if (gServo.confidencePct) guesses.push_back(gServo);
 
-    auto gData = detectDataLike(pulses, r.basePulseUs);
+    auto gData = detectDataLike(pulses,
+                                r.basePulseUs,
+                                r.timingBinsUsed,
+                                r.dominantTimingBinPct,
+                                r.oneTBinPct,
+                                r.hasLongGaps);
     if (gData.confidencePct) guesses.push_back(gData);
 
     auto gBurst = detectBurstData(bursts, r.edges, r.approxHz, r.jitterPct);
@@ -530,6 +696,21 @@ PinAnalyzer::Report PinAnalyzer::buildReport(bool doPullTest) {
         g.confidencePct = 30;
         g.note = "There is activity, but it doesn't match pattern.";
         guesses.push_back(g);
+    }
+
+    bool clockOrPwmStrong = (gCP.confidencePct >= 70);
+    bool strongDataEvidence = (r.hasLongGaps || r.bursts >= 2 ||
+                               (r.timingBinsUsed >= 3 && r.dominantTimingBinPct < 80));
+    if (clockOrPwmStrong && !strongDataEvidence) {
+        for (auto& g : guesses) {
+            if (g.kind == SignalKind::DataLike) {
+                g.confidencePct = clampInt(g.confidencePct - 35, 0, 95);
+                g.note = "Weak data evidence; mostly regular timing.";
+            } else if (g.kind == SignalKind::NoiseOrFloating) {
+                g.confidencePct = clampInt(g.confidencePct - 30, 0, 95);
+                g.note = "Short pulses, but regular signal detected.";
+            }
+        }
     }
 
     // Sort top guesses
@@ -596,9 +777,9 @@ std::string PinAnalyzer::formatWizardReport(uint8_t pin, const Report& r) const 
 
         if (isClockish) {
             // For PWM, jitterPct is often meaningless because the distribution is bimodal (high+low).
-            if (r.minPulseUs != 0xFFFFFFFF && r.maxPulseUs > 0) {
-                uint32_t a = r.basePulseUs ? r.basePulseUs : r.minPulseUs;
-                uint32_t b = r.maxPulseUs;
+            if (r.pulseClusterAUs != 0 && r.pulseClusterBUs > 0) {
+                uint32_t a = r.pulseClusterAUs;
+                uint32_t b = r.pulseClusterBUs;
                 if (a > b) { uint32_t t = a; a = b; b = t; }
 
                 float ratio = (a > 0) ? ((float)b / (float)a) : 999.f;
@@ -617,12 +798,18 @@ std::string PinAnalyzer::formatWizardReport(uint8_t pin, const Report& r) const 
 
         if (r.bursts >= 2) {
             line("It comes in bursts (" + std::to_string(r.bursts) +
-                " bursts, max gap ~" + std::to_string(r.maxGapUs / 1000.0) + " ms).");
+                " bursts, max gap ~" + std::to_string((int)((r.maxGapUs + 500) / 1000)) + " ms).");
+        } else if (r.hasLongGaps) {
+            line(std::string("Long idle gap observed, mostly ") + (r.maxGapWasHigh ? "HIGH." : "LOW."));
         }
 
         if (r.minPulseUs != 0xFFFFFFFF) {
             line("Min pulse ~" + std::to_string(r.minPulseUs) +
                  " us, max ~" + std::to_string(r.maxPulseUs) + " us.");
+        }
+
+        if (!r.timingReliable) {
+            line("Timing limited: near polling limit.");
         }
     }
 

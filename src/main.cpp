@@ -19,6 +19,7 @@
 #include <Dispatchers/ActionDispatcher.h>
 #include <Servers/HttpServer.h>
 #include <Servers/WebSocketServer.h>
+#include <Servers/DnsServer.h>
 #include <Services/NvsService.h>
 #include <Inputs/WebTerminalInput.h>
 #include <Selectors/HorizontalSelector.h>
@@ -148,11 +149,10 @@ void setup() {
     HorizontalSelector selector(deviceView, deviceInput);
     TerminalTypeConfigurator configurator(selector);
     TerminalTypeEnum terminalType = configurator.configure();
-    state.setTerminalMode(terminalType);
     std::string webIp = "0.0.0.0";
 
     // Configure Wi-Fi if needed
-    if (terminalType == TerminalTypeEnum::WiFiClient) {
+    if (terminalType == TerminalTypeEnum::WiFiClient || terminalType == TerminalTypeEnum::WiFiAp) {
         WifiTypeConfigurator wifiTypeConfigurator(deviceView, deviceInput);
         webIp = wifiTypeConfigurator.configure(terminalType);
         
@@ -162,6 +162,7 @@ void setup() {
             state.setTerminalIp(webIp);
         }
     }
+    state.setTerminalMode(terminalType);
 
     switch (terminalType) {
         case TerminalTypeEnum::SerialPort: {
@@ -182,11 +183,18 @@ void setup() {
             dispatcher.run(); // Forever
             break;
         }
-        case TerminalTypeEnum::WiFiAp: // Not Yet Implemented
+        case TerminalTypeEnum::WiFiAp:
         case TerminalTypeEnum::WiFiClient: {
             // Configure Server
             httpd_handle_t server = nullptr;
             httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+
+            // DNS server for captive portal if AP mode
+            if (terminalType == TerminalTypeEnum::WiFiAp) {
+                DnsServer::configureCaptiveDns(config);
+                DnsServer::startCaptiveDns(webIp);
+            }
+
             if (httpd_start(&server, &config) != ESP_OK) {
                 return;
             }
@@ -199,11 +207,14 @@ void setup() {
             WebTerminalView webView(wsServer);
             WebTerminalInput webInput(wsServer);
             deviceView.loading();
-            delay(6000); // let the server begin
+            delay(7000); // let the server begin
             
-            // Setup routes for index and ws
+            // Setup routes for index, ws, captive if needed
             wsServer.setupRoutes();
             httpServer.setupRoutes();
+            if (terminalType == TerminalTypeEnum::WiFiAp) {
+                httpServer.setupCaptivePortalRoutes(webIp);
+            }
 
             // Build the provider for webui type and run the dispatcher loop
             // too big to fit on the stack anymore, allocated on the heap

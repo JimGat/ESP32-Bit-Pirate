@@ -133,8 +133,8 @@ void M5DeviceView::horizontalSelection(
 
     // Option sélectionnée (nom)
     const std::string& option = options[selectedIndex];
-    M5.Lcd.fillRoundRect(40, 72, M5.Lcd.width() - 80, 50, DEFAULT_ROUND_RECT, RECT_COLOR_DARK);
-    M5.Lcd.drawRoundRect(40, 72, M5.Lcd.width() - 80, 50, DEFAULT_ROUND_RECT, RECT_COLOR_LIGHT);
+    M5.Lcd.fillRoundRect(37, 72, M5.Lcd.width() - 74, 50, DEFAULT_ROUND_RECT, RECT_COLOR_DARK);
+    M5.Lcd.drawRoundRect(37, 72, M5.Lcd.width() - 74, 50, DEFAULT_ROUND_RECT, RECT_COLOR_LIGHT);
 
     M5.Lcd.setTextSize(2);
     M5.Lcd.setTextColor(TEXT_COLOR);
@@ -201,7 +201,7 @@ void M5DeviceView::welcomeHotspot(const std::string& ipStr) {
         state.getActiveApName(),
         std::string("PW ") + state.getApPassword(),
         std::string("IP ") + ipStr,
-        "ANY URL WORKS"
+        "CONNECT TO AP"
     });
     show(config);
 }

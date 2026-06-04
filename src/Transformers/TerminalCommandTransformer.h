@@ -37,6 +37,7 @@ private:
         {"ble",       "bluetooth"},
         {"ir",        "infrared"},
         {"sub",       "subghz"},
+        {"cc1101",    "subghz"},
         {"rf",        "rf24"},
         {"nrf",      "rf24"},
         {"nfc",       "rfid"},

@@ -397,7 +397,7 @@ void TembedDeviceView::welcomeHotspot(const std::string& ipStr) {
     state.getActiveApName(),
     std::string("PW ") + state.getApPassword(),
     std::string("IP ") + ipStr,
-    "ANY URL WORKS"
+    "CONNECT TO AP"
   });
   show(config);
 }

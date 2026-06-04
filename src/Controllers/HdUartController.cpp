@@ -59,7 +59,7 @@ void HdUartController::handleBridge() {
         // Device input
         c = deviceInput.readChar();
         if (c != KEY_NONE) {
-            terminalView.println("\nHDUART Bridge: Stopped by user.");
+            terminalView.println("\n\rHDUART Bridge: Stopped by user.");
             break;
         }
     }
@@ -109,7 +109,9 @@ void HdUartController::handleHelp() {
 Ensure Configuration
 */
 void HdUartController::ensureConfigured() {
-    uartService.end();
+    if (uartService.isInstalled()) {
+        uartService.end();
+    }
 
     if (!configured) {
         handleConfig();

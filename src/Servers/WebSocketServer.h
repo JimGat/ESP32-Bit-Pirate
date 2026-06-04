@@ -20,7 +20,9 @@ public:
 
 private:
     static esp_err_t wsHandler(httpd_req_t *req);
+    static void closeClient(httpd_handle_t server, int fd);
+
     httpd_handle_t server;
     static inline std::deque<char> buffer;
-    static inline int clientFd = -1; 
+    static inline int clientFd = -1;
 };

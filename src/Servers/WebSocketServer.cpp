@@ -22,7 +22,11 @@ esp_err_t WebSocketServer::wsHandler(httpd_req_t *req) {
     WebSocketServer* self = static_cast<WebSocketServer*>(req->user_ctx);
     
     if (req->method == HTTP_GET) {
-        clientFd = httpd_req_to_sockfd(req);  // Capture le socket client
+        int newClientFd = httpd_req_to_sockfd(req);
+        if (clientFd >= 0 && clientFd != newClientFd) {
+            closeClient(self->server, clientFd);
+        }
+        clientFd = newClientFd;
         return ESP_OK;
     }
     
@@ -42,6 +46,9 @@ esp_err_t WebSocketServer::wsHandler(httpd_req_t *req) {
     ret = httpd_ws_recv_frame(req, &frame, frame.len);
     if (ret != ESP_OK) {
         free(frame.payload);
+        if (clientFd == httpd_req_to_sockfd(req)) {
+            clientFd = -1;
+        }
         return ret;
     }
     frame.payload[frame.len] = '\0';
@@ -84,7 +91,10 @@ void WebSocketServer::sendText(const std::string& msg) {
     ws_pkt.payload = (uint8_t*) safeMsg.c_str();
     ws_pkt.len = safeMsg.length();
 
-    httpd_ws_send_frame_async(server, clientFd, &ws_pkt);
+    esp_err_t err = httpd_ws_send_frame_async(server, clientFd, &ws_pkt);
+    if (err != ESP_OK) {
+        closeClient(server, clientFd);
+    }
 }
 
 std::string WebSocketServer::sanitizeUtf8(const std::string& input) {
@@ -119,4 +129,13 @@ std::string WebSocketServer::sanitizeUtf8(const std::string& input) {
     }
 
     return output;
+}
+
+void WebSocketServer::closeClient(httpd_handle_t server, int fd) {
+    if (fd < 0) return;
+    httpd_sess_trigger_close(server, fd);
+    if (clientFd == fd) {
+        clientFd = -1;
+        buffer.clear();
+    }
 }

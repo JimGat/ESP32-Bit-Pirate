@@ -518,7 +518,7 @@ PinAnalyzer::Guess PinAnalyzer::detectDataLike(const std::vector<uint32_t>& puls
 
         g.kind = SignalKind::DataLike;
         g.confidencePct = clampInt(conf, 0, 95);
-        g.note = "Structured timing.";
+        g.note = "";
         g.extra = "baud~" + std::to_string(baud);
         return g;
     }
@@ -798,7 +798,7 @@ std::string PinAnalyzer::formatWizardReport(uint8_t pin, const Report& r) const 
 
         if (r.bursts >= 2) {
             line("It comes in bursts (" + std::to_string(r.bursts) +
-                " bursts, max gap ~" + std::to_string((int)((r.maxGapUs + 500) / 1000)) + " ms).");
+                ", max gap ~" + std::to_string((int)((r.maxGapUs + 500) / 1000)) + " ms).");
         } else if (r.hasLongGaps) {
             line(std::string("Long idle gap observed, mostly ") + (r.maxGapWasHigh ? "HIGH." : "LOW."));
         }

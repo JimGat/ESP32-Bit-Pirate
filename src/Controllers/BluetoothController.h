@@ -72,7 +72,7 @@ private:
     // Handle mouse jiggle until enter is pressed
     void handleMouseJiggle(const TerminalCommand& cmd);
 
-    // Sniff BT server I/O
+    // Sniff BT frames
     void handleSniff(const TerminalCommand& cmd);
 
     // Available BT commands

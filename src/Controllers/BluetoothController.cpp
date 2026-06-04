@@ -397,6 +397,16 @@ Ensure Config
 */
 void BluetoothController::ensureConfigured() {
     if (!configured) {
+        if (state.getTerminalMode() == TerminalTypeEnum::WiFiAp) {
+            terminalView.println(" [⚠️  WARNING]");
+            terminalView.println(" Bluetooth is not recommended");
+            terminalView.println(" while using WiFi HotSpot mode.");
+            terminalView.println(" Running Web CLI, WiFi/AP services,");
+            terminalView.println(" Internet access, DNS, and Bluetooth");
+            terminalView.println(" at the same time may be unstable.");
+            terminalView.println(" For Bluetooth work, use serial");
+            terminalView.println(" or WiFi client terminal instead.\n");
+        }
         handleConfig();
         configured = true;
     }

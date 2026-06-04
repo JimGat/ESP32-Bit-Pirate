@@ -41,8 +41,11 @@ inline const char* index_html = R"rawliteral(
 
   <!-- WebSocket Lost -->
   <div id="ws-lost-popup" class="popup" style="display: none;">
-    <span class="popup-text">Connection lost.</span>
-    <a href="#" onclick="location.reload()">Refresh</a>
+    <div class="popup-main">
+      <span class="popup-text">Connection lost.</span>
+      <a href="#" onclick="location.reload()">Refresh</a>
+    </div>
+    <div class="popup-hint">One terminal session only</div>
   </div>
 
   <!-- AI Panel -->

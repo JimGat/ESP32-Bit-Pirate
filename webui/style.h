@@ -292,11 +292,25 @@ button:hover {
   font-size: 0.95rem;
   max-width: 90vw;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.popup-main {
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   white-space: nowrap;
-  overflow: hidden;
+}
+
+.popup-hint {
+  color: #ddd;
+  font-size: 0.85rem;
 }
 
 .popup a {

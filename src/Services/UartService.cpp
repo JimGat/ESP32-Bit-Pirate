@@ -1,4 +1,6 @@
 #include "UartService.h"
+#include <algorithm>
+#include <cmath>
 #include <cstring>
 
 void UartService::configure(unsigned long baud,
@@ -17,6 +19,7 @@ void UartService::configure(unsigned long baud,
     gpio_reset_pin((gpio_num_t)tx);
 
     _serial->begin(baud, config, rx, tx, inverted);
+    installed = true;
 
     if (noAllocation) {
         return;
@@ -25,7 +28,7 @@ void UartService::configure(unsigned long baud,
     if (!buffersAllocated) {
 
         edgeIntervals = (uint32_t*) heap_caps_malloc(
-            sizeof(uint32_t) * 50,
+            sizeof(uint32_t) * kMaxEdgeIntervals,
             MALLOC_CAP_INTERNAL
         );
 
@@ -35,6 +38,10 @@ void UartService::configure(unsigned long baud,
         );
 
         if (!edgeIntervals || !edgeCounts) {
+            if (edgeIntervals) heap_caps_free((void*)edgeIntervals);
+            if (edgeCounts) heap_caps_free((void*)edgeCounts);
+            edgeIntervals = nullptr;
+            edgeCounts = nullptr;
             buffersAllocated = false;
             return;
         }
@@ -43,6 +50,7 @@ void UartService::configure(unsigned long baud,
 
         buffersAllocated = true;
     }
+
 }
 
 void UartService::release() {
@@ -58,7 +66,13 @@ void UartService::release() {
 }
 
 void UartService::end() {
+    if (!installed) return;
     _serial->end();
+    installed = false;
+}
+
+bool UartService::isInstalled() const {
+    return installed;
 }
 
 std::string UartService::readLine() {
@@ -361,7 +375,7 @@ void IRAM_ATTR UartService::onGpioEdge(void* arg) {
     uint32_t pin = (uint32_t)arg;
 
     uint32_t now = micros();
-    if (lastEdgeTimeUs != 0 && intervalCount < 64) {
+    if (lastEdgeTimeUs != 0 && intervalCount < kMaxEdgeIntervals) {
         edgeIntervals[intervalCount++] = now - lastEdgeTimeUs;
     }
     lastEdgeTimeUs = now;
@@ -410,15 +424,83 @@ UartService::PinActivity UartService::measureUartActivity(uint8_t pin, uint32_t 
     if (intervalCount > 8) {
         std::vector<uint32_t> tmp(edgeIntervals, edgeIntervals + intervalCount);
         std::sort(tmp.begin(), tmp.end());
-        uint32_t med = tmp[tmp.size() / 2];   // microseconds
 
-        if (med > 0) {
-            approxBaud = 1000000UL / med;
+        // Remove tiny ISR/glitch intervals that can corrupt baud estimation.
+        tmp.erase(
+            std::remove_if(tmp.begin(), tmp.end(), [](uint32_t us) { return us < 2 || us > 200000; }),
+            tmp.end()
+        );
 
-            if (approxBaud < 1200 || approxBaud > 1000000) {
-                approxBaud = 0;
+        if (tmp.size() > 8) {
+            float bestScore = 0.0f;
+            float bestError = 1000000.0f;
+            uint32_t bestBaud = 0;
+            size_t bestMatches = 0;
+            const size_t minMatches = std::max<size_t>(6, tmp.size() / 2);
+            const float minScore = static_cast<float>(minMatches) * 0.20f;
+
+            // Score each standard baud by how well measured intervals fit integer bit-time multiples.
+            for (size_t i = 0; i < kBaudRatesCount; i++) {
+                uint32_t candidate = kBaudRates[i];
+                if (candidate < 1200 || candidate > 400000) {
+                    continue;
+                }
+
+                float bitUs = 1000000.0f / static_cast<float>(candidate);
+                float relativeTolUs = bitUs * 0.20f;
+                float tolUs = (relativeTolUs > 1.0f) ? relativeTolUs : 1.0f;
+                float score = 0.0f;
+                float error = 0.0f;
+                size_t matches = 0;
+
+                for (uint32_t intervalUs : tmp) {
+                    float ratio = static_cast<float>(intervalUs) / bitUs;
+                    int nearest = static_cast<int>(std::round(ratio));
+                    if (nearest < 1) {
+                        nearest = 1;
+                    }
+
+                    float expectedUs = bitUs * static_cast<float>(nearest);
+                    float errUs = std::fabs(static_cast<float>(intervalUs) - expectedUs);
+
+                    if (errUs <= tolUs) {
+                        // Favor direct/short multiples, they carry more baud information.
+                        float weight = 1.0f / static_cast<float>(nearest);
+                        score += weight;
+                        error += (errUs / tolUs) * weight;
+                        matches++;
+                    }
+                }
+
+                if (matches < minMatches || score < minScore) {
+                    continue;
+                }
+
+                float normalizedError = error / score;
+                if (score > (bestScore + 0.05f) ||
+                    (std::fabs(score - bestScore) <= 0.05f && normalizedError < bestError) ||
+                    (std::fabs(score - bestScore) <= 0.05f && normalizedError == bestError && matches > bestMatches)) {
+                    bestMatches = matches;
+                    bestScore = score;
+                    bestError = normalizedError;
+                    bestBaud = candidate;
+                }
+            }
+
+            if (bestBaud != 0) {
+                approxBaud = bestBaud;
             } else {
-                approxBaud = (approxBaud / 100) * 100;
+                // Fallback: use lower percentile interval to avoid /2 median harmonics.
+                size_t p30 = (tmp.size() * 3) / 10;
+                uint32_t base = tmp[p30];
+                if (base > 0) {
+                    approxBaud = 1000000UL / base;
+                    if (approxBaud < 1200 || approxBaud > 400000) {
+                        approxBaud = 0;
+                    } else {
+                        approxBaud = (approxBaud / 100) * 100;
+                    }
+                }
             }
         }
     }
@@ -460,6 +542,7 @@ uint32_t UartService::detectBaudByEdge(
 
     uint32_t consecutiveBaud = 0;
     uint32_t consecutiveCount = 0;
+    const uint32_t burstEdgeThreshold = std::max<uint32_t>(24, minEdges * 6);
 
     unsigned long start = millis();
 
@@ -485,6 +568,10 @@ uint32_t UartService::detectBaudByEdge(
                 bestDiff = diff;
                 snapped = b;
             }
+        }
+
+        if (a.edges >= burstEdgeThreshold && bestDiff == 0) {
+            return snapped;
         }
 
         votes[snapped]++;

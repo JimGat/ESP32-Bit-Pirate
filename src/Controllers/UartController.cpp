@@ -450,6 +450,13 @@ void UartController::handleAutoBaud() {
     size_t probeIndex = 0;
     uint32_t lastBaudShown = 0;
 
+    #ifdef DEVICE_STICKS3
+        // hack to warm up the ISR
+        // otherwhise it crashes on stick s3
+        uartService.scanUartActivity({rxPin}, 20, 4, true); 
+        delay(50);
+    #endif
+
     while (true) {
         // Stop
         char key = terminalInput.readChar();
@@ -461,9 +468,9 @@ void UartController::handleAutoBaud() {
         // Measure edges on RX
         uint32_t baud = uartService.detectBaudByEdge(
             rxPin,
-            60,   // totalMs
-            20,   // windowMs
-            5,    // minEdges
+            300,  // totalMs
+            25,   // windowMs
+            4,    // minEdges
             true  // pullup
         );
 

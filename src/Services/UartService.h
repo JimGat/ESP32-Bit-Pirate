@@ -40,6 +40,7 @@ std::string executeByteCode(const std::vector<ByteCode>& bytecodes);
     void flush();
     void clearUartBuffer();
     void end();
+    bool isInstalled() const;
     uint32_t buildUartConfig(uint8_t dataBits, char parity, uint8_t stopBits);
     void initXmodem();
     bool xmodemReceiveToFile(File& file);
@@ -72,6 +73,7 @@ private:
     static void IRAM_ATTR onGpioEdge(void* arg);
     inline static volatile uint32_t* edgeCounts = nullptr;
     inline static volatile uint32_t* edgeIntervals = nullptr;
+    inline static constexpr uint8_t kMaxEdgeIntervals = 64;
     inline static volatile uint32_t lastEdgeTimeUs = 0;
     inline static volatile uint8_t intervalCount = 0;
     inline static volatile bool isrInstalled = false;
@@ -99,4 +101,5 @@ private:
 
     static constexpr size_t kBaudRatesCount = sizeof(kBaudRates) / sizeof(kBaudRates[0]);
     HardwareSerial* _serial;
+    bool installed = false;
 };

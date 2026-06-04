@@ -136,6 +136,7 @@ void setup() {
         S3DevKitInput deviceInput;
     #endif
 
+    // USB Adapter boot mode if set, otherwise continue to terminal type selection
     NvsService bootNvsService;
     BootModeConfigurator bootModeConfigurator(deviceView, deviceInput, bootNvsService);
     if (bootModeConfigurator.configure()) {
@@ -188,6 +189,9 @@ void setup() {
             // Configure Server
             httpd_handle_t server = nullptr;
             httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+            config.lru_purge_enable = true;
+            config.recv_wait_timeout = 11;
+            config.send_wait_timeout = 11;
 
             // DNS server for captive portal if AP mode
             if (terminalType == TerminalTypeEnum::WiFiAp) {

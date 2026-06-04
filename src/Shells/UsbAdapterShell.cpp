@@ -13,8 +13,8 @@ UsbAdapterShell::UsbAdapterShell(ITerminalView& tv,
 
 void UsbAdapterShell::run() {
     terminalView.println("\n=== USB Adapters ===");
-    terminalView.println("Adapters reboot the device into a dedicated USB mode.");
-    terminalView.println("The next reset automatically returns to normal mode.");
+    terminalView.println("Adapters reboot into a dedicated USB mode.");
+    terminalView.println("The next reset will return to normal mode.");
     terminalView.println("https://github.com/geo-tp/ESP32-Bit-Pirate/wiki/99-Adapters\n");
 
     int choice = userInputManager.readValidatedChoiceIndex("Select adapter", actions, actionsCount, actionsCount - 1);
@@ -58,8 +58,8 @@ void UsbAdapterShell::rebootIntoAdapter(const char* title,
     terminalView.println(description);
     terminalView.println(example);
     terminalView.println(returnInstruction);
-    terminalView.println("The terminal will now close.");
-    delay(300);
+    terminalView.println("The terminal will now close...");
+    delay(1000);
     ESP.restart();
 }
 

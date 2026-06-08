@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "Interfaces/IInput.h"
+#include "Interfaces/IHostSerial.h"
 #include "Services/SubGhzService.h"
 
 // Exclusive one-shot USB CDC adapter exposing CC1101 RAW OOK
@@ -22,7 +23,7 @@ struct SubGhzRawCdcConfig {
 
 class SubGhzRawCdcAdapter {
 public:
-    static void run(const SubGhzRawCdcConfig& config, IInput& input);
+    static void run(const SubGhzRawCdcConfig& config, IInput& input, IHostSerial& hostSerial);
 
 private:
     static constexpr uint32_t DEFAULT_BAUDRATE = 38400;
@@ -57,6 +58,7 @@ private:
     static std::string stripRawPrefix(const std::string& input);
 
     static inline SubGhzRawCdcConfig* runtimeConfig = nullptr;
+    static inline IHostSerial* hostSerial = nullptr;
     static inline IInput* input = nullptr;
     static inline SPIClass* spi = nullptr;
     static inline SubGhzService* subGhzService = nullptr;

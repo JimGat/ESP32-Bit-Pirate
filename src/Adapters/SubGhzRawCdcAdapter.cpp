@@ -6,7 +6,8 @@
 #include <cstdlib>
 #include "Inputs/InputKeys.h"
 
-void SubGhzRawCdcAdapter::run(const SubGhzRawCdcConfig& adapterConfig, IInput& deviceInput) {
+void SubGhzRawCdcAdapter::run(const SubGhzRawCdcConfig& adapterConfig, IInput& deviceInput, IHostSerial& hostSerialRef) {
+    hostSerial = &hostSerialRef;
     input = &deviceInput;
     runtimeConfig = new SubGhzRawCdcConfig(adapterConfig);
 
@@ -28,7 +29,7 @@ void SubGhzRawCdcAdapter::run(const SubGhzRawCdcConfig& adapterConfig, IInput& d
                 if (subGhzService != nullptr) {
                     subGhzService->deinitRfModule();
                 }
-                Serial.flush();
+                hostSerial->flush();
                 ESP.restart();
             }
         }
@@ -48,13 +49,13 @@ void SubGhzRawCdcAdapter::begin() {
     rxReporting = false;
     lastInputPollMs = millis();
 
-    Serial.enableReboot(false);
-    Serial.setRxBufferSize(4096);
-    Serial.setTimeout(0);
-    Serial.begin(runtimeConfig->baudrate);
+    hostSerial->disableReboot();
+    hostSerial->setRxBufferSize(4096);
+    hostSerial->setTimeout(0);
+    hostSerial->begin(runtimeConfig->baudrate);
 
     if (!allocateLazyObjects()) {
-        Serial.println("ERR:MEM");
+        hostSerial->println("ERR:MEM");
         while (true) {
             delay(1000);
         }
@@ -73,9 +74,9 @@ void SubGhzRawCdcAdapter::begin() {
 
     if (hardwareReady) {
         subGhzService->applySniffProfile(runtimeConfig->frequencyMhz);
-        Serial.println("READY ESP32-BitPirate SubGHz Raw CDC");
+        hostSerial->println("READY ESP32-BitPirate SubGHz Raw CDC");
     } else {
-        Serial.println("ERR:CC1101");
+        hostSerial->println("ERR:CC1101");
     }
 }
 
@@ -97,8 +98,8 @@ bool SubGhzRawCdcAdapter::allocateLazyObjects() {
 }
 
 void SubGhzRawCdcAdapter::pollUsb() {
-    while (Serial.available() > 0) {
-        int c = Serial.read();
+    while (hostSerial->available() > 0) {
+        int c = hostSerial->read();
         if (c < 0) {
             break;
         }
@@ -157,8 +158,8 @@ void SubGhzRawCdcAdapter::handleLine(const std::string& line) {
             return;
         }
 
-        Serial.print("RSSI:");
-        Serial.println(subGhzService->measurePeakRssi(RSSI_HOLD_MS));
+        hostSerial->print("RSSI:");
+        hostSerial->println(std::to_string(subGhzService->measurePeakRssi(RSSI_HOLD_MS)).c_str());
         return;
     }
 
@@ -246,8 +247,8 @@ void SubGhzRawCdcAdapter::handlePresetCommand(const std::string& value) {
 
 void SubGhzRawCdcAdapter::handleRxModeCommand(const std::string& value) {
     if (value.empty()) {
-        Serial.print("X:");
-        Serial.println(rxReporting ? "21" : "00");
+        hostSerial->print("X:");
+        hostSerial->println(rxReporting ? "21" : "00");
         return;
     }
 
@@ -307,10 +308,10 @@ void SubGhzRawCdcAdapter::handleRawSendCommand(const std::string& value) {
     }
 
     if (sent) {
-        Serial.print("OK:TX:COUNT:");
-        Serial.print(timings.size());
-        Serial.print(":US:");
-        Serial.println(static_cast<uint32_t>(std::min<uint64_t>(totalUs, 0xFFFFFFFFULL)));
+        hostSerial->print("OK:TX:COUNT:");
+        hostSerial->print(std::to_string(timings.size()).c_str());
+        hostSerial->print(":US:");
+        hostSerial->println(std::to_string(static_cast<uint32_t>(std::min<uint64_t>(totalUs, 0xFFFFFFFFULL))).c_str());
     } else {
         printError("TX");
     }
@@ -320,8 +321,8 @@ void SubGhzRawCdcAdapter::pollRawRx() {
     std::vector<rmt_symbol_word_t> frame = subGhzService->readRawChunk();
     if (!frame.empty() && printRawFrame(frame)) {
         int rssi = subGhzService->measurePeakRssi(1);
-        Serial.print("RSSI:");
-        Serial.println(rssi);
+        hostSerial->print("RSSI:");
+        hostSerial->println(std::to_string(rssi).c_str());
     }
 }
 
@@ -353,28 +354,28 @@ void SubGhzRawCdcAdapter::restartRxReporting() {
 }
 
 void SubGhzRawCdcAdapter::printHelp() {
-    Serial.println("V          version");
-    Serial.println("?          help");
-    Serial.println("F433.920   tune frequency MHz");
-    Serial.println("P433.920   OOK/raw sniff preset");
-    Serial.println("X00        disable RX reporting");
-    Serial.println("X21        enable RAW RX reporting");
-    Serial.println("X          show RX reporting state");
-    Serial.println("R          peak RSSI");
-    Serial.println("G+350,-1050,+350,-350  send raw timings us");
+    hostSerial->println("V          version");
+    hostSerial->println("?          help");
+    hostSerial->println("F433.920   tune frequency MHz");
+    hostSerial->println("P433.920   OOK/raw sniff preset");
+    hostSerial->println("X00        disable RX reporting");
+    hostSerial->println("X21        enable RAW RX reporting");
+    hostSerial->println("X          show RX reporting state");
+    hostSerial->println("R          peak RSSI");
+    hostSerial->println("G+350,-1050,+350,-350  send raw timings us");
 }
 
 void SubGhzRawCdcAdapter::printVersion() {
-    Serial.println("V 1.0 ESP32-BitPirate SubGHz Raw CDC");
+    hostSerial->println("V 1.0 ESP32-BitPirate SubGHz Raw CDC");
 }
 
 void SubGhzRawCdcAdapter::printOk() {
-    Serial.println("OK");
+    hostSerial->println("OK");
 }
 
 void SubGhzRawCdcAdapter::printError(const char* message) {
-    Serial.print("ERR:");
-    Serial.println(message);
+    hostSerial->print("ERR:");
+    hostSerial->println(message);
 }
 
 bool SubGhzRawCdcAdapter::printRawFrame(const std::vector<rmt_symbol_word_t>& frame) {
@@ -411,27 +412,27 @@ bool SubGhzRawCdcAdapter::printRawFrame(const std::vector<rmt_symbol_word_t>& fr
         }
 
         if (emitted > 0) {
-            Serial.print(",");
+            hostSerial->print(",");
         }
 
         uint32_t clamped = std::min<uint32_t>(duration, 20000000UL);
         bool mark = RAW_RX_INVERT_LEVEL ? !level : level;
         if (mark) {
-            Serial.print("+");
-            Serial.print(clamped);
+            hostSerial->print("+");
+            hostSerial->print(std::to_string(clamped).c_str());
         } else {
-            Serial.print("-");
-            Serial.print(clamped);
+            hostSerial->print("-");
+            hostSerial->print(std::to_string(clamped).c_str());
         }
         ++emitted;
     };
 
-    Serial.print("RAW:");
+    hostSerial->print("RAW:");
     for (const auto& symbol : frame) {
         printDuration(symbol.level0 != 0, symbol.duration0);
         printDuration(symbol.level1 != 0, symbol.duration1);
     }
-    Serial.println();
+    hostSerial->println();
     return emitted > 0;
 }
 

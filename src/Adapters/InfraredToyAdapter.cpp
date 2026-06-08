@@ -2,7 +2,8 @@
 
 #include "Inputs/InputKeys.h"
 
-void InfraredToyAdapter::run(const InfraredToyConfig& config, IInput& input) {
+void InfraredToyAdapter::run(const InfraredToyConfig& config, IInput& input, IHostSerial& hostSerialRef) {
+    InfraredToyAdapter::hostSerial = &hostSerialRef;
     InfraredToyAdapter::config = config;
     InfraredToyAdapter::input = &input;
 
@@ -63,10 +64,10 @@ void InfraredToyAdapter::begin() {
 
     lastInputPollMs = millis();
 
-    Serial.enableReboot(false);
-    Serial.setRxBufferSize(SERIAL_RX_BUFFER_SIZE);
-    Serial.setTimeout(0);
-    Serial.begin(115200);
+    hostSerial->disableReboot();
+    hostSerial->setRxBufferSize(SERIAL_RX_BUFFER_SIZE);
+    hostSerial->setTimeout(0);
+    hostSerial->begin(115200);
 
     if (!allocateLazyBuffers()) {
         static constexpr char msg[] = "IR Toy adapter: buffer allocation failed\r\n";
@@ -95,11 +96,11 @@ bool InfraredToyAdapter::allocateLazyBuffers() {
 void InfraredToyAdapter::pollUsb() {
     uint8_t buffer[USB_READ_CHUNK_SIZE];
 
-    while (Serial.available() > 0) {
+    while (hostSerial->available() > 0) {
         size_t read = 0;
 
-        while (read < USB_READ_CHUNK_SIZE && Serial.available() > 0) {
-            int c = Serial.read();
+        while (read < USB_READ_CHUNK_SIZE && hostSerial->available() > 0) {
+            int c = hostSerial->read();
             if (c < 0) {
                 break;
             }
@@ -203,10 +204,10 @@ bool InfraredToyAdapter::writeExact(const uint8_t* data, size_t len, uint32_t ti
     uint32_t start = millis();
 
     while (written < len) {
-        int space = Serial.availableForWrite();
+        int space = hostSerial->availableForWrite();
         if (space > 0) {
             size_t chunk = std::min<size_t>(static_cast<size_t>(space), len - written);
-            written += Serial.write(data + written, chunk);
+            written += hostSerial->write(data + written, chunk);
         }
 
         if ((uint32_t)(millis() - start) > timeoutMs) {
@@ -216,7 +217,7 @@ bool InfraredToyAdapter::writeExact(const uint8_t* data, size_t len, uint32_t ti
         yield();
     }
 
-    Serial.flush();
+    hostSerial->flush();
     return true;
 }
 
@@ -462,7 +463,7 @@ void InfraredToyAdapter::appendTxDuration(std::vector<rmt_data_t>& symbols, bool
 }
 
 void InfraredToyAdapter::flushRxDurationsToUsb() {
-    while (!rxRingEmpty() && Serial.availableForWrite() >= 2) {
+    while (!rxRingEmpty() && hostSerial->availableForWrite() >= 2) {
         uint16_t value = popRxDuration();
         writeBe16(value);
     }
@@ -585,7 +586,7 @@ void InfraredToyAdapter::writeBe16(uint16_t value) {
         static_cast<uint8_t>(value & 0xFF)
     };
 
-    Serial.write(out, sizeof(out));
+    hostSerial->write(out, sizeof(out));
 }
 
 bool InfraredToyAdapter::rxRingEmpty() {

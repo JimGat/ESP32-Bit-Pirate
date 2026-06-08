@@ -35,7 +35,8 @@ namespace {
     };
 }
 
-void FlashromSerprogAdapter::run(const FlashromSerprogConfig& adapterConfig, IInput& input) {
+void FlashromSerprogAdapter::run(const FlashromSerprogConfig& adapterConfig, IInput& input, IHostSerial& hostSerialRef) {
+    hostSerial = &hostSerialRef;
     config = adapterConfig;
     pinsEnabled = false;
     transactionActive = false;
@@ -46,11 +47,16 @@ void FlashromSerprogAdapter::run(const FlashromSerprogConfig& adapterConfig, IIn
         config.frequency = DEFAULT_SPI_FREQUENCY;
     }
 
-    Serial.enableReboot(false);
+    hostSerial->disableReboot();
+#if ARDUINO_USB_CDC_ON_BOOT
     Serial.setTxTimeoutMs(TX_TIMEOUT_MS);
-    Serial.setRxBufferSize(SERIAL_BUFFER_SIZE);
     Serial.onEvent(onUsbEvent);
-    Serial.begin();
+#endif
+    hostSerial->setRxBufferSize(SERIAL_BUFFER_SIZE);
+    hostSerial->begin(115200);
+#if !ARDUINO_USB_CDC_ON_BOOT
+        cdcConnected = true;
+#endif
 
     initializeSpi();
     setPinDrivers(true);
@@ -60,9 +66,9 @@ void FlashromSerprogAdapter::run(const FlashromSerprogConfig& adapterConfig, IIn
 
     while (true) {
         // Priority: serprog/flashrom traffic first.
-        while (Serial.available() > 0) {
+        while (hostSerial->available() > 0) {
             cdcConnected = true;
-            handleCommand(static_cast<uint8_t>(Serial.read()), input);
+            handleCommand(static_cast<uint8_t>(hostSerial->read()), input);
         }
 
         // Poll device input only periodically so it does not slow down serprog
@@ -72,7 +78,7 @@ void FlashromSerprogAdapter::run(const FlashromSerprogConfig& adapterConfig, IIn
 
             if (inputRequestedReset(input)) {
                 setPinDrivers(false);
-                Serial.flush();
+                hostSerial->flush();
                 ESP.restart();
             }
         }
@@ -119,8 +125,8 @@ void FlashromSerprogAdapter::resetSpiBusState() {
 }
 
 void FlashromSerprogAdapter::purgeInput() {
-    while (Serial.available() > 0) {
-        Serial.read();
+    while (hostSerial->available() > 0) {
+        hostSerial->read();
     }
 }
 
@@ -179,7 +185,7 @@ void FlashromSerprogAdapter::handleCommand(uint8_t command, IInput& input) {
                 'E', 'S', 'P', '3', '2', '-', 'B', 'P',
                 '-', 'S', 'E', 'R', 'P', 'R', 'G', 0
             };
-            Serial.write(name, sizeof(name));
+            hostSerial->write(name, sizeof(name));
             break;
         }
 
@@ -375,7 +381,7 @@ void FlashromSerprogAdapter::handleSpiOperation(IInput& input) {
 
 bool FlashromSerprogAdapter::readByte(IInput& input, uint8_t& value, uint32_t timeoutMs) {
     unsigned long startMs = millis();
-    while (Serial.available() <= 0) {
+    while (hostSerial->available() <= 0) {
         if (!cdcConnected) {
             return false;
         }
@@ -388,7 +394,7 @@ bool FlashromSerprogAdapter::readByte(IInput& input, uint8_t& value, uint32_t ti
             return false;
         }
     }
-    value = static_cast<uint8_t>(Serial.read());
+    value = static_cast<uint8_t>(hostSerial->read());
     return true;
 }
 
@@ -425,7 +431,7 @@ bool FlashromSerprogAdapter::writeByte(uint8_t value) {
     }
 
     unsigned long startMs = millis();
-    while (Serial.availableForWrite() <= 0) {
+    while (hostSerial->availableForWrite() <= 0) {
         if (!cdcConnected) {
             resetSpiBusState();
             return false;
@@ -439,7 +445,7 @@ bool FlashromSerprogAdapter::writeByte(uint8_t value) {
         yield();
     }
 
-    if (Serial.write(value) != 1) {
+    if (hostSerial->write(value) != 1) {
         resetSpiBusState();
         return false;
     }
@@ -495,7 +501,7 @@ void FlashromSerprogAdapter::writeCommandMap() {
     for (uint8_t command : supported) {
         map[command / 8] |= 1 << (command % 8);
     }
-    Serial.write(map, sizeof(map));
+    hostSerial->write(map, sizeof(map));
 }
 
 bool FlashromSerprogAdapter::inputRequestedReset(IInput& input) {

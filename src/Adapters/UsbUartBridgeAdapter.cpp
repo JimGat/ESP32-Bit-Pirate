@@ -93,7 +93,7 @@ void UsbUartBridgeAdapter::pumpUartToUsb() {
         return;
     }
 
-    int writable = Serial.availableForWrite();
+    int writable = hostSerial->availableForWrite();
     if (writable <= 0) {
         return;
     }
@@ -106,13 +106,13 @@ void UsbUartBridgeAdapter::pumpUartToUsb() {
         return;
     }
 
-    Serial.write(buffer, got);
+    hostSerial->write(buffer, got);
 }
 
 void UsbUartBridgeAdapter::pumpUsbToUart() {
     uint8_t buffer[BRIDGE_CHUNK_SIZE];
 
-    int available = Serial.available();
+    int available = hostSerial->available();
     if (available <= 0) {
         return;
     }
@@ -125,7 +125,7 @@ void UsbUartBridgeAdapter::pumpUsbToUart() {
     int count = std::min<int>(available, writable);
     count = std::min<int>(count, BRIDGE_CHUNK_SIZE);
 
-    size_t got = Serial.readBytes(buffer, count);
+    size_t got = hostSerial->readBytes(buffer, count);
     if (got == 0) {
         return;
     }
@@ -141,7 +141,8 @@ void UsbUartBridgeAdapter::pumpBridgeOnce() {
     pumpUartToUsb();
 }
 
-void UsbUartBridgeAdapter::run(const UsbUartBridgeConfig& config, IInput& input) {
+void UsbUartBridgeAdapter::run(const UsbUartBridgeConfig& config, IInput& input, IHostSerial& hostSerialRef) {
+    hostSerial = &hostSerialRef;
     bridgeConfig = config;
     currentBaudRate = 0;
     currentUartConfig = SERIAL_8N1;
@@ -150,11 +151,13 @@ void UsbUartBridgeAdapter::run(const UsbUartBridgeConfig& config, IInput& input)
     unsigned long lastLineCodingCheckMs = 0;
     uint32_t loopCounter = 0;
 
-    Serial.enableReboot(false);
-    Serial.setRxBufferSize(USB_RX_BUFFER_SIZE);
-    Serial.setTimeout(0);
+    hostSerial->disableReboot();
+    hostSerial->setRxBufferSize(USB_RX_BUFFER_SIZE);
+    hostSerial->setTimeout(0);
+#if ARDUINO_USB_CDC_ON_BOOT
     Serial.onEvent(ARDUINO_USB_CDC_LINE_CODING_EVENT, onLineCoding);
-    Serial.begin();
+#endif
+    hostSerial->begin(DEFAULT_BAUD);
 
     configureUart(DEFAULT_BAUD, SERIAL_8N1);
 
@@ -166,7 +169,7 @@ void UsbUartBridgeAdapter::run(const UsbUartBridgeConfig& config, IInput& input)
         if ((uint32_t)(now - lastLineCodingCheckMs) >= 100) {
             lastLineCodingCheckMs = now;
 
-            uint32_t cdcBaud = Serial.baudRate();
+            uint32_t cdcBaud = hostSerial->baudRate();
             if (cdcBaud > 0 && cdcBaud != currentBaudRate) {
                 configureUart(cdcBaud, currentUartConfig);
             }

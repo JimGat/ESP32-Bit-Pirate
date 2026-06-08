@@ -9,6 +9,7 @@
 #include "esp32-hal-rmt.h"
 #include "soc/gpio_struct.h"
 #include "Interfaces/IInput.h"
+#include "Interfaces/IHostSerial.h"
 
 // Exclusive one-shot USB CDC adapter compatible with the USB IR Toy protocol.
 
@@ -19,7 +20,7 @@ struct InfraredToyConfig {
 
 class InfraredToyAdapter {
 public:
-    static void run(const InfraredToyConfig& config, IInput& input);
+    static void run(const InfraredToyConfig& config, IInput& input, IHostSerial& hostSerial);
 
 private:
     enum class ProtocolState : uint8_t {
@@ -112,6 +113,7 @@ private:
     }
 
     static inline InfraredToyConfig config = {0, 0};
+    static inline IHostSerial* hostSerial = nullptr;
     static inline IInput* input = nullptr;
 
     static inline ProtocolState state = ProtocolState::COMMAND_MODE;

@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "Interfaces/IInput.h"
+#include "Interfaces/IHostSerial.h"
 
 // Exclusive one-shot USB CDC adapter for flashrom's serprog protocol.
 // Implements the SPI subset used for external SPI flash read/write.
@@ -17,10 +18,11 @@ struct FlashromSerprogConfig {
 
 class FlashromSerprogAdapter {
 public:
-    static void run(const FlashromSerprogConfig& config, IInput& input);
+    static void run(const FlashromSerprogConfig& config, IInput& input, IHostSerial& hostSerial);
 
 private:
     static inline FlashromSerprogConfig config = {0, 0, 0, 0, 8000000};
+    static inline IHostSerial* hostSerial = nullptr;
     static inline SPIClass spi{HSPI};
     static inline bool pinsEnabled = false;
     static inline bool transactionActive = false;

@@ -39,10 +39,11 @@ void IRAM_ATTR SumpLogicAnalyzerAdapter::waitUntilCycle(uint32_t targetCycle) {
     }
 }
 
-void SumpLogicAnalyzerAdapter::run(const SumpLogicAnalyzerConfig& config, IInput& input) {
-    Serial.enableReboot(false);
-    Serial.setRxBufferSize(1024);
-    Serial.begin();
+void SumpLogicAnalyzerAdapter::run(const SumpLogicAnalyzerConfig& config, IInput& input, IHostSerial& hostSerialRef) {
+    hostSerial = &hostSerialRef;
+    hostSerial->disableReboot();
+    hostSerial->setRxBufferSize(1024);
+    hostSerial->begin(115200);
 
     configure(config, input);
 
@@ -116,7 +117,7 @@ void SumpLogicAnalyzerAdapter::handleCommand(uint8_t command) {
     }
 
     if (command == SUMP_ID) {
-        Serial.write(reinterpret_cast<const uint8_t*>("1ALS"), 4);
+        hostSerial->write(reinterpret_cast<const uint8_t*>("1ALS"), 4);
         return;
     }
 
@@ -177,7 +178,7 @@ void SumpLogicAnalyzerAdapter::handleRun() {
                 return;
             }
 
-            Serial.write(samples[i - 1]);
+            hostSerial->write(samples[i - 1]);
         }
         return;
     }
@@ -190,12 +191,12 @@ void SumpLogicAnalyzerAdapter::handleRun() {
         uint8_t sample = samples[i - 1];
 
         if (enabledChannelGroups & 0x01) {
-            Serial.write(sample);
+            hostSerial->write(sample);
         }
 
         for (uint8_t group = 1; group < 4; ++group) {
             if (enabledChannelGroups & (1U << group)) {
-                Serial.write(static_cast<uint8_t>(0));
+                hostSerial->write(static_cast<uint8_t>(0));
             }
         }
     }
@@ -212,14 +213,14 @@ void SumpLogicAnalyzerAdapter::resetSumpState() {
     captureAborted = true;
     enabledChannelGroups = 0x01;
 
-    while (Serial.available() > 0) {
-        Serial.read();
+    while (hostSerial->available() > 0) {
+        hostSerial->read();
     }
 }
 
 bool SumpLogicAnalyzerAdapter::consumePendingReset() {
-    while (Serial.available() > 0) {
-        int command = Serial.peek();
+    while (hostSerial->available() > 0) {
+        int command = hostSerial->peek();
 
         if (command == SUMP_RESET) {
             resetSumpState();
@@ -227,7 +228,7 @@ bool SumpLogicAnalyzerAdapter::consumePendingReset() {
         }
 
         if (command == SUMP_XON || command == SUMP_XOFF) {
-            Serial.read();
+            hostSerial->read();
             continue;
         }
 
@@ -295,31 +296,31 @@ void SumpLogicAnalyzerAdapter::writeMetadata() {
     writeUint32Metadata(0x21, maxSampleCount);
     writeUint32Metadata(0x23, MAX_SAMPLE_RATE);
     writeUint32Metadata(0x24, 2);
-    Serial.write(static_cast<uint8_t>(0x00));
+    hostSerial->write(static_cast<uint8_t>(0x00));
 }
 
 void SumpLogicAnalyzerAdapter::writeStringMetadata(uint8_t key, const char* value) {
-    Serial.write(key);
-    Serial.print(value);
-    Serial.write(static_cast<uint8_t>(0x00));
+    hostSerial->write(key);
+    hostSerial->print(value);
+    hostSerial->write(static_cast<uint8_t>(0x00));
 }
 
 void SumpLogicAnalyzerAdapter::writeUint32Metadata(uint8_t key, uint32_t value) {
-    Serial.write(key);
+    hostSerial->write(key);
     writeBe32(value);
 }
 
 void SumpLogicAnalyzerAdapter::writeUint8Metadata(uint8_t key, uint8_t value) {
-    Serial.write(key);
-    Serial.write(value);
+    hostSerial->write(key);
+    hostSerial->write(value);
 }
 
 bool SumpLogicAnalyzerAdapter::readCommandByte(uint8_t& value) {
-    if (Serial.available() <= 0) {
+    if (hostSerial->available() <= 0) {
         return false;
     }
 
-    int readValue = Serial.read();
+    int readValue = hostSerial->read();
     if (readValue < 0) {
         return false;
     }
@@ -330,14 +331,14 @@ bool SumpLogicAnalyzerAdapter::readCommandByte(uint8_t& value) {
 
 uint32_t SumpLogicAnalyzerAdapter::readLe32() {
     for (uint8_t i = 0; i < 4; ++i) {
-        while (Serial.available() <= 0) {
+        while (hostSerial->available() <= 0) {
             if (inputRequestedReset()) {
                 ESP.restart();
             }
             delay(1);
         }
 
-        commandBuffer[i] = static_cast<uint8_t>(Serial.read());
+        commandBuffer[i] = static_cast<uint8_t>(hostSerial->read());
     }
 
     return static_cast<uint32_t>(commandBuffer[0])
@@ -348,14 +349,14 @@ uint32_t SumpLogicAnalyzerAdapter::readLe32() {
 
 uint16_t SumpLogicAnalyzerAdapter::readLe16() {
     for (uint8_t i = 0; i < 2; ++i) {
-        while (Serial.available() <= 0) {
+        while (hostSerial->available() <= 0) {
             if (inputRequestedReset()) {
                 ESP.restart();
             }
             delay(1);
         }
 
-        commandBuffer[i] = static_cast<uint8_t>(Serial.read());
+        commandBuffer[i] = static_cast<uint8_t>(hostSerial->read());
     }
 
     return static_cast<uint16_t>(commandBuffer[0])
@@ -364,22 +365,22 @@ uint16_t SumpLogicAnalyzerAdapter::readLe16() {
 
 void SumpLogicAnalyzerAdapter::discardBytes(uint8_t count) {
     for (uint8_t i = 0; i < count; ++i) {
-        while (Serial.available() <= 0) {
+        while (hostSerial->available() <= 0) {
             if (inputRequestedReset()) {
                 ESP.restart();
             }
             delay(1);
         }
 
-        Serial.read();
+        hostSerial->read();
     }
 }
 
 void SumpLogicAnalyzerAdapter::writeBe32(uint32_t value) {
-    Serial.write(static_cast<uint8_t>((value >> 24) & 0xFF));
-    Serial.write(static_cast<uint8_t>((value >> 16) & 0xFF));
-    Serial.write(static_cast<uint8_t>((value >> 8) & 0xFF));
-    Serial.write(static_cast<uint8_t>(value & 0xFF));
+    hostSerial->write(static_cast<uint8_t>((value >> 24) & 0xFF));
+    hostSerial->write(static_cast<uint8_t>((value >> 16) & 0xFF));
+    hostSerial->write(static_cast<uint8_t>((value >> 8) & 0xFF));
+    hostSerial->write(static_cast<uint8_t>(value & 0xFF));
 }
 
 bool SumpLogicAnalyzerAdapter::allocateSampleBuffer(uint32_t requestedSampleCount) {

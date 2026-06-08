@@ -11,15 +11,16 @@ constexpr uint32_t MAX_TRANSFER = 4096;
 constexpr uint8_t BIG_FLASH_SIGNATURES[] = {0x97, 0x98, 0xA7, 0xA8, 0xC0};
 }
 
-void AvrDudeBusPirateAdapter::run(const AvrDudeBusPirateConfig& adapterConfig, IInput& input) {
+void AvrDudeBusPirateAdapter::run(const AvrDudeBusPirateConfig& adapterConfig, IInput& input, IHostSerial& hostSerialRef) {
+    hostSerial = &hostSerialRef;
     config = adapterConfig;
     if (config.frequency == 0) {
         config.frequency = DEFAULT_SPI_FREQUENCY;
     }
 
-    Serial.enableReboot(false);
-    Serial.setRxBufferSize(MAX_TRANSFER + 64);
-    Serial.begin();
+    hostSerial->disableReboot();
+    hostSerial->setRxBufferSize(MAX_TRANSFER + 64);
+    hostSerial->begin(115200);
 
     state = ProtocolState::WaitBbio;
     zeroCount = 0;
@@ -32,8 +33,8 @@ void AvrDudeBusPirateAdapter::run(const AvrDudeBusPirateConfig& adapterConfig, I
             ESP.restart();
         }
 
-        if (Serial.available() > 0) {
-            handleByte(static_cast<uint8_t>(Serial.read()), input);
+        if (hostSerial->available() > 0) {
+            handleByte(static_cast<uint8_t>(hostSerial->read()), input);
         }
     }
 }
@@ -318,12 +319,12 @@ uint8_t AvrDudeBusPirateAdapter::transfer(uint8_t value) {
 }
 
 uint8_t AvrDudeBusPirateAdapter::readByte(IInput& input) {
-    while (Serial.available() <= 0) {
+    while (hostSerial->available() <= 0) {
         if (inputRequestedReset(input)) {
             ESP.restart();
         }
     }
-    return static_cast<uint8_t>(Serial.read());
+    return static_cast<uint8_t>(hostSerial->read());
 }
 
 uint16_t AvrDudeBusPirateAdapter::readBe16(IInput& input) {
@@ -341,15 +342,15 @@ uint32_t AvrDudeBusPirateAdapter::readBe32(IInput& input) {
 }
 
 void AvrDudeBusPirateAdapter::writeByte(uint8_t value) {
-    Serial.write(value);
+    hostSerial->write(value);
 }
 
 void AvrDudeBusPirateAdapter::writeBytes(const uint8_t* data, size_t length) {
-    Serial.write(data, length);
+    hostSerial->write(data, length);
 }
 
 void AvrDudeBusPirateAdapter::writeString(const char* value) {
-    Serial.write(reinterpret_cast<const uint8_t*>(value), strlen(value));
+    hostSerial->write(reinterpret_cast<const uint8_t*>(value), strlen(value));
 }
 
 bool AvrDudeBusPirateAdapter::inputRequestedReset(IInput& input) {

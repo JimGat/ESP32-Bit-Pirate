@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include "Interfaces/IInput.h"
+#include "Interfaces/IHostSerial.h"
 
 // Exclusive USB CDC <-> UART bridge
 
@@ -13,10 +14,11 @@ struct UsbUartBridgeConfig {
 
 class UsbUartBridgeAdapter {
 public:
-    static void run(const UsbUartBridgeConfig& config, IInput& input);
+    static void run(const UsbUartBridgeConfig& config, IInput& input, IHostSerial& hostSerial);
 
 private:
     static inline UsbUartBridgeConfig bridgeConfig = {0, 0, false};
+    static inline IHostSerial* hostSerial = nullptr;
     static inline unsigned long currentBaudRate = 0;
     static inline uint32_t currentUartConfig = SERIAL_8N1;
 

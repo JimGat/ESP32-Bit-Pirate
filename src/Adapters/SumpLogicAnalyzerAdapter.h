@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <array>
 #include "Interfaces/IInput.h"
+#include "Interfaces/IHostSerial.h"
 
 // Exclusive one-shot USB CDC adapter for PulseView/sigrok SUMP capture.
 // samples up to 8 GPIOs by polling
@@ -29,7 +30,7 @@ struct SumpCaptureDebugInfo {
 
 class SumpLogicAnalyzerAdapter {
 public:
-    static void run(const SumpLogicAnalyzerConfig& config, IInput& input);
+    static void run(const SumpLogicAnalyzerConfig& config, IInput& input, IHostSerial& hostSerial);
     static SumpCaptureDebugInfo getLastCaptureDebugInfo();
 
 private:
@@ -84,6 +85,7 @@ private:
     static bool inputRequestedReset();
 
     static inline SumpLogicAnalyzerConfig activeConfig = {};
+    static inline IHostSerial* hostSerial = nullptr;
     static inline IInput* activeInput = nullptr;
     static inline uint32_t sampleRate = 1000000;
     static inline uint32_t sampleCount = 4096;

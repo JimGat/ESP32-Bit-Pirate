@@ -54,12 +54,13 @@ inline void swdDelay() {
 }
 }
 
-void OpenOcdBusPirateAdapter::run(const OpenOcdBusPirateConfig& adapterConfig, IInput& input) {
+void OpenOcdBusPirateAdapter::run(const OpenOcdBusPirateConfig& adapterConfig, IInput& input, IHostSerial& hostSerialRef) {
+    hostSerial = &hostSerialRef;
     config = adapterConfig;
 
-    Serial.enableReboot(false);
-    Serial.setRxBufferSize((MAX_TAP_BYTES * 2) + 64);
-    Serial.begin();
+    hostSerial->disableReboot();
+    hostSerial->setRxBufferSize((MAX_TAP_BYTES * 2) + 64);
+    hostSerial->begin(115200);
 
     configurePins();
     runBitbangMode(input);
@@ -389,25 +390,25 @@ void OpenOcdBusPirateAdapter::runSwdRawWireMode(IInput& input) {
 }
 
 uint8_t OpenOcdBusPirateAdapter::readByte(IInput& input) {
-    while (Serial.available() <= 0) {
+    while (hostSerial->available() <= 0) {
         if (inputRequestedReset(input)) {
             ESP.restart();
         }
     }
 
-    return static_cast<uint8_t>(Serial.read());
+    return static_cast<uint8_t>(hostSerial->read());
 }
 
 void OpenOcdBusPirateAdapter::writeByte(uint8_t value) {
-    Serial.write(value);
+    hostSerial->write(value);
 }
 
 void OpenOcdBusPirateAdapter::writeBytes(const uint8_t* data, size_t length) {
-    Serial.write(data, length);
+    hostSerial->write(data, length);
 }
 
 void OpenOcdBusPirateAdapter::writeString(const char* value) {
-    Serial.write(reinterpret_cast<const uint8_t*>(value), strlen(value));
+    hostSerial->write(reinterpret_cast<const uint8_t*>(value), strlen(value));
 }
 
 bool OpenOcdBusPirateAdapter::inputRequestedReset(IInput& input) {

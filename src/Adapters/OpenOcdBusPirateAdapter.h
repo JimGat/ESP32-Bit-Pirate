@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include "Interfaces/IInput.h"
+#include "Interfaces/IHostSerial.h"
 
 // Exclusive one-shot USB CDC adapter for OpenOCD's Bus Pirate transport.
 // Provides the legacy BBIO entry points plus minimal JTAG and SWD raw-wire modes.
@@ -17,7 +18,7 @@ struct OpenOcdBusPirateConfig {
 
 class OpenOcdBusPirateAdapter {
 public:
-    static void run(const OpenOcdBusPirateConfig& config, IInput& input);
+    static void run(const OpenOcdBusPirateConfig& config, IInput& input, IHostSerial& hostSerial);
 
 private:
     static void configurePins();
@@ -56,6 +57,7 @@ private:
     static uint8_t readBitbangPins();
 
     static inline OpenOcdBusPirateConfig config = {0, 0, 0, 0, 0, 0};
+    static inline IHostSerial* hostSerial = nullptr;
     static inline bool swdLsbFirst = true;
     static inline bool swdIdleClockHigh = false;
     static inline bool swdNeedsTurnaround = false;

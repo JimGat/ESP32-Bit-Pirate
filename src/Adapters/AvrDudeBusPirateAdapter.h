@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "Interfaces/IInput.h"
+#include "Interfaces/IHostSerial.h"
 
 // Exclusive one-shot USB CDC adapter for avrdude -c buspirate.
 // Emulates the Bus Pirate legacy binary raw SPI mode used for AVR ISP.
@@ -17,7 +18,7 @@ struct AvrDudeBusPirateConfig {
 
 class AvrDudeBusPirateAdapter {
 public:
-    static void run(const AvrDudeBusPirateConfig& config, IInput& input);
+    static void run(const AvrDudeBusPirateConfig& config, IInput& input, IHostSerial& hostSerial);
 
 private:
     enum class ProtocolState : uint8_t {
@@ -27,6 +28,7 @@ private:
     };
 
     static inline AvrDudeBusPirateConfig config = {0, 0, 0, 0, 1000000};
+    static inline IHostSerial* hostSerial = nullptr;
     static inline SPIClass spi{HSPI};
     static inline ProtocolState state = ProtocolState::WaitBbio;
     static inline uint8_t zeroCount = 0;

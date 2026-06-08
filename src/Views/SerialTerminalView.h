@@ -2,12 +2,15 @@
 
 #include <Arduino.h>
 #include <string>
+#include <Interfaces/IHostSerial.h>
 #include <Interfaces/ITerminalView.h>
 #include <States/GlobalState.h>
 #include <Enums/TerminalTypeEnum.h>
 
 class SerialTerminalView : public ITerminalView {
 public:
+    explicit SerialTerminalView(IHostSerial& hostSerial)
+        : hostSerial(hostSerial) {}
 
     void initialize() override;
     void welcome(TerminalTypeEnum& terminalType, std::string& terminalInfos) override;
@@ -20,5 +23,6 @@ public:
     void setBaudrate(unsigned long baudrate);
     
 private:
+    IHostSerial& hostSerial;
     unsigned long baudrate = 1152200;
 };

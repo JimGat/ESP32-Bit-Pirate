@@ -27,6 +27,8 @@
 #include <Config/WifiTypeConfigurator.h>
 #include <Config/BootModeConfigurator.h>
 #include <Enums/TerminalTypeEnum.h>
+#include <Serial/DefaultHostSerial.h>
+#include <Serial/UartHostSerial.h>
 #include <States/GlobalState.h>
 
 /*
@@ -136,10 +138,16 @@ void setup() {
         S3DevKitInput deviceInput;
     #endif
 
+    #if defined(DEVICE_HOST_SERIAL_UART)
+        UartHostSerial hostSerial;
+    #else
+        DefaultHostSerial hostSerial;
+    #endif
+
     // USB Adapter boot mode if set, otherwise continue to terminal type selection
     NvsService bootNvsService;
-    BootModeConfigurator bootModeConfigurator(deviceView, deviceInput, bootNvsService);
-    if (bootModeConfigurator.configure()) {
+    BootModeConfigurator bootModeConfigurator(deviceView, deviceInput, bootNvsService, hostSerial);
+    if (bootModeConfigurator.configureBootMode()) {
         return;
     }
 
@@ -168,8 +176,8 @@ void setup() {
     switch (terminalType) {
         case TerminalTypeEnum::SerialPort: {
             // Serial View/Input
-            SerialTerminalView serialView;
-            SerialTerminalInput serialInput;
+            SerialTerminalView serialView(hostSerial);
+            SerialTerminalInput serialInput(hostSerial);
             
             // Baudrate
             auto baud = std::to_string(state.getSerialTerminalBaudRate());

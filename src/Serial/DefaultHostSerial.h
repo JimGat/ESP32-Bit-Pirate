@@ -5,8 +5,7 @@
 class DefaultHostSerial : public IHostSerial {
 public:
     void begin(unsigned long baud) override {
-        (void)baud;
-        Serial.begin();
+        Serial.begin(baud);
     }
 
     void waitReady() override {
@@ -72,7 +71,9 @@ public:
     }
 
     void disableReboot() override {
+#if ARDUINO_USB_CDC_ON_BOOT
         Serial.enableReboot(false);
+#endif
     }
 
     void waitForPress() override {

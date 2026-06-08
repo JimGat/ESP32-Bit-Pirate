@@ -20,12 +20,13 @@ void normalizeSumpLogicAnalyzerConfig(SumpLogicAnalyzerConfig& config) {
 
 }
 
-BootModeConfigurator::BootModeConfigurator(IDeviceView& deviceView, IInput& deviceInput, NvsService& nvsService)
+BootModeConfigurator::BootModeConfigurator(IDeviceView& deviceView, IInput& deviceInput, NvsService& nvsService, IHostSerial& hostSerial)
     : deviceView(deviceView),
       deviceInput(deviceInput),
-      nvsService(nvsService) {}
+            nvsService(nvsService),
+            hostSerial(hostSerial) {}
 
-bool BootModeConfigurator::configure() {
+bool BootModeConfigurator::configureBootMode() {
     GlobalState& state = GlobalState::getInstance();
     UsbUartBridgeConfig usbUartBridgeConfig = {
         state.getUartRxPin(),
@@ -188,37 +189,37 @@ bool BootModeConfigurator::configure() {
     switch (mode) {
         case OneShotBootMode::UsbUartBridge:
             showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
-            UsbUartBridgeAdapter::run(usbUartBridgeConfig, deviceInput);
+            UsbUartBridgeAdapter::run(usbUartBridgeConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::FlashromSerprog:
             showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
-            FlashromSerprogAdapter::run(flashromSerprogConfig, deviceInput);
+            FlashromSerprogAdapter::run(flashromSerprogConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::AvrDudeBusPirate:
             showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
-            AvrDudeBusPirateAdapter::run(busPirateAvrdudeConfig, deviceInput);
+            AvrDudeBusPirateAdapter::run(busPirateAvrdudeConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::SumpLogicAnalyzer:
             showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
-            SumpLogicAnalyzerAdapter::run(sumpLogicAnalyzerConfig, deviceInput);
+            SumpLogicAnalyzerAdapter::run(sumpLogicAnalyzerConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::OpenOcdBusPirate:
             showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
-            OpenOcdBusPirateAdapter::run(openOcdBusPirateConfig, deviceInput);
+            OpenOcdBusPirateAdapter::run(openOcdBusPirateConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::InfraredToy:
             showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
-            InfraredToyAdapter::run(infraredToyConfig, deviceInput);
+            InfraredToyAdapter::run(infraredToyConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::SubGhzRawCdc:
             showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
-            SubGhzRawCdcAdapter::run(subGhzRawCdcConfig, deviceInput);
+            SubGhzRawCdcAdapter::run(subGhzRawCdcConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::None:

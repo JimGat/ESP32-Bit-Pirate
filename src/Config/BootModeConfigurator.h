@@ -10,12 +10,13 @@
 #include "Adapters/AvrDudeBusPirateAdapter.h"
 #include "Adapters/InfraredToyAdapter.h"
 #include "Adapters/SubGhzRawCdcAdapter.h"
+#include "Interfaces/IHostSerial.h"
 
 class BootModeConfigurator {
 public:
-    BootModeConfigurator(IDeviceView& deviceView, IInput& deviceInput, NvsService& nvsService);
+    BootModeConfigurator(IDeviceView& deviceView, IInput& deviceInput, NvsService& nvsService, IHostSerial& hostSerial);
 
-    bool configure();
+    bool configureBootMode();
 
 private:
     void showOneShotBootMode(OneShotBootMode mode,
@@ -30,4 +31,5 @@ private:
     IDeviceView& deviceView;
     IInput& deviceInput;
     NvsService& nvsService;
+    IHostSerial& hostSerial;
 };

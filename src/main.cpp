@@ -147,7 +147,7 @@ void setup() {
     // USB Adapter boot mode if set, otherwise continue to terminal type selection
     NvsService bootNvsService;
     BootModeConfigurator bootModeConfigurator(deviceView, deviceInput, bootNvsService, hostSerial);
-    if (bootModeConfigurator.configureBootMode()) {
+    if (bootModeConfigurator.configure()) {
         return;
     }
 

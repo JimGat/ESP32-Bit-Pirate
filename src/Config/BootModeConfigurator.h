@@ -16,7 +16,7 @@ class BootModeConfigurator {
 public:
     BootModeConfigurator(IDeviceView& deviceView, IInput& deviceInput, NvsService& nvsService, IHostSerial& hostSerial);
 
-    bool configureBootMode();
+    bool configure();
 
 private:
     void showOneShotBootMode(OneShotBootMode mode,

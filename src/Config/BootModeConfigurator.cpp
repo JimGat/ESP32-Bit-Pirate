@@ -26,7 +26,7 @@ BootModeConfigurator::BootModeConfigurator(IDeviceView& deviceView, IInput& devi
             nvsService(nvsService),
             hostSerial(hostSerial) {}
 
-bool BootModeConfigurator::configureBootMode() {
+bool BootModeConfigurator::configure() {
     GlobalState& state = GlobalState::getInstance();
     UsbUartBridgeConfig usbUartBridgeConfig = {
         state.getUartRxPin(),

@@ -2,19 +2,19 @@
 #include <Arduino.h>
 
 char SerialTerminalInput::handler() {
-    while (!Serial.available()) {}
-    return Serial.read();
+    while (!hostSerial.available()) {}
+    return static_cast<char>(hostSerial.read());
 }
 
 void SerialTerminalInput::waitPress(uint32_t timeoutMs) {
     (void)timeoutMs; // currently not used
-    while (!Serial.available()) {}
-    Serial.read(); // discard
+    hostSerial.waitForPress();
+    hostSerial.read(); // discard
 }
 
 char SerialTerminalInput::readChar() {
-    if (Serial.available()) {
-        return Serial.read();
+    if (hostSerial.available()) {
+        return static_cast<char>(hostSerial.read());
     }
     return KEY_NONE;
 }

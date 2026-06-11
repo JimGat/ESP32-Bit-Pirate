@@ -168,38 +168,99 @@ void SumpLogicAnalyzerAdapter::handleRun() {
         return;
     }
 
+    uploadCaptureSamples();
+}
+
+bool SumpLogicAnalyzerAdapter::uploadCaptureSamples() {
     // The libsigrok OLS driver expects classic OLS memory dump order:
     // newest sample first. It reverses the stream back to chronological order
     // on the host side. Sending samples[0..N-1] here makes PulseView display
     // the capture reversed in time.
-    if (enabledChannelGroups == 0x01) {
-        for (uint32_t i = sampleCount; i > 0; --i) {
-            if (((sampleCount - i) & (UPLOAD_ABORT_CHECK_INTERVAL - 1)) == 0 && consumePendingReset()) {
-                return;
-            }
+    uint8_t uploadBuffer[UPLOAD_BUFFER_SIZE];
+    uint32_t remainingSamples = sampleCount;
+    uint32_t sampleIndex = sampleCount;
+    uint8_t bytesPerSample = 0;
 
-            hostSerial->write(samples[i - 1]);
-        }
-        return;
-    }
-
-    for (uint32_t i = sampleCount; i > 0; --i) {
-        if (((sampleCount - i) & (UPLOAD_ABORT_CHECK_INTERVAL - 1)) == 0 && consumePendingReset()) {
-            return;
-        }
-
-        uint8_t sample = samples[i - 1];
-
-        if (enabledChannelGroups & 0x01) {
-            hostSerial->write(sample);
-        }
-
-        for (uint8_t group = 1; group < 4; ++group) {
-            if (enabledChannelGroups & (1U << group)) {
-                hostSerial->write(static_cast<uint8_t>(0));
-            }
+    for (uint8_t group = 0; group < 4; ++group) {
+        if (enabledChannelGroups & (1U << group)) {
+            ++bytesPerSample;
         }
     }
+
+    if (bytesPerSample == 0) {
+        return false;
+    }
+
+    while (remainingSamples > 0) {
+        if (((sampleCount - remainingSamples) & (UPLOAD_ABORT_CHECK_INTERVAL - 1)) == 0 && consumePendingReset()) {
+            return false;
+        }
+
+        size_t used = 0;
+        uint32_t samplesInBlock = std::min<uint32_t>(
+            remainingSamples,
+            sizeof(uploadBuffer) / bytesPerSample
+        );
+
+        for (uint32_t i = 0; i < samplesInBlock; ++i) {
+            uint8_t sample = samples[--sampleIndex];
+
+            if (enabledChannelGroups == 0x01) {
+                uploadBuffer[used++] = sample;
+            } else {
+                if (enabledChannelGroups & 0x01) {
+                    uploadBuffer[used++] = sample;
+                }
+
+                for (uint8_t group = 1; group < 4 && used < sizeof(uploadBuffer); ++group) {
+                    if (enabledChannelGroups & (1U << group)) {
+                        uploadBuffer[used++] = 0;
+                    }
+                }
+            }
+        }
+
+        if (!writeAll(uploadBuffer, used)) {
+            captureAborted = true;
+            return false;
+        }
+
+        remainingSamples -= samplesInBlock;
+    }
+
+    hostSerial->flush();
+    return true;
+}
+
+bool SumpLogicAnalyzerAdapter::writeAll(const uint8_t* data, size_t length) {
+    size_t writtenTotal = 0;
+    uint32_t lastProgressMs = millis();
+
+    while (writtenTotal < length) {
+        if (consumePendingReset()) {
+            return false;
+        }
+
+        int writable = hostSerial->availableForWrite();
+        if (writable > 0) {
+            size_t chunk = std::min<size_t>(length - writtenTotal, static_cast<size_t>(writable));
+            size_t written = hostSerial->write(data + writtenTotal, chunk);
+
+            if (written > 0) {
+                writtenTotal += written;
+                lastProgressMs = millis();
+                continue;
+            }
+        }
+
+        if ((uint32_t)(millis() - lastProgressMs) >= UPLOAD_WRITE_TIMEOUT_MS) {
+            return false;
+        }
+
+        delay(1);
+    }
+
+    return true;
 }
 
 void SumpLogicAnalyzerAdapter::handleFlags(uint32_t flags) {

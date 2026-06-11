@@ -54,6 +54,8 @@ private:
     static constexpr uint8_t MAX_CHANNELS = 8;
     static constexpr uint32_t CAPTURE_ABORT_CHECK_INTERVAL = 256;
     static constexpr uint32_t UPLOAD_ABORT_CHECK_INTERVAL = 256;
+    static constexpr uint32_t UPLOAD_WRITE_TIMEOUT_MS = 2000;
+    static constexpr size_t UPLOAD_BUFFER_SIZE = 512;
 
     static void configure(const SumpLogicAnalyzerConfig& config, IInput& input);
     static void handleCommand(uint8_t command);
@@ -61,6 +63,8 @@ private:
     static void handleFlags(uint32_t flags);
     static void resetSumpState();
     static bool consumePendingReset();
+    static bool uploadCaptureSamples();
+    static bool writeAll(const uint8_t* data, size_t length);
     static uint32_t calculateMaxSampleCount();
     static void prepareFastGpioMap();
     static void writeMetadata();

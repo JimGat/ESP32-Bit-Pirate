@@ -70,7 +70,6 @@ For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/
 | **M5 StampS3**        | ![Photo of the M5 StampS3](/images/stamps3_s.jpg)             | 9 GPIO (exposed pins), 1 button                       |
 | **M5 Stick S3** | ![Photo of the M5 Stick S3](/images/m5sticks3_s.jpg)      | 13 GPIO (Grove, Header), screen, mic, speaker, IR TX, IR RX, IMU, 3 buttons, battery                 |
 | **Seeed Studio Xiao S3** | ![Photo of the Seeed Studio Xiao ESP32-S3](/images/xiaos3_s.jpg)        | 9 GPIO (exposed pins), 1 button |
-| **Waveshare ESP32-S3-GEEK** | ![Photo of the Waveshare ESP32-S3-GEEK](/images/waveshare-s3-geek_s.jpg) | 7 GPIO (Dupont header), screen, 1 button, SD card |
 
 - **Other ESP32-S3-based Boards**
 

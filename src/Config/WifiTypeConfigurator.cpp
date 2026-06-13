@@ -16,6 +16,8 @@ std::string WifiTypeConfigurator::configure(TerminalTypeEnum& terminalType) {
             setupTembedWifi(view); // endless loop until a valid WiFi is selected and connected
         #elif defined(DEVICE_TDISPLAYS3)
             setupTdisplayWifi(view); // endless loop until a valid WiFi is selected and connected
+        #elif defined(DEVICE_WAVESHARE_S3_GEEK)
+            setupWaveshareS3GeekWifi(view); // endless loop until a valid WiFi is selected and connected
         #else
             // Use this standalone setup for now
             setupS3Wifi(); // check stored creds

@@ -6,6 +6,7 @@
 #include <Vendors/S3WifiSetup.h>
 #include <Vendors/TembedWifiSetup.h>
 #include <Vendors/TdisplayWifiSetup.h>
+#include <Vendors/WaveshareS3GeekWifiSetup.h>
 #include <Interfaces/IDeviceView.h>
 #include <Interfaces/IInput.h>
 #include <string>

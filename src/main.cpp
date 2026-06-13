@@ -6,6 +6,7 @@
 #include <Views/NoScreenDeviceView.h>
 #include <Views/TembedDeviceView.h>
 #include <Views/TdisplayDeviceView.h>
+#include <Views/WaveshareS3GeekDeviceView.h>
 #include <Views/CardputerTerminalView.h>
 #include <Views/CardputerDeviceView.h>
 #include <Inputs/SerialTerminalInput.h>
@@ -14,6 +15,7 @@
 #include <Inputs/StampS3Input.h>
 #include <Inputs/TembedInput.h>
 #include <Inputs/TdisplayInput.h>
+#include <Inputs/WaveshareS3GeekInput.h>
 #include <Inputs/S3DevKitInput.h>
 #include <Providers/DependencyProvider.h>
 #include <Dispatchers/ActionDispatcher.h>
@@ -88,7 +90,7 @@ and then launches the main loop through the ActionDispatcher.
 
 */
 
-void setup() {    
+void setup() {
     #if DEVICE_STICKS3
         // Setup the Stick
         #include <M5Unified.h>
@@ -132,6 +134,13 @@ void setup() {
         deviceView.logo();
         deviceInput.waitPress(3000);
         deviceView.clear();
+    #elif defined(DEVICE_WAVESHARE_S3_GEEK)
+        WaveshareS3GeekDeviceView deviceView;
+        WaveshareS3GeekInput deviceInput;
+        deviceView.initialize();
+        deviceView.logo();
+        deviceInput.waitPress(3000);
+        deviceView.clear();
     #else
         // Fallback to S3 dev kit
         NoScreenDeviceView deviceView;
@@ -164,7 +173,7 @@ void setup() {
     if (terminalType == TerminalTypeEnum::WiFiClient || terminalType == TerminalTypeEnum::WiFiAp) {
         WifiTypeConfigurator wifiTypeConfigurator(deviceView, deviceInput);
         webIp = wifiTypeConfigurator.configure(terminalType);
-        
+
         if (webIp == "0.0.0.0") {
             terminalType = TerminalTypeEnum::SerialPort;
         } else {
@@ -178,14 +187,14 @@ void setup() {
             // Serial View/Input
             SerialTerminalView serialView(hostSerial);
             SerialTerminalInput serialInput(hostSerial);
-            
+
             // Baudrate
             auto baud = std::to_string(state.getSerialTerminalBaudRate());
             serialView.setBaudrate(state.getSerialTerminalBaudRate());
 
             // Build the provider for serial type and run the dispatcher loop
             // too big to fit on the stack anymore, allocated on the heap
-            DependencyProvider* provider = new DependencyProvider(serialView, deviceView, serialInput, deviceInput, 
+            DependencyProvider* provider = new DependencyProvider(serialView, deviceView, serialInput, deviceInput,
                                                                   littleFsService);
             ActionDispatcher dispatcher(*provider);
             dispatcher.setup(terminalType, baud);
@@ -220,7 +229,7 @@ void setup() {
             WebTerminalInput webInput(wsServer);
             deviceView.loading();
             delay(7000); // let the server begin
-            
+
             // Setup routes for index, ws, captive if needed
             wsServer.setupRoutes();
             httpServer.setupRoutes();
@@ -230,17 +239,17 @@ void setup() {
 
             // Build the provider for webui type and run the dispatcher loop
             // too big to fit on the stack anymore, allocated on the heap
-            DependencyProvider* provider = new DependencyProvider(webView, deviceView, webInput, deviceInput, 
+            DependencyProvider* provider = new DependencyProvider(webView, deviceView, webInput, deviceInput,
                                                                   littleFsService);
             ActionDispatcher dispatcher(*provider);
-            
+
             dispatcher.setup(terminalType, webIp);
             dispatcher.run(); // Forever
             break;
         }
 
         #ifdef DEVICE_CARDPUTER
-        case TerminalTypeEnum::Standalone: 
+        case TerminalTypeEnum::Standalone:
             // Cardputer all in one
             CardputerTerminalView standaloneView; // cardputer screen as terminal
             CardputerInput standaloneInput; // cardputer keyboard for command input
@@ -249,7 +258,7 @@ void setup() {
             S3DevKitInput deviceInput; // the G0 button of the cardputer
 
             // Build the provider for cardputer standalone and run the dispatcher loop
-            DependencyProvider* provider = new DependencyProvider(standaloneView, deviceView, standaloneInput, deviceInput, 
+            DependencyProvider* provider = new DependencyProvider(standaloneView, deviceView, standaloneInput, deviceInput,
                                                                   littleFsService);
             ActionDispatcher dispatcher(*provider);
             dispatcher.setup(terminalType, "standalone");

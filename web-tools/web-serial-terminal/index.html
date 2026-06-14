@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Use this free Web Serial terminal to connect to ESP32, Arduino, Bus Pirate and USB UART devices directly from Chrome, Edge or Firefox. No installation required.">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="author" content="ESP32 Bit Pirate">
+  <meta name="application-name" content="Web Serial Terminal">
+  <meta name="theme-color" content="#101412">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:site_name" content="ESP32 Bit Pirate">
+  <meta property="og:title" content="Web Serial Terminal for ESP32 & USB UART | ESP32 Bit Pirate">
+  <meta property="og:description" content="Use this free Web Serial terminal to connect to ESP32, Arduino, Bus Pirate and USB UART devices directly from Chrome, Edge or Firefox. No installation required.">
+  <meta property="og:url" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/">
+  <meta property="og:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Web Serial Terminal by ESP32 Bit Pirate">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Web Serial Terminal for ESP32 & USB UART | ESP32 Bit Pirate">
+  <meta name="twitter:description" content="Use this free Web Serial terminal to connect to ESP32, Arduino, Bus Pirate and USB UART devices directly from Chrome, Edge or Firefox. No installation required.">
+  <meta name="twitter:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/og-image.png">
+  <meta name="twitter:image:alt" content="Web Serial Terminal by ESP32 Bit Pirate">
+  <link rel="canonical" href="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/">
+  <title>Web Serial Terminal for ESP32 & USB UART | ESP32 Bit Pirate</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="vendor/xterm/xterm.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/terminal.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "@id": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/#webapp",
+    "name": "Web Serial Terminal",
+    "description": "A free browser-based Web Serial terminal for USB serial devices, ESP32 boards, Arduino boards, Bus Pirate, USB UART adapters, microcontrollers, and serial consoles.",
+    "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/",
+    "image": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/og-image.png",
+    "applicationCategory": "DeveloperApplication",
+    "applicationSubCategory": "Serial terminal",
+    "operatingSystem": "Windows, macOS, Linux, ChromeOS",
+    "browserRequirements": "Requires Web Serial support: Chrome 89+, Edge 89+, Firefox 151+ on desktop, Opera or compatible Chromium browsers. Requires HTTPS or localhost.",
+    "isAccessibleForFree": true,
+    "featureList": [
+      "Web Serial terminal for USB serial devices",
+      "Configurable baud rate, data bits, stop bits, parity and flow control",
+      "ANSI terminal rendering with keyboard input, copy, paste and log download",
+      "Local browser processing for serial data"
+    ],
+    "sameAs": [
+      "https://github.com/geo-tp/ESP32-Bit-Pirate",
+      "https://github.com/geo-tp/ESP32-Bit-Pirate/wiki"
+    ],
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "creator": {
+      "@type": "Organization",
+      "name": "ESP32 Bit Pirate",
+      "url": "https://github.com/geo-tp/ESP32-Bit-Pirate"
+    }
+  }
+  </script>
+</head>
+<body>
+  <main class="app-shell">
+    <noscript>
+      <section class="compatibility-banner">
+        <h2>JavaScript is required</h2>
+        <p>This browser serial terminal needs JavaScript and Web Serial support. You can still visit the <a href="../">ESP32 Bit Pirate web tools</a>, the <a href="https://github.com/geo-tp/ESP32-Bit-Pirate">ESP32 Bit Pirate repository</a>, or the <a href="https://github.com/geo-tp/ESP32-Bit-Pirate/wiki">documentation</a>.</p>
+      </section>
+    </noscript>
+
+    <section id="compatibilityBanner" class="compatibility-banner" hidden>
+      <h2>Web Serial is not available in this browser</h2>
+      <p>Use Chrome 89+, Edge 89+, Firefox 151+ on desktop, Opera, or another compatible Chromium browser over HTTPS or localhost. Safari is not currently supported.</p>
+    </section>
+
+    <section class="tool-card" aria-label="Web Serial terminal tool">
+      <div class="toolbar" aria-label="Serial connection controls">
+        <div class="toolbar-brand" aria-label="Web Serial Terminal">
+          <a class="brand-mark" href="../" aria-label="Open ESP32 Bit Pirate web tools">B</a>
+          <a class="tool-home-link" href="../">Web Serial Terminal</a>
+
+          <div class="terminal-controls" aria-label="Terminal appearance">
+            <button id="fontDecreaseButton" type="button" aria-label="Decrease terminal text size">-</button>
+            <select id="themeSelect" aria-label="Terminal color theme">
+              <option value="soft" selected>Soft</option>
+              <option value="green">Green</option>
+              <option value="contrast">Contrast</option>
+            </select>
+            <button id="fontIncreaseButton" type="button" aria-label="Increase terminal text size">+</button>
+          </div>
+
+          <button id="configButton" class="config-button" type="button" aria-label="Serial settings" aria-expanded="false" aria-controls="configPanel" title="Serial settings">⚙</button>
+        </div>
+
+        <div id="connectionStatus" class="connection-status" aria-live="polite">Ready</div>
+
+        <div class="toolbar-actions">
+          <button id="connectButton" type="button" class="primary">Connect</button>
+          <button id="clearButton" type="button">Clear</button>
+          <button id="downloadButton" type="button">Download log</button>
+        </div>
+      </div>
+
+      <section class="terminal-panel" aria-label="Serial terminal">
+        <div id="terminal" class="terminal-surface"></div>
+      </section>
+    </section>
+  </main>
+
+  <div id="configOverlay" class="modal-overlay" hidden></div>
+  <section id="configPanel" class="config-panel" role="dialog" aria-modal="true" aria-labelledby="configTitle" hidden>
+    <header class="config-header">
+      <h2 id="configTitle">Serial Settings</h2>
+      <button id="configCloseButton" type="button" aria-label="Close serial settings">×</button>
+    </header>
+
+    <div class="config-grid">
+      <label>
+        <span>Baud</span>
+        <input id="baudRateInput" type="number" min="1" step="1" inputmode="numeric" value="115200">
+      </label>
+
+      <label>
+        <span>Data bits</span>
+        <select id="dataBitsSelect">
+          <option value="8" selected>8</option>
+          <option value="7">7</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Stop bits</span>
+        <select id="stopBitsSelect">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Parity</span>
+        <select id="paritySelect">
+          <option value="none" selected>None</option>
+          <option value="even">Even</option>
+          <option value="odd">Odd</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Flow control</span>
+        <select id="flowControlSelect">
+          <option value="none" selected>None</option>
+          <option value="hardware">Hardware</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Enter key</span>
+        <select id="enterModeSelect">
+          <option value="cr" selected>CR</option>
+          <option value="lf">LF</option>
+          <option value="crlf">CRLF</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="config-check">
+      <input id="localEchoCheckbox" type="checkbox">
+      <span>Local echo</span>
+    </label>
+
+    <label class="config-check disabled">
+      <input id="invertSignalCheckbox" type="checkbox" disabled>
+      <span>Inverted UART is not supported by browser Web Serial.</span>
+    </label>
+  </section>
+
+  <script src="vendor/xterm/xterm.min.js"></script>
+  <script src="vendor/xterm/addon-fit.min.js"></script>
+  <script type="module" src="scripts/app.js"></script>
+</body>
+</html>

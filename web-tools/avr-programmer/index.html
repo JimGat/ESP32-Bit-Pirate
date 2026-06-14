@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Program AVR microcontrollers directly from your browser using AVRDUDE WebAssembly and the ESP32 Bit Pirate AVR programmer adapter.">
+  <meta name="keywords" content="Web AVR programmer, AVRDUDE WebAssembly, browser AVR programmer, ATmega programmer, ATtiny programmer, AVR ISP programmer, ESP32 AVR programmer, ESP32 Bit Pirate">
+  <meta name="google" content="notranslate">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="theme-color" content="#121212">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:site_name" content="ESP32 Bit Pirate">
+  <meta property="og:title" content="Web AVR Programmer with ESP32 Bit Pirate">
+  <meta property="og:description" content="Program AVR microcontrollers directly from your browser using AVRDUDE WebAssembly and the ESP32 Bit Pirate AVR programmer adapter.">
+  <meta property="og:url" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/avr-programmer/">
+  <meta property="og:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Web AVR Programmer with ESP32 Bit Pirate">
+  <meta name="twitter:description" content="Program AVR microcontrollers directly from your browser using AVRDUDE WebAssembly and the ESP32 Bit Pirate AVR programmer adapter.">
+  <meta name="twitter:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/og-image.png">
+  <link rel="canonical" href="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/avr-programmer/">
+  <title>Web AVR Programmer with ESP32 Bit Pirate</title>
+  <script>
+    window.coi = {
+      coepCredentialless: () => false,
+      coepDegrade: () => false,
+    };
+  </script>
+  <script src="coi-serviceworker.js"></script>
+  <link rel="icon" type="image/svg+xml" href="../web-serial-terminal/favicon.svg">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <main class="wrap avr-wrap">
+    <noscript>
+      <section class="notice error">This Web AVR programmer requires JavaScript and Web Serial.</section>
+    </noscript>
+
+    <section id="serialUnsupported" class="notice error" hidden>
+      Web Serial is not available in this browser. Use Chrome, Edge, or another compatible Chromium browser over HTTPS or localhost.
+    </section>
+
+    <section id="coiUnsupported" class="notice error" hidden></section>
+
+    <section class="programmer-shell" aria-label="Web AVR Programmer">
+      <div class="toolbar">
+        <div class="toolbar-brand" aria-label="Web AVR Programmer">
+          <a class="brand-mark" href="../" aria-label="Open ESP32 Bit Pirate web tools">B</a>
+          <div>
+            <h1>Web AVR Programmer</h1>
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <button id="connectButton" class="button action-button primary" type="button">Connect</button>
+          <button id="disconnectButton" class="button action-button" type="button" disabled hidden>Disconnect</button>
+          <span id="connectionStatus" class="status-pill">Disconnected</span>
+        </div>
+      </div>
+
+      <div class="status-strip" aria-label="Programmer status">
+        <div><span>Programmer</span><strong id="programmerStatus">-</strong></div>
+        <div><span>Target AVR</span><strong id="targetStatus">-</strong></div>
+        <div><span>Signature</span><strong id="signatureStatus">-</strong></div>
+        <div><span>Status</span><strong id="operationStatus">Idle</strong></div>
+      </div>
+
+      <div class="panel-grid">
+        <article class="tool-card compact-card">
+          <p class="eyebrow">Memory operations</p>
+          <div class="form-grid">
+            <label for="targetMode">Target mode</label>
+            <select id="targetMode">
+              <option value="auto">Auto Detect</option>
+              <option value="manual">Manual Selection</option>
+            </select>
+
+            <label for="partSearch">Target AVR</label>
+            <input id="partSearch" list="partOptions" value="ATmega328P" spellcheck="false">
+            <datalist id="partOptions"></datalist>
+
+            <label for="flashFile">Flash file</label>
+            <input id="flashFile" type="file" accept=".hex,.ihex,.bin,application/octet-stream,text/plain">
+
+            <label for="eepromFile">EEPROM file</label>
+            <input id="eepromFile" type="file" accept=".hex,.eep,.bin,application/octet-stream,text/plain">
+          </div>
+
+          <div class="button-grid">
+            <button id="detectButton" class="button action-button" type="button" disabled>Detect AVR</button>
+            <button id="readFlashButton" class="button action-button" type="button" disabled>Read Flash</button>
+            <button id="writeFlashButton" class="button action-button" type="button" disabled>Write Flash</button>
+            <button id="verifyFlashButton" class="button action-button" type="button" disabled>Verify Flash</button>
+            <button id="readEepromButton" class="button action-button" type="button" disabled>Read EEPROM</button>
+            <button id="writeEepromButton" class="button action-button" type="button" disabled>Write EEPROM</button>
+            <button id="eraseButton" class="button action-button danger" type="button" disabled>Erase Chip</button>
+          </div>
+        </article>
+
+        <article class="tool-card compact-card">
+          <p class="eyebrow">Device information</p>
+          <dl class="info-list">
+            <div><dt>Part</dt><dd id="partName">-</dd></div>
+            <div><dt>AVRDUDE ID</dt><dd id="partId">-</dd></div>
+            <div><dt>Signature</dt><dd id="signatureValue">-</dd></div>
+            <div><dt>Flash size</dt><dd id="flashSize">-</dd></div>
+            <div><dt>EEPROM size</dt><dd id="eepromSize">-</dd></div>
+            <div><dt>Page size</dt><dd id="pageSize">-</dd></div>
+            <div><dt>Interface</dt><dd id="programmingInterface">Bus Pirate Raw SPI / ISP</dd></div>
+            <div><dt>AVRDUDE WASM</dt><dd id="wasmVersion">Not loaded</dd></div>
+          </dl>
+          <details class="wiring-panel">
+            <summary>Wiring</summary>
+            <ul>
+              <li>MOSI - Target MOSI</li>
+              <li>MISO - Target MISO</li>
+              <li>SCK - Target SCK</li>
+              <li>CS/RESET - Target RESET</li>
+              <li>GND - Target GND</li>
+            </ul>
+            <p>Use a common ground and compatible logic levels. Use the dock or a level shifter when needed; incorrect voltage can damage the ESP32 or the target.</p>
+          </details>
+        </article>
+      </div>
+
+      <article class="content-card progress-card">
+        <div class="progress-header">
+          <h2>Operation progress</h2>
+          <span id="progressText">Idle</span>
+        </div>
+        <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
+        <pre id="avrdudeOutput" class="log-output user-output" aria-live="polite">Powered by AVRDUDE WebAssembly and the ESP32 Bit Pirate AVR programmer adapter.</pre>
+      </article>
+
+      <details class="content-card log-card">
+        <summary>Technical Log</summary>
+        <div class="log-header">
+          <h2>AVRDUDE and bridge output</h2>
+          <div class="toolbar-actions">
+            <button id="copyLogButton" class="button action-button subtle" type="button">Copy Log</button>
+            <button id="downloadLogButton" class="button action-button subtle" type="button">Download Log</button>
+            <button id="clearLogButton" class="button action-button subtle" type="button">Clear Log</button>
+          </div>
+        </div>
+        <pre id="technicalLog" class="log-output" aria-live="polite"></pre>
+      </details>
+    </section>
+  </main>
+
+  <script type="module" src="src/App.js"></script>
+</body>
+</html>

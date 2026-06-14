@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local VCD Viewer Harness</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; background: #101214; color: #e8eef2; }
+    body { margin: 0; overflow: hidden; }
+    .toolbar { display: flex; gap: 8px; align-items: center; height: 44px; padding: 0 12px; background: #171b1f; border-bottom: 1px solid #2a3036; }
+    button { height: 30px; border: 1px solid #3d4751; background: #20262c; color: #e8eef2; border-radius: 6px; }
+    #status { margin-left: auto; color: #9fb0bd; font-size: 13px; }
+    canvas { display: block; width: 100vw; height: calc(100vh - 44px); background: #0d1013; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button id="zoomIn" type="button">+</button>
+    <button id="zoomOut" type="button">-</button>
+    <button id="fit" type="button">Fit</button>
+    <span id="status">Waiting for VCD</span>
+  </div>
+  <canvas id="wave"></canvas>
+  <script type="module">
+    const canvas = document.querySelector("#wave");
+    const ctx = canvas.getContext("2d");
+    const status = document.querySelector("#status");
+    const MIN_ZOOM = 0.25;
+    const MAX_ZOOM = 4096;
+    let capture = null;
+    let zoom = 1;
+    let offset = 0;
+
+    window.parent.postMessage({ type: "viewer-ready" }, "*");
+
+    window.addEventListener("message", (event) => {
+      const message = event.data || {};
+      if (message.type === "load-capture") {
+        capture = message.capture;
+        capture.packedSamples = new Uint8Array(capture.packedSamples);
+        zoom = 1;
+        offset = 0;
+        status.textContent = capture.triggerIndex == null
+          ? `${capture.sampleCount} samples @ ${formatHz(capture.sampleRateHz)}`
+          : `${capture.sampleCount} samples @ ${formatHz(capture.sampleRateHz)} • trigger ${formatTime(capture.triggerIndex / capture.sampleRateHz)}`;
+        draw();
+      }
+      if (message.type === "set-trigger-marker" && capture) {
+        capture.triggerIndex = message.sampleIndex;
+        draw();
+      }
+      if (message.type === "reset") {
+        capture = null;
+        draw();
+      }
+    });
+
+    document.querySelector("#zoomIn").addEventListener("click", () => {
+      zoom = clampZoom(zoom * 1.5);
+      draw();
+    });
+    document.querySelector("#zoomOut").addEventListener("click", () => {
+      zoom = clampZoom(zoom / 1.5);
+      if (zoom <= 1) offset = 0;
+      draw();
+    });
+    document.querySelector("#fit").addEventListener("click", () => {
+      zoom = 1;
+      offset = 0;
+      draw();
+    });
+    canvas.addEventListener("wheel", (event) => {
+      event.preventDefault();
+      if (event.ctrlKey || event.metaKey) {
+        zoom = clampZoom(zoom * (event.deltaY < 0 ? 1.2 : 0.82));
+        if (zoom <= 1) offset = 0;
+      } else if (zoom > 1) {
+        offset += event.deltaY;
+      }
+      draw();
+    }, { passive: false });
+    window.addEventListener("resize", draw);
+
+    function draw() {
+      const ratio = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+      canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      if (!capture) {
+        ctx.fillStyle = "#6f7d87";
+        ctx.fillText("No capture loaded yet.", 24, 32);
+        return;
+      }
+
+      const channels = capture.channels.filter((channel) => channel.enabled);
+      const left = 92;
+      const right = 16;
+      const plotWidth = Math.max(1, rect.width - left - right);
+      const rowHeight = Math.max(34, (rect.height - 20) / Math.max(channels.length, 1));
+      const fitPixelsPerSample = plotWidth / Math.max(1, capture.sampleCount - 1);
+      const pixelsPerSample = fitPixelsPerSample * zoom;
+      const contentWidth = Math.max(0, (capture.sampleCount - 1) * pixelsPerSample);
+      const maxOffset = Math.max(0, contentWidth - plotWidth);
+      offset = Math.min(maxOffset, Math.max(0, offset));
+      const centeredPadding = contentWidth < plotWidth ? (plotWidth - contentWidth) / 2 : 0;
+      const originX = left + centeredPadding - offset;
+      const startSample = contentWidth <= plotWidth
+        ? 0
+        : Math.max(0, Math.floor(offset / Math.max(pixelsPerSample, 0.0001)) - 1);
+      const endSample = contentWidth <= plotWidth
+        ? capture.sampleCount - 1
+        : Math.min(
+          capture.sampleCount - 1,
+          Math.ceil((offset + plotWidth) / Math.max(pixelsPerSample, 0.0001)) + 1,
+        );
+
+      ctx.strokeStyle = "#27313a";
+      ctx.lineWidth = 1;
+      for (let x = left; x < rect.width - right; x += 80) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, rect.height);
+        ctx.stroke();
+      }
+
+      if (capture.triggerIndex != null) {
+        const triggerX = originX + capture.triggerIndex * pixelsPerSample;
+        if (triggerX >= left && triggerX <= rect.width - right) {
+          ctx.save();
+          ctx.strokeStyle = "#ffd666";
+          ctx.fillStyle = "#ffd666";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([5, 4]);
+          ctx.beginPath();
+          ctx.moveTo(triggerX, 0);
+          ctx.lineTo(triggerX, rect.height);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillText("T", triggerX + 5, 14);
+          ctx.restore();
+        }
+      }
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(left, 0, plotWidth, rect.height);
+      ctx.clip();
+
+      channels.forEach((channel, row) => {
+        const y = 18 + row * rowHeight;
+        const low = y + rowHeight * 0.66;
+        const high = y + rowHeight * 0.22;
+        ctx.strokeStyle = "#4fd1c5";
+        ctx.beginPath();
+        let previousLevel = ((capture.packedSamples[startSample] >> channel.bit) & 1) ? high : low;
+        let previousX = originX + startSample * pixelsPerSample;
+        ctx.moveTo(previousX, previousLevel);
+        for (let sample = startSample + 1; sample <= endSample; sample += 1) {
+          const x = originX + sample * pixelsPerSample;
+          const level = ((capture.packedSamples[sample] >> channel.bit) & 1) ? high : low;
+          if (level !== previousLevel) {
+            ctx.lineTo(x, previousLevel);
+            ctx.lineTo(x, level);
+          }
+          previousX = x;
+          previousLevel = level;
+        }
+        ctx.lineTo(previousX, previousLevel);
+        ctx.stroke();
+      });
+      ctx.restore();
+
+      channels.forEach((channel, row) => {
+        const y = 18 + row * rowHeight;
+        ctx.fillStyle = "#d6dee5";
+        ctx.fillText(channel.name, 12, y + rowHeight * 0.48);
+      });
+    }
+
+    function clampZoom(value) {
+      return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, value));
+    }
+
+    function formatTime(seconds) {
+      if (seconds >= 1) return `${trim(seconds)} s`;
+      if (seconds >= 0.001) return `${trim(seconds * 1000)} ms`;
+      if (seconds >= 0.000001) return `${trim(seconds * 1000000)} µs`;
+      return `${trim(seconds * 1000000000)} ns`;
+    }
+
+    function trim(value) {
+      return Number.isInteger(value) ? String(value) : value.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+    }
+
+    function formatHz(value) {
+      if (value >= 1000000) return `${value / 1000000} MHz`;
+      if (value >= 1000) return `${value / 1000} kHz`;
+      return `${value} Hz`;
+    }
+  </script>
+</body>
+</html>

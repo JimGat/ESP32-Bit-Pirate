@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Read, write, erase and verify SPI flash chips directly from your browser using the ESP32 Bit Pirate serprog adapter. No flashrom installation required.">
+  <meta name="google" content="notranslate">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="theme-color" content="#121212">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:site_name" content="ESP32 Bit Pirate">
+  <meta property="og:title" content="Web SPI Flash Programmer with ESP32 Bit Pirate">
+  <meta property="og:description" content="Read, write, erase and verify SPI flash chips directly from your browser using the ESP32 Bit Pirate serprog adapter.">
+  <meta property="og:url" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/spi-flash-programmer/">
+  <meta property="og:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Web SPI Flash Programmer with ESP32 Bit Pirate">
+  <meta name="twitter:description" content="Read, write, erase and verify SPI flash chips directly from your browser using the ESP32 Bit Pirate serprog adapter.">
+  <meta name="twitter:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/og-image.png">
+  <link rel="canonical" href="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/spi-flash-programmer/">
+  <title>Web SPI Flash Programmer with ESP32 Bit Pirate</title>
+  <link rel="icon" type="image/svg+xml" href="../web-serial-terminal/favicon.svg">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <main class="wrap programmer-wrap">
+    <noscript>
+      <section class="notice error">This web SPI flash programmer requires JavaScript and Web Serial.</section>
+    </noscript>
+
+    <section id="serialUnsupported" class="notice error" hidden>
+      Web Serial is not available in this browser. Use Chrome, Edge, or another compatible Chromium browser over HTTPS or localhost.
+    </section>
+
+    <section class="programmer-shell" aria-label="SPI flash programmer prototype">
+      <div class="toolbar">
+        <div class="toolbar-brand" aria-label="Web SPI Flash Programmer">
+          <a class="brand-mark" href="../" aria-label="Open ESP32 Bit Pirate web tools">B</a>
+          <h1>Web SPI Flash Programmer</h1>
+        </div>
+
+        <div class="toolbar-actions">
+          <button id="connectButton" class="button action-button primary" type="button">Connect</button>
+          <button id="disconnectButton" class="button action-button" type="button" disabled hidden>Disconnect</button>
+          <span id="connectionStatus" class="status-pill">Disconnected</span>
+        </div>
+      </div>
+
+      <div class="panel-grid">
+        <article class="tool-card compact-card">
+          <p class="eyebrow">Adapter</p>
+          <dl class="info-list">
+            <div><dt>Programmer</dt><dd id="programmerName">-</dd></div>
+            <div><dt>serprog interface</dt><dd id="ifaceVersion">-</dd></div>
+            <div><dt>Bus</dt><dd id="busType">-</dd></div>
+            <div><dt>Serial buffer</dt><dd id="serialBuffer">-</dd></div>
+            <div><dt>Max SPI read</dt><dd id="maxRead">-</dd></div>
+            <div><dt>Max SPI write</dt><dd id="maxWrite">-</dd></div>
+            <div>
+              <dt><label for="spiFrequencySelect">SPI frequency</label></dt>
+              <dd>
+                <select id="spiFrequencySelect" class="inline-select">
+                  <option value="1000000">1 MHz</option>
+                  <option value="2000000">2 MHz</option>
+                  <option value="4000000">4 MHz</option>
+                  <option value="8000000" selected>8 MHz</option>
+                  <option value="12000000">12 MHz</option>
+                  <option value="16000000">16 MHz</option>
+                </select>
+              </dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="tool-card compact-card">
+          <p class="eyebrow">Probe</p>
+          <dl class="info-list">
+            <div><dt>JEDEC ID</dt><dd id="jedecId">-</dd></div>
+            <div><dt>Likely chip</dt><dd id="chipName">-</dd></div>
+            <div><dt>Capacity</dt><dd id="chipCapacity">-</dd></div>
+            <div><dt>Legacy ID</dt><dd id="legacyId">-</dd></div>
+            <div><dt>SFDP signature</dt><dd id="sfdpSignature">-</dd></div>
+          </dl>
+          <button id="probeButton" class="button action-button" type="button" disabled>Probe chip</button>
+        </article>
+      </div>
+
+      <article class="content-card operation-card">
+        <div class="operation-tabs" role="tablist" aria-label="SPI flash operations">
+          <button class="operation-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="readPanel" data-operation-tab="read">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10"></path><path d="M4 12h16"></path><path d="M4 17h10"></path><path d="M16 7l4 5-4 5"></path></svg>
+            Read range
+          </button>
+          <button class="operation-tab" type="button" role="tab" aria-selected="false" aria-controls="dumpPanel" data-operation-tab="dump">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"></path><path d="M8 11l4 4 4-4"></path><path d="M5 20h14"></path></svg>
+            Dump chip
+          </button>
+          <button class="operation-tab" type="button" role="tab" aria-selected="false" aria-controls="writePanel" data-operation-tab="write">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V9"></path><path d="M8 13l4-4 4 4"></path><path d="M5 4h14"></path></svg>
+            Write chip
+          </button>
+        </div>
+
+        <div class="operation-panels">
+          <section id="readPanel" class="operation-section is-active" role="tabpanel" aria-label="Range read operations" data-operation-panel="read">
+            <p class="eyebrow">Read range</p>
+            <div class="operation-controls range-controls">
+              <label for="readStart">Start</label>
+              <input id="readStart" inputmode="text" value="0x000000" spellcheck="false">
+              <label for="readLength">Length</label>
+              <input id="readLength" inputmode="numeric" value="256" spellcheck="false">
+              <button id="readButton" class="button action-button" type="button" disabled>Read range</button>
+              <button id="downloadButton" class="button action-button" type="button" disabled>Save range</button>
+            </div>
+          </section>
+
+          <section id="dumpPanel" class="operation-section" role="tabpanel" aria-label="Full-chip dump operations" data-operation-panel="dump" hidden>
+            <p class="eyebrow">Dump full chip</p>
+            <div class="operation-controls dump-controls">
+              <button id="dumpButton" class="button action-button" type="button" disabled>Dump full chip</button>
+              <button id="downloadDumpButton" class="button action-button" type="button" disabled>Save full dump</button>
+            </div>
+          </section>
+
+          <section id="writePanel" class="operation-section" role="tabpanel" aria-label="Full-chip write operations" data-operation-panel="write" hidden>
+            <p class="eyebrow">Write full chip</p>
+            <div class="operation-controls write-controls">
+              <div class="file-picker">
+                <input id="writeFile" class="file-input" type="file" accept=".bin,application/octet-stream">
+                <label class="button action-button file-button" for="writeFile">Choose BIN</label>
+                <span id="writeFileName" class="file-name">No file selected</span>
+              </div>
+              <button id="writeButton" class="button action-button danger" type="button" disabled>Write full chip</button>
+            </div>
+          </section>
+        </div>
+
+        <div class="progress-row" aria-label="Operation progress">
+          <span id="progressLabel">Idle</span>
+          <progress id="operationProgress" max="100" value="0"></progress>
+          <span id="progressValue">0%</span>
+        </div>
+
+        <pre id="hexPreview" class="hex-preview" aria-label="Read preview">No data read yet.</pre>
+      </article>
+
+      <article class="content-card log-card">
+        <div class="log-header">
+          <h2>Technical log</h2>
+          <button id="clearLogButton" class="button action-button subtle" type="button">Clear</button>
+        </div>
+        <pre id="logOutput" class="log-output" aria-live="polite"></pre>
+      </article>
+    </section>
+  </main>
+
+  <script type="module" src="src/App.js"></script>
+</body>
+</html>

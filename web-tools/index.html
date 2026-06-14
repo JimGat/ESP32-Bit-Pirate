@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Free ESP32 Bit Pirate web tools for Web Serial, USB UART consoles, SPI flash programming and SUMP logic analyzer captures. Debug embedded hardware from your browser.">
+  <meta name="keywords" content="ESP32 Bit Pirate, Bus Pirate, Web Serial terminal, USB UART terminal, SPI flash programmer, SUMP logic analyzer, VCD waveform viewer, embedded hardware tools, ESP32-S3 debugging, browser serial console">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="theme-color" content="#121212">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:site_name" content="ESP32 Bit Pirate">
+  <meta property="og:title" content="ESP32 Bit Pirate Web Tools for Serial, SPI Flash and Logic Analysis">
+  <meta property="og:description" content="Use free browser-based embedded hardware tools for Web Serial terminals, SPI flash workflows and SUMP logic analyzer captures.">
+  <meta property="og:url" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/">
+  <meta property="og:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/assets/bit-pirate-web-tools.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ESP32 Bit Pirate Web Tools for Embedded Hardware Debugging">
+  <meta name="twitter:description" content="Free browser tools for Web Serial, USB UART consoles, SPI flash programming and SUMP logic analyzer captures.">
+  <meta name="twitter:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/assets/bit-pirate-web-tools.svg">
+  <link rel="canonical" href="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/">
+  <title>ESP32 Bit Pirate Web Tools: Web Serial, SPI Flash Programmer and Logic Analyzer</title>
+  <link rel="icon" type="image/svg+xml" href="web-serial-terminal/favicon.svg">
+  <link rel="stylesheet" href="styles/main.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ESP32 Bit Pirate Web Tools",
+    "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/",
+    "description": "Free browser-based embedded hardware tools for Web Serial, USB UART consoles, SPI flash programming and SUMP logic analyzer captures.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "ESP32 Bit Pirate",
+      "url": "https://github.com/geo-tp/ESP32-Bit-Pirate"
+    },
+    "hasPart": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Web Serial Terminal",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Chrome, Edge, Chromium browsers",
+        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/",
+        "description": "Browser serial terminal for ESP32, Arduino, Bus Pirate, USB UART and CDC-ACM devices."
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Web SPI Flash Programmer",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Chrome, Edge, Chromium browsers",
+        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/spi-flash-programmer/",
+        "description": "Browser SPI flash programmer prototype for serprog-compatible hardware and ESP32 Bit Pirate adapters."
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Web Logic Analyzer",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Chrome, Edge, Chromium browsers",
+        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/logic-analyzer/",
+        "description": "Browser SUMP logic analyzer for digital captures, VCD waveform viewing and embedded protocol debugging."
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Web AVR Programmer",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Chrome, Edge, Chromium browsers",
+        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/avr-programmer/",
+        "description": "Browser AVR programmer prototype using AVRDUDE WebAssembly and the ESP32 Bit Pirate AVRDUDE adapter."
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <a class="brand" href="https://github.com/geo-tp/ESP32-Bit-Pirate" target="_blank" rel="noopener">
+        <span class="brand-mark" aria-hidden="true">B</span>
+        <span>ESP32 Bit Pirate</span>
+      </a>
+      <h1>ESP32 Bit Pirate Web Tools</h1>
+      <p>Free browser-based embedded hardware tools for Web Serial terminals, USB UART consoles, SPI flash workflows and SUMP logic analyzer captures. Use ESP32 Bit Pirate to debug boards, inspect firmware and capture digital signals without installing a desktop toolchain.</p>
+    </header>
+
+    <section class="tool-grid featured-tools" aria-label="Available ESP32 Bit Pirate web tools">
+      <article class="tool-card">
+        <img class="tool-image" src="assets/web-serial-terminal.svg" alt="Web Serial terminal connected to an ESP32 and USB UART device" width="520" height="300" loading="lazy">
+        <p class="eyebrow"><span class="eyebrow-text-mark" aria-hidden="true">&gt;_</span> Web Serial</p>
+        <h2>Web Serial Terminal for USB UART Devices</h2>
+        <p>Connect to ESP32, Arduino, ARM boards, Bus Pirate firmware, USB-UART adapters and CDC-ACM serial devices directly from Chrome or Edge. Read logs, send commands, paste scripts and save serial sessions locally.</p>
+        <a class="button" href="web-serial-terminal/">Open Web Serial Terminal</a>
+      </article>
+
+      <article class="tool-card">
+        <img class="tool-image" src="assets/spi-flash-programmer.svg" alt="SPI flash chip connected to a browser flash programmer" width="520" height="300" loading="lazy">
+        <p class="eyebrow">
+          <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="7" y="6" width="10" height="12" rx="2"></rect>
+            <path d="M4 8h3M4 12h3M4 16h3M17 8h3M17 12h3M17 16h3"></path>
+          </svg>
+          SPI Flash
+        </p>
+        <h2>Web SPI Flash Programmer for Firmware Dumps</h2>
+        <p>Browser-based flashrom workflow for probing, reading and saving SPI NOR flash chips through serprog-compatible hardware. ESP32 Bit Pirate is the first adapter target for web-based firmware extraction.</p>
+        <a class="button" href="spi-flash-programmer/">Open SPI Flash Programmer</a>
+      </article>
+
+      <article class="tool-card">
+        <img class="tool-image" src="assets/logic-analyzer.svg" alt="SUMP logic analyzer waveform traces in a browser VCD viewer" width="520" height="300" loading="lazy">
+        <p class="eyebrow">
+          <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 16h4v-8h4v8h4v-8h6"></path>
+          </svg>
+          SUMP Logic
+        </p>
+        <h2>Web Logic Analyzer with VCD Waveform Viewer</h2>
+        <p>Capture digital signals from SUMP-compatible hardware, inspect GPIO waveforms in the browser and export VCD, CSV, raw binary or session JSON data for protocol debugging and reproducible analysis.</p>
+        <a class="button" href="logic-analyzer/">Open Web Logic Analyzer</a>
+      </article>
+
+      <article class="tool-card">
+        <img class="tool-image" src="assets/avr-programmer.svg" alt="AVR target connected to a browser programmer through ESP32 Bit Pirate" width="520" height="300" loading="lazy">
+        <p class="eyebrow">
+          <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="7" y="5" width="10" height="14" rx="2"></rect>
+            <path d="M4 8h3M4 12h3M4 16h3M17 8h3M17 12h3M17 16h3"></path>
+            <path d="M10 9h4M10 12h4M10 15h4"></path>
+          </svg>
+          AVR ISP
+        </p>
+        <h2>Web AVR Programmer with AVRDUDE WebAssembly</h2>
+        <p>Prototype AVR ISP workflows in the browser with the ESP32 Bit Pirate AVRDUDE adapter. Detect ATmega and ATtiny targets, read memory, write HEX files and keep AVRDUDE output in a technical log.</p>
+        <a class="button" href="avr-programmer/">Open Web AVR Programmer</a>
+      </article>
+    </section>
+
+    <section class="content-card authority-card">
+      <div class="authority-layout">
+        <div>
+          <h2>Open-source hardware debugging in the browser</h2>
+          <p>ESP32 Bit Pirate is an open-source firmware that turns compatible ESP32-S3 devices into a multi-protocol hardware hacking and debugging tool inspired by the Bus Pirate.</p>
+          <p>It supports serial and web command-line workflows for UART, I2C, SPI, 1-Wire, 2-Wire, 3-Wire, CAN, JTAG/SWD, infrared, Wi-Fi, Bluetooth, Sub-GHz, RFID, RF24, FM and USB adapter modes.</p>
+          <p>These web tools strengthen the ESP32 Bit Pirate ecosystem by making common embedded workflows discoverable from a secure browser page: serial console access, firmware memory work, digital logic capture and protocol investigation.</p>
+          <p>The same hardware can switch between protocol mode and adapter-style workflows, so you can move from probing a bus to capturing waveforms, reading memory or programming without changing tools.</p>
+        </div>
+        <a class="authority-image-link" href="https://github.com/geo-tp/ESP32-Bit-Pirate" target="_blank" rel="noopener" aria-label="Open the ESP32 Bit Pirate repository">
+          <img class="authority-image" src="assets/bit-pirate-square.png" alt="ESP32 Bit Pirate square logo for the multi-protocol firmware" width="1008" height="784" loading="lazy">
+        </a>
+      </div>
+      <div class="capability-grid" aria-label="ESP32 Bit Pirate capabilities">
+        <article>
+          <h3>Serial and Web CLI</h3>
+          <p>Use the same command structure over USB serial, Wi-Fi web interface or browser-based Web Serial workflows.</p>
+        </article>
+        <article>
+          <h3>Protocol Workbench</h3>
+          <p>Scan, sniff, send, script and inspect embedded buses including I2C, SPI, UART, 1-Wire, CAN and JTAG/SWD.</p>
+        </article>
+        <article>
+          <h3>Firmware and Memory</h3>
+          <p>Work with EEPROM, SPI flash, LittleFS imports and exports, firmware dumps and repeatable diagnostic sessions.</p>
+        </article>
+      </div>
+      <div class="link-list">
+        <a href="https://github.com/geo-tp/ESP32-Bit-Pirate" target="_blank" rel="noopener">ESP32 Bit Pirate open-source repository</a>
+        <a href="https://github.com/geo-tp/ESP32-Bit-Pirate/wiki" target="_blank" rel="noopener">Supported protocols and commands</a>
+        <a href="https://github.com/geo-tp/ESP32-Bit-Pirate#supported-devices" target="_blank" rel="noopener">Compatible ESP32-S3 boards</a>
+        <a href="https://github.com/geo-tp/ESP32-Bit-Pirate/wiki/12-USB" target="_blank" rel="noopener">USB adapter modes and workflows</a>
+      </div>
+    </section>
+
+    <section class="faq-grid" aria-label="Browser hardware tools FAQ">
+      <article>
+        <h2>Supported Browsers</h2>
+        <p>Web Serial works in Chrome, Firefox, Edge, Opera and compatible Chromium browsers on desktop. Safari does not currently support Web Serial hardware access.</p>
+      </article>
+      <article>
+        <h2>Supported Hardware</h2>
+        <p>The operating system must recognize your ESP32 board, USB UART adapter, CDC-ACM device or ESP32 Bit Pirate USB mode before the browser can request access.</p>
+      </article>
+      <article>
+        <h2>Secure Context</h2>
+        <p>Browser hardware APIs require HTTPS or localhost. Use the hosted ESP32 Bit Pirate web tools page or run the repository locally during development.</p>
+      </article>
+      <article>
+        <h2>Local Privacy</h2>
+        <p>Serial logs, flash data and logic analyzer captures are processed locally in your browser by these static pages. The application does not upload captures to a server.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

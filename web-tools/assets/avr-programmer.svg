@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="300" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
+  <title id="title">Web AVR programmer</title>
+  <desc id="desc">An AVR microcontroller connected to AVRDUDE WebAssembly through the ESP32 Bit Pirate adapter.</desc>
+  <rect width="520" height="300" rx="18" fill="#101412"/>
+  <rect x="28" y="34" width="464" height="220" rx="14" fill="#060807" stroke="#2d3b34" stroke-width="2"/>
+  <rect x="62" y="72" width="148" height="96" rx="12" fill="#0d1411" stroke="#00ff9966" stroke-width="3"/>
+  <text x="136" y="113" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="20" font-weight="700" text-anchor="middle">AVRDUDE</text>
+  <text x="136" y="141" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="15" font-weight="700" text-anchor="middle">WASM</text>
+  <rect x="326" y="72" width="120" height="150" rx="12" fill="#141814" stroke="#00ff00" stroke-width="4"/>
+  <rect x="354" y="108" width="64" height="78" rx="7" fill="#0c0f0d" stroke="#285f28" stroke-width="2"/>
+  <text x="386" y="142" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="20" font-weight="700" text-anchor="middle">AVR</text>
+  <text x="386" y="168" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="16" font-weight="700" text-anchor="middle">ISP</text>
+  <g stroke="#00ff00" stroke-width="6" stroke-linecap="round">
+    <path d="M302 94h24M302 124h24M302 154h24M302 184h24"/>
+    <path d="M446 94h24M446 124h24M446 154h24M446 184h24"/>
+  </g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+    <path d="M210 94h92" stroke="#00ffcc"/>
+    <path d="M210 128h76v-4h16" stroke="#00ff00"/>
+    <path d="M210 162h76v-8h16" stroke="#ffd166"/>
+  </g>
+  <rect x="82" y="192" width="108" height="34" rx="8" fill="#111714" stroke="#00ff9966" stroke-width="2"/>
+  <circle cx="110" cy="209" r="7" fill="#00ff00"/>
+  <circle cx="136" cy="209" r="7" fill="#00ffcc"/>
+  <circle cx="162" cy="209" r="7" fill="#ffd166"/>
+</svg>

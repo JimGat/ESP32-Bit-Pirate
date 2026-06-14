@@ -1,0 +1,27 @@
+AVRDUDE WebAssembly notice
+==========================
+
+This Web AVR Programmer is designed to use the archived Leaphy Robotics
+AVRDUDE WebAssembly fork as its programming engine:
+
+  https://github.com/leaphy-robotics/avrdude-webassembly
+
+The audited fork state for this prototype was tag v1.7.1 / commit b1ade73.
+Its CMake project declares AVRDUDE version 7.3.
+
+AVRDUDE and the WebAssembly port are GPL software. The ESP32 Bit Pirate Web
+Tool UI must not present AVRDUDE, AVR part definitions, programmer drivers,
+Intel HEX parsing, fuse handling, lock-bit handling, or ISP page programming as
+original ESP32 Bit Pirate code.
+
+Visible attribution used by the page:
+
+  Powered by AVRDUDE WebAssembly and the ESP32 Bit Pirate AVR programmer adapter.
+
+Local integration notes:
+
+- The UI calls an isolated AvrdudeEngine API.
+- AVRDUDE command construction is limited to high-level operations.
+- The intended programmer is `-c buspirate`.
+- The Web Serial port is bound through the existing WebAssembly serial bridge.
+- Destructive operations require prior detection or explicit manual selection.

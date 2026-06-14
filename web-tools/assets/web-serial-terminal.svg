@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="300" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
+  <title id="title">Web Serial terminal for ESP32 and USB UART</title>
+  <desc id="desc">A browser terminal showing serial console commands for embedded devices.</desc>
+  <rect width="520" height="300" rx="18" fill="#101412"/>
+  <rect x="28" y="28" width="464" height="244" rx="14" fill="#060807" stroke="#2d3b34" stroke-width="2"/>
+  <rect x="28" y="28" width="464" height="38" rx="14" fill="#18201c"/>
+  <circle cx="54" cy="47" r="6" fill="#ff6b6b"/>
+  <circle cx="76" cy="47" r="6" fill="#ffd166"/>
+  <circle cx="98" cy="47" r="6" fill="#00ffcc"/>
+  <text x="44" y="112" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="21" font-weight="700">BP&gt; i2c scan</text>
+  <text x="44" y="151" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="18">0x3C OLED display found</text>
+  <text x="44" y="190" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="18">115200 baud · Web Serial</text>
+  <path d="M346 118h62m-22-22 22 22-22 22" fill="none" stroke="#00ffcc" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="324" y="164" width="116" height="50" rx="8" fill="#111714" stroke="#00ff9966" stroke-width="2"/>
+  <circle cx="352" cy="189" r="7" fill="#00ff00"/>
+  <circle cx="382" cy="189" r="7" fill="#00ffcc"/>
+  <circle cx="412" cy="189" r="7" fill="#ffd166"/>
+</svg>

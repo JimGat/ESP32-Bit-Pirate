@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">ESP32 Bit Pirate browser hardware tools</title>
+  <desc id="desc">A browser window connected to an ESP32-S3 hardware debugging board with serial, flash and logic analyzer signals.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#102018"/>
+      <stop offset="0.48" stop-color="#151515"/>
+      <stop offset="1" stop-color="#1f2116"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#202923"/>
+      <stop offset="1" stop-color="#0b0d0c"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" rx="28" fill="url(#bg)"/>
+  <rect x="70" y="62" width="820" height="416" rx="20" fill="#070908" stroke="#2f3a36" stroke-width="3"/>
+  <rect x="70" y="62" width="820" height="54" rx="20" fill="#141917"/>
+  <circle cx="106" cy="90" r="8" fill="#ff6b6b"/>
+  <circle cx="132" cy="90" r="8" fill="#ffd166"/>
+  <circle cx="158" cy="90" r="8" fill="#2dd4bf"/>
+  <text x="194" y="97" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="22" font-weight="700">ESP32 Bit Pirate Web Tools</text>
+  <rect x="105" y="152" width="310" height="230" rx="14" fill="url(#panel)" stroke="#2f3a36" stroke-width="2"/>
+  <rect x="142" y="192" width="236" height="112" rx="14" fill="#111714" stroke="#00ff9966" stroke-width="3"/>
+  <rect x="168" y="222" width="184" height="52" rx="8" fill="#050706" stroke="#39443e" stroke-width="2"/>
+  <text x="187" y="255" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="24" font-weight="700">BP&gt; scan</text>
+  <circle cx="174" cy="326" r="7" fill="#00ff00"/>
+  <circle cx="205" cy="326" r="7" fill="#00ffcc"/>
+  <circle cx="236" cy="326" r="7" fill="#ffd166"/>
+  <circle cx="267" cy="326" r="7" fill="#8ab4ff"/>
+  <circle cx="298" cy="326" r="7" fill="#ff8c42"/>
+  <circle cx="329" cy="326" r="7" fill="#b8ffb8"/>
+  <path d="M415 244h78m0 0v-48h74m-74 48v48h74" fill="none" stroke="#00ffcc" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="585" y="154" width="248" height="64" rx="12" fill="#121915" stroke="#00ff9966" stroke-width="2"/>
+  <text x="610" y="194" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="24" font-weight="700">Web Serial</text>
+  <rect x="585" y="238" width="248" height="64" rx="12" fill="#171611" stroke="#ffd16677" stroke-width="2"/>
+  <text x="610" y="278" fill="#fff4bd" font-family="Menlo, Courier New, monospace" font-size="24" font-weight="700">SPI Flash</text>
+  <rect x="585" y="322" width="248" height="64" rx="12" fill="#11161b" stroke="#8ab4ff77" stroke-width="2"/>
+  <path d="M612 354h34v-18h34v34h34v-18h34" fill="none" stroke="#8ab4ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="762" y="362" fill="#d9e8ff" font-family="Menlo, Courier New, monospace" font-size="22" font-weight="700" text-anchor="end">SUMP</text>
+</svg>

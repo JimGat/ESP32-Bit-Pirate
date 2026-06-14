@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Capture and inspect digital signals directly in your browser using a SUMP-compatible logic analyzer. No PulseView or sigrok installation required.">
+  <meta name="google" content="notranslate">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="theme-color" content="#101214">
+  <link rel="canonical" href="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/logic-analyzer/">
+  <title>Web Logic Analyzer for SUMP-Compatible Hardware</title>
+  <link rel="icon" type="image/svg+xml" href="../web-serial-terminal/favicon.svg">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <main class="wrap analyzer-wrap">
+    <noscript>
+      <section class="notice error">This Web Logic Analyzer requires JavaScript and Web Serial.</section>
+    </noscript>
+
+    <section id="serialUnsupported" class="notice error" hidden>
+      Web Serial is not available in this browser. Use Chrome, Edge, or another compatible browser over HTTPS or localhost.
+    </section>
+
+    <section class="analyzer-shell" aria-label="SUMP web logic analyzer prototype">
+      <div class="toolbar analyzer-toolbar">
+        <div class="toolbar-brand" aria-label="Web Logic Analyzer">
+          <a class="brand-mark" href="../" aria-label="Open ESP32 Bit Pirate web tools">B</a>
+          <h1>Web Logic Analyzer</h1>
+        </div>
+
+        <div class="toolbar-actions">
+          <button id="connectButton" class="button action-button primary" type="button">Connect</button>
+          <button id="disconnectButton" class="button action-button" type="button" disabled hidden>Disconnect</button>
+          <span id="connectionStatus" class="status-pill">Disconnected</span>
+        </div>
+      </div>
+
+      <article class="control-strip" aria-label="Capture controls">
+        <label>
+          <span>Sample rate</span>
+          <select id="sampleRate"></select>
+        </label>
+        <label>
+          <span>Depth</span>
+          <select id="sampleDepth"></select>
+        </label>
+        <div class="estimate-cell">
+          <span>Duration</span>
+          <strong id="durationEstimate">-</strong>
+        </div>
+        <div class="capture-actions">
+          <button id="captureButton" class="button action-button primary primary-action" type="button" disabled>Start Capture</button>
+          <button id="cancelButton" class="button action-button" type="button" disabled>Cancel</button>
+        </div>
+      </article>
+
+      <progress id="progress" max="1" value="0" hidden></progress>
+
+      <section class="viewer-panel" aria-label="Waveform viewer">
+        <iframe id="viewerFrame" title="Waveform viewer" src="viewer/local-vcd-viewer.html"></iframe>
+      </section>
+
+      <section class="lower-grid" aria-label="Analyzer details">
+        <article class="tool-card compact-card">
+          <p class="eyebrow">Adapter</p>
+          <dl class="info-list">
+            <div><dt>Device</dt><dd id="deviceName">-</dd></div>
+            <div><dt>Firmware</dt><dd id="firmwareVersion">-</dd></div>
+            <div><dt>Probes</dt><dd id="probeCount">-</dd></div>
+            <div><dt>Memory</dt><dd id="sampleMemory">-</dd></div>
+            <div><dt>Max rate</dt><dd id="maxSampleRate">-</dd></div>
+            <div><dt>Effective</dt><dd id="effectiveRate">-</dd></div>
+          </dl>
+        </article>
+
+        <article class="tool-card compact-card channels-card">
+          <p class="eyebrow">Channels</p>
+          <div id="channelList" class="channel-list"></div>
+        </article>
+
+        <article class="tool-card compact-card export-card">
+          <p class="eyebrow">Export</p>
+          <div class="exports">
+            <button id="exportVcdButton" class="button action-button" type="button" disabled>VCD</button>
+            <button id="exportCsvButton" class="button action-button" type="button" disabled>CSV</button>
+            <button id="exportRawButton" class="button action-button" type="button" disabled>Raw</button>
+            <button id="exportJsonButton" class="button action-button" type="button" disabled>Session JSON</button>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <details class="content-card technical">
+      <summary>Technical log</summary>
+      <pre id="technicalLog" class="log-output"></pre>
+    </details>
+  </main>
+
+  <script type="module" src="src/App.js"></script>
+</body>
+</html>

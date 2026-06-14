@@ -1,0 +1,471 @@
+:root {
+  color-scheme: dark;
+  --page-bg: #121212;
+  --panel-bg: #1a1a1a;
+  --panel-bg-deep: #0f0f0f;
+  --field-bg: #1c1c1c;
+  --border: #333;
+  --border-strong: #444;
+  --text: #e0e0e0;
+  --muted: #9aa0a6;
+  --green: #00ff00;
+  --green-dim: #0ea86b;
+  --cyan: #00ffcc;
+  --gold: #ffdc7d;
+  --error: #ff6b6b;
+  --warning: #ffdc7d;
+  --radius: 8px;
+  --font-mono: Menlo, "Courier New", Courier, "Liberation Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  width: 100%;
+  min-width: 320px;
+  height: 100%;
+  min-height: 100%;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+}
+
+body {
+  overflow: hidden;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button,
+select,
+input {
+  min-height: 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  color: var(--green);
+}
+
+button {
+  padding: 0 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover:not(:disabled),
+select:hover:not(:disabled) {
+  background: #333;
+  box-shadow: 0 0 6px #00ff0044;
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 5px #00ffcc44;
+}
+
+button:disabled,
+select:disabled,
+input:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
+button.primary {
+  color: #b8ffb8;
+  border-color: #2b2b2b;
+  background: linear-gradient(135deg, #26332a, #151a17);
+  box-shadow: 0 6px 18px rgba(0, 255, 153, 0.08), inset 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+select {
+  min-width: 118px;
+  padding: 0 34px 0 10px;
+  color: #d8ffd8;
+}
+
+input {
+  width: 100%;
+  min-width: 0;
+  padding: 0 10px;
+  color: #d8ffd8;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+    max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  gap: 6px;
+}
+
+.compatibility-banner {
+  padding: 12px 14px;
+  border: 1px solid #5c4630;
+  border-radius: var(--radius);
+  background: #18130c;
+  color: #f4ddb2;
+  line-height: 1.45;
+}
+
+.compatibility-banner h2 {
+  margin-bottom: 4px;
+  color: var(--warning);
+  font-size: 1rem;
+}
+
+.compatibility-banner a {
+  color: #d8ffd8;
+}
+
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.brand-mark {
+  display: grid;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid #2f3a2fa0;
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, var(--panel-bg), var(--panel-bg-deep));
+  color: var(--green);
+  font-weight: 900;
+  font-size: 0.86rem;
+  text-decoration: none;
+  box-shadow: inset 0 0 10px #00ff9910;
+}
+
+.brand-mark:focus-visible {
+  outline: 2px solid #00ffcc88;
+  outline-offset: 2px;
+}
+
+.toolbar-brand {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 32px;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, var(--panel-bg), var(--panel-bg-deep));
+  box-shadow: inset 0 0 5px #000;
+}
+
+.field {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.field {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.field span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1;
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.tool-home-link {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.tool-home-link:hover,
+.tool-home-link:focus-visible {
+  color: var(--green);
+}
+
+.connection-status {
+  min-width: 84px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.terminal-controls {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  margin-left: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: #050805;
+}
+
+.terminal-controls button,
+.terminal-controls select {
+  height: 26px;
+  min-height: 26px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.terminal-controls button {
+  min-width: 28px;
+  padding: 0 7px;
+  color: var(--text);
+}
+
+.terminal-controls select {
+  min-width: 92px;
+  max-width: 98px;
+  padding: 0 26px 0 8px;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 13px) 50%,
+    calc(100% - 8px) 50%;
+  background-repeat: no-repeat;
+  background-size: 5px 5px, 5px 5px;
+  color: var(--text);
+  border-right: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+
+.terminal-controls select.theme-soft {
+  color: #d8ddd8;
+}
+
+.terminal-controls select.theme-green {
+  color: var(--green);
+}
+
+.terminal-controls select.theme-contrast {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.terminal-controls button:hover:not(:disabled),
+.terminal-controls select:hover:not(:disabled) {
+  background: #252525;
+  box-shadow: none;
+}
+
+.config-button {
+  min-width: 28px;
+  min-height: 26px;
+  height: 26px;
+  margin-left: 6px;
+  padding: 0 7px;
+  color: var(--text);
+}
+
+.config-button.is-suggested {
+  animation: config-soft-glow 4.8s ease-in-out infinite;
+}
+
+@keyframes config-soft-glow {
+  0%,
+  100% {
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 rgba(0, 255, 204, 0);
+  }
+  50% {
+    border-color: #00ffcc88;
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.16);
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.58);
+}
+
+.config-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 101;
+  width: min(520px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 12px;
+  overflow: auto;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, var(--panel-bg), var(--panel-bg-deep));
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.48), inset 0 0 5px #000;
+}
+
+.config-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.config-header h2 {
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.config-header button {
+  min-width: 32px;
+  padding: 0 8px;
+  color: var(--text);
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.config-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.config-grid span,
+.config-check span,
+.config-note {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.config-grid select,
+.config-grid input {
+  width: 100%;
+  min-width: 0;
+}
+
+.config-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.config-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--green-dim);
+}
+
+.config-check.disabled {
+  opacity: 0.72;
+}
+
+.config-note {
+  margin-top: 10px;
+}
+
+.terminal-panel {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 220px;
+  height: auto;
+  overflow: hidden;
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    height: 100dvh;
+    min-height: 0;
+  }
+
+  .toolbar {
+    align-items: stretch;
+  }
+
+  .toolbar-actions {
+    width: 100%;
+    margin-left: 0;
+    order: 2;
+  }
+
+  .toolbar-actions button {
+    flex: 1 1 132px;
+  }
+
+  .toolbar-brand {
+    flex: 1 1 auto;
+    order: 1;
+  }
+
+  .connection-status {
+    order: 1;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .terminal-controls {
+    margin-left: 0;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .terminal-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 460px) {
+  .toolbar-actions button {
+    flex-basis: 108px;
+  }
+}

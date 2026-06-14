@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+  <meta charset="utf-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>Web Serial Terminal</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23121212'/%3E%3Ctext x='50%25' y='52%25' text-anchor='middle' dominant-baseline='middle' font-family='monospace' font-size='44' font-weight='900' fill='%2300ff00'%3EB%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/terminal.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="toolbar" aria-label="Serial connection controls">
+      <div class="toolbar-brand" aria-label="Web Serial Terminal">
+        <span class="brand-mark" aria-hidden="true">B</span>
+        <span>Web Serial Terminal</span>
+
+        <div class="terminal-controls" aria-label="Terminal appearance">
+          <button id="fontDecreaseButton" type="button" aria-label="Decrease terminal text size">-</button>
+          <select id="themeSelect" aria-label="Terminal color theme">
+            <option value="soft" selected>Soft</option>
+            <option value="green">Green</option>
+            <option value="contrast">Contrast</option>
+          </select>
+          <button id="fontIncreaseButton" type="button" aria-label="Increase terminal text size">+</button>
+        </div>
+
+        <button id="configButton" class="config-button" type="button" aria-label="Serial settings" title="Serial settings">⚙</button>
+      </div>
+
+      <div class="toolbar-actions">
+        <button id="connectButton" type="button" class="primary">Connect</button>
+        <button id="clearButton" type="button">Clear</button>
+        <button id="downloadButton" type="button">Download log</button>
+      </div>
+    </section>
+
+    <section class="terminal-panel" aria-label="Serial terminal">
+      <div id="terminal" class="terminal-surface"></div>
+    </section>
+  </main>
+
+  <div id="configOverlay" class="modal-overlay" hidden></div>
+  <section id="configPanel" class="config-panel" aria-label="Serial settings" hidden>
+    <header class="config-header">
+      <h2>Serial Settings</h2>
+      <button id="configCloseButton" type="button" aria-label="Close serial settings">×</button>
+    </header>
+
+    <div class="config-grid">
+      <label>
+        <span>Baud</span>
+        <input id="baudRateInput" type="number" min="1" step="1" inputmode="numeric" value="115200">
+      </label>
+
+      <label>
+        <span>Data bits</span>
+        <select id="dataBitsSelect">
+          <option value="8" selected>8</option>
+          <option value="7">7</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Stop bits</span>
+        <select id="stopBitsSelect">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Parity</span>
+        <select id="paritySelect">
+          <option value="none" selected>None</option>
+          <option value="even">Even</option>
+          <option value="odd">Odd</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Flow control</span>
+        <select id="flowControlSelect">
+          <option value="none" selected>None</option>
+          <option value="hardware">Hardware</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Enter key</span>
+        <select id="enterModeSelect">
+          <option value="cr" selected>CR</option>
+          <option value="lf">LF</option>
+          <option value="crlf">CRLF</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="config-check">
+      <input id="localEchoCheckbox" type="checkbox">
+      <span>Local echo</span>
+    </label>
+
+    <label class="config-check disabled">
+      <input id="invertSignalCheckbox" type="checkbox" disabled>
+      <span>Inverted UART is not supported by browser Web Serial.</span>
+    </label>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+  <script type="module" src="scripts/app.js"></script>
+</body>
+</html>

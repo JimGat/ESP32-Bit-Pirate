@@ -105,26 +105,38 @@ h3 {
 .tip-card code { color: #b8e2ff; }
 
 /* Footer */
-.wiki-cta{
-  text-align:center;
+.footer-actions{
+  display:flex;
+  justify-content:center;
+  gap:12px;
   margin:24px 0 10px;
 }
-.wiki-cta a{
-  display:inline-block;
-  padding:10px 14px;
-  border:1px solid #2b2b2b;
-  border-radius:10px;
+.footer-actions a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width: min(100%, 280px);
   text-decoration:none;
-  color: #d8ffd8;
-  margin-left: 0px;
-  padding:12px 20px; border-radius:12px; border:1px solid #2b2b2b;
+  padding:12px 20px;
+  border-radius:12px;
+  border:1px solid #2b2b2b;
   background: linear-gradient(135deg,#26332a,#151a17);
   color:#b8ffb8; font-weight:700; font-size:1rem; letter-spacing:.3px;
-  cursor:pointer; transition: transform .06s ease, box-shadow .2s, filter .2s;
+  cursor:pointer;
   box-shadow: 0 6px 18px rgba(0, 255, 153, 0.064), inset 0 0 8px rgba(0,0,0,.5);
   transition: box-shadow .2s, border-color .2s, transform .05s;
 }
-.wiki-cta a:hover{
-transform: translateY(-1px); box-shadow:0 8px 22px rgba(0,255,153,0.18);
+.footer-actions a:hover{
+  transform: translateY(-1px);
+  box-shadow:0 8px 22px rgba(0,255,153,0.18);
 }
 
+@media (max-width: 640px) {
+  .footer-actions {
+    flex-direction: column;
+  }
+
+  .footer-actions a {
+    width: 100%;
+  }
+}

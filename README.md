@@ -53,6 +53,7 @@ For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/
 - Import and export data with the **LittleFS over HTTP.**
 - **Pirate assistant** to help you with the firmware.
 - **USB-Uart dongle, SPI programmer, logic analyzer** and more.
+- [**Web Serial tools**](https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/) to use USB Serial over a web browser.
 
 ## Supported Devices
 
@@ -88,7 +89,7 @@ For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/
    - You can also burn it on [M5Burner](https://docs.m5stack.com/en/download), in the StickS3, AtomS3, M5StampS3 or Cardputer category.
 
 2. 🔌 Connect via Serial or Web
-   - Serial: any terminal app (see [Connect via Serial](https://github.com/geo-tp/ESP32-Bit-Pirate/wiki/99-Serial))
+   - Serial: any terminal app, or the [free browser-based Web Serial terminal](https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/) (see [Connect via Serial](https://github.com/geo-tp/ESP32-Bit-Pirate/wiki/99-Serial))
    - Web: configure Wi-Fi and access the CLI via browser (see [Wi-Fi Connection](https://github.com/geo-tp/ESP32-Bit-Pirate/wiki/00-Terminal))
 
 3. 🧪 Use commands like:
@@ -119,7 +120,7 @@ The wiki is the best place to learn how everything works.
 
 🛠️ [**Automate interactions with the ESP32 Bit Pirate**](https://github.com/geo-tp/ESP32-Bit-Pirate/wiki/99-Python) using **Python scripts over serial.**
 
-**Examples and ready-to-use scripts** are available in the repository: [ESP32 Bit Pirate Scripts](https://github.com/geo-tp/ESP32-Bus-Pirate-Scripts).
+**Examples and ready-to-use scripts** are available in the repository: [ESP32 Bit Pirate Scripts](https://github.com/geo-tp/ESP32-Bit-Pirate-Scripts).
 
 **Including:** Logging data in a file, eeprom and flash dump, interracting with GPIOs, LED animation...
 
@@ -166,8 +167,11 @@ All interfaces share the same command structure and can be used interchangeably 
 ## Standalone Mode for the Cardputer
 ![A Cardputer running the ESP32 Bit Pirate in standalone mode](images/standalonemode_s.png)
 
-## Using the ESP32 Bit Pirate to speak UART over WiFi
-![A demo Using the ESP32 Bit Pirate firmware with UART](images/demo2.gif)
+## Browser-Based Web Serial Tools
+
+The [ESP32 Bit Pirate Wen Serial Tools](https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/) provides direct access to the Serial CLI from a compatible browser, without installing PuTTY, minicom, or another terminal application.
+
+![A demo Using the ESP32 Bit Pirate with Web Serial Tools](images/web_tools_demo.gif)
 
 ## Contribute
 See [How To Contribute](https://github.com/geo-tp/ESP32-Bit-Pirate/wiki/99-Contribute) section, which outlines a **simple way to add a new command** to any mode.

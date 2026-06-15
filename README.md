@@ -169,7 +169,7 @@ All interfaces share the same command structure and can be used interchangeably 
 
 ## Browser-Based Web Serial Tools
 
-The [ESP32 Bit Pirate Wen Serial Tools](https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/) provides direct access to the Serial CLI from a compatible browser, without installing PuTTY, minicom, or another terminal application.
+The [ESP32 Bit Pirate Web Serial Tools](https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/) provides direct access to the Serial CLI from a compatible browser, without installing PuTTY, minicom, or another terminal application.
 
 ![A demo Using the ESP32 Bit Pirate with Web Serial Tools](images/web_tools_demo.gif)
 

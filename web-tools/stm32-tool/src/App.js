@@ -13,7 +13,7 @@ import { downloadBytes } from "../../shared/files/download.js";
 import { StlinkWebUsbAdapter, StlinkWebUsbError } from "./StlinkWebUsbAdapter.js";
 
 const elements = Object.fromEntries([
-  "serialUnsupported", "connectionTransport", "uartBaudControl", "bootBaudRate", "connectButton", "disconnectButton", "connectionStatus",
+  "serialUnsupported", "firefoxWebUsbUnsupported", "connectionTransport", "uartBaudControl", "bootBaudRate", "connectButton", "disconnectButton", "connectionStatus",
   "bootControlMode", "bootModeControl", "bootControlPanel", "bootSignal", "resetSignal", "bootActiveLevel", "resetActiveLevel",
   "manualBootHelp", "stlinkHelp", "consoleTab", "firmwareFileInput", "firmwareDropZone", "firmwareCard",
   "firmwareName", "firmwareFormat", "firmwareSize", "clearFirmwareButton", "flashAddress", "eraseBeforeWrite",
@@ -42,6 +42,7 @@ let memoryOverride = { flashSize: null, pageSize: null };
 let terminal = null;
 let fitAddon = null;
 let lastError = null;
+const firefoxBrowser = isFirefoxBrowser();
 
 init();
 
@@ -652,6 +653,10 @@ function isUartTransport() {
   return transportMode === "uart";
 }
 
+function isFirefoxBrowser() {
+  return typeof navigator !== "undefined" && /\bFirefox\//.test(navigator.userAgent);
+}
+
 function getActiveTransport() {
   return isUartTransport() ? bootloader : stlink;
 }
@@ -770,10 +775,12 @@ function renderConnection() {
   const portSelected = uart && Boolean(bootloader.transport.port);
   const active = isActiveConnected() || (uart && bootloader.consoleMode);
   const supported = uart ? Stm32Bootloader.isSupported() : StlinkWebUsbAdapter.isSupported();
+  const firefoxNeedsWebUsb = !uart && !supported && firefoxBrowser;
 
   elements.connectButton.hidden = active;
   elements.disconnectButton.hidden = !active && !portSelected;
   elements.disconnectButton.disabled = busy || (!active && !portSelected);
+  elements.firefoxWebUsbUnsupported.hidden = !firefoxNeedsWebUsb;
   elements.connectButton.disabled = busy || !supported;
   elements.uartBaudControl.hidden = !uart;
   elements.bootModeControl.hidden = !uart;

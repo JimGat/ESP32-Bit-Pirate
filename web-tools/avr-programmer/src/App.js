@@ -24,6 +24,10 @@ const elements = {
   targetStatus: document.querySelector("#targetStatus"),
   signatureStatus: document.querySelector("#signatureStatus"),
   operationStatus: document.querySelector("#operationStatus"),
+  programmerProfile: document.querySelector("#programmerProfile"),
+  programmerBaudRate: document.querySelector("#programmerBaudRate"),
+  busPirateSpiFrequency: document.querySelector("#busPirateSpiFrequency"),
+  busPirateSpiLabel: document.querySelector("#busPirateSpiLabel"),
   targetMode: document.querySelector("#targetMode"),
   partSearch: document.querySelector("#partSearch"),
   partOptions: document.querySelector("#partOptions"),
@@ -35,11 +39,58 @@ const elements = {
   flashSize: document.querySelector("#flashSize"),
   eepromSize: document.querySelector("#eepromSize"),
   pageSize: document.querySelector("#pageSize"),
+  programmingInterface: document.querySelector("#programmingInterface"),
   wasmVersion: document.querySelector("#wasmVersion"),
   progressText: document.querySelector("#progressText"),
   progressBar: document.querySelector("#progressBar"),
   avrdudeOutput: document.querySelector("#avrdudeOutput"),
   technicalLog: document.querySelector("#technicalLog"),
+  flashFileName: document.querySelector("#flashFileName"),
+  eepromFileName: document.querySelector("#eepromFileName"),
+  eraseTarget: document.querySelector("#eraseTarget"),
+  actionHint: document.querySelector("#actionHint"),
+  modeTabs: [...document.querySelectorAll("[data-mode-tab]")],
+  modePanels: [...document.querySelectorAll("[data-mode-panel]")],
+  modeActions: [...document.querySelectorAll("[data-mode-actions]")],
+};
+
+const PROGRAMMER_PROFILES = {
+  buspirate: {
+    label: "Bit Pirate / Bus Pirate ISP",
+    interfaceLabel: "Bus Pirate Raw SPI / ISP",
+    baudRate: 115200,
+    busPirateSpi: true,
+  },
+  arduino: {
+    label: "Arduino bootloader",
+    interfaceLabel: "Arduino serial bootloader",
+    baudRate: 115200,
+  },
+  stk500v1: {
+    label: "STK500v1 / ArduinoISP",
+    interfaceLabel: "STK500v1 serial programmer",
+    baudRate: 19200,
+  },
+  stk500v2: {
+    label: "STK500v2",
+    interfaceLabel: "STK500v2 serial programmer",
+    baudRate: 115200,
+  },
+  avr109: {
+    label: "AVR109 bootloader",
+    interfaceLabel: "AVR109 serial bootloader",
+    baudRate: 57600,
+  },
+  serialupdi: {
+    label: "SerialUPDI",
+    interfaceLabel: "SerialUPDI adapter",
+    baudRate: 115200,
+  },
+  jtag2updi: {
+    label: "JTAG2UPDI",
+    interfaceLabel: "JTAG2UPDI adapter",
+    baudRate: 115200,
+  },
 };
 
 const repository = new TargetRepository({ log });
@@ -62,6 +113,9 @@ async function init() {
   await repository.load();
   renderPartOptions();
   selectPart(repository.findByText(elements.partSearch.value) ?? repository.all()[0]);
+  setActiveMode("target");
+  updateProgrammerControls();
+  configureAvrdudeProgrammer();
 
   if (!runtimeReady) {
     elements.connectButton.disabled = true;
@@ -85,7 +139,16 @@ function bindEvents() {
   elements.readEepromButton.addEventListener("click", () => readMemory("eeprom"));
   elements.writeEepromButton.addEventListener("click", () => writeMemory("eeprom", elements.eepromFile.files[0]));
   elements.eraseButton.addEventListener("click", eraseChip);
+  elements.programmerProfile.addEventListener("change", handleProgrammerProfileChange);
+  elements.programmerBaudRate.addEventListener("change", configureAvrdudeProgrammer);
+  elements.busPirateSpiFrequency.addEventListener("change", configureAvrdudeProgrammer);
   elements.partSearch.addEventListener("change", () => selectPart(repository.findByText(elements.partSearch.value)));
+  elements.targetMode.addEventListener("change", () => updateActionHint());
+  elements.flashFile.addEventListener("change", () => renderSelectedFile("flash"));
+  elements.eepromFile.addEventListener("change", () => renderSelectedFile("eeprom"));
+  for (const tab of elements.modeTabs) {
+    tab.addEventListener("click", () => setActiveMode(tab.dataset.modeTab));
+  }
   elements.clearLogButton.addEventListener("click", () => {
     elements.technicalLog.textContent = "";
     elements.avrdudeOutput.textContent = "";
@@ -113,6 +176,7 @@ async function connect() {
     }
 
     step("Loading AVRDUDE WASM", 45);
+    configureAvrdudeProgrammer();
     const wasmInfo = await engine.initialize();
     elements.wasmVersion.textContent = wasmInfo.version ? `AVRDUDE ${wasmInfo.version}` : "Loaded";
 
@@ -121,9 +185,10 @@ async function connect() {
     connected = true;
     setConnectionButtons(true);
     enableOperationButtons(true);
-    elements.programmerStatus.textContent = "ESP32 Bit Pirate AVR";
+    elements.programmerStatus.textContent = getSelectedProgrammerProfile().label;
     setStatus("Connected");
-    log("ESP32 Bit Pirate AVR connected. Run Detect AVR for a non-destructive signature read.");
+    updateActionHint();
+    log(`${getSelectedProgrammerProfile().label} connected. Auto Detect will identify the target when an operation starts.`);
   });
 }
 
@@ -139,28 +204,48 @@ async function disconnect() {
     elements.programmerStatus.textContent = "-";
     elements.signatureStatus.textContent = "-";
     setStatus("Disconnected");
+    updateActionHint();
   });
 }
 
 async function detect() {
   await run("Reading signature", async ({ step }) => {
-    const selected = requireSelectedPart();
-    step("Initializing programmer", 30);
-    const result = await engine.detectPart(selected.id);
-    const summary = summarizeOutput(result.output);
-    detectedSignature = result.signature ?? summary.signature;
-    detectedPart = repository.findBySignature(detectedSignature) ?? selected;
-    renderPartInfo(detectedPart, detectedSignature);
-    log(detectedSignature
-      ? `AVR signature read: ${detectedSignature} (${detectedPart?.name ?? "unknown part"}).`
-      : "AVRDUDE completed but no signature was parsed from output.");
+    await detectSelectedPart(step);
   });
+}
+
+async function detectSelectedPart(step) {
+  const selected = requireSelectedPart();
+  configureAvrdudeProgrammer();
+  step("Initializing programmer", 30);
+  const result = await engine.detectPart(selected.id);
+  const summary = summarizeOutput(result.output);
+  detectedSignature = result.signature ?? summary.signature;
+  if (!detectedSignature) {
+    detectedPart = null;
+    renderPartInfo(selected);
+    throw new Error("AVRDUDE completed, but no AVR signature could be read.");
+  }
+
+  detectedPart = repository.findBySignature(detectedSignature);
+  if (!detectedPart) {
+    renderPartInfo(selected, detectedSignature);
+    throw new Error(`Detected AVR signature ${detectedSignature}, but no matching part definition was found.`);
+  }
+
+  elements.partSearch.value = detectedPart.name;
+  renderPartInfo(detectedPart, detectedSignature);
+  log(`AVR signature read: ${detectedSignature} (${detectedPart.name}).`);
+  return detectedPart;
 }
 
 async function readMemory(memory) {
   await run(`Reading ${memory}`, async ({ step }) => {
-    const part = requireDetectedOrManualPart();
-    await verifySignatureBeforeDestructive(part, false, step);
+    configureAvrdudeProgrammer();
+    const { part, detectedNow } = await resolvePartForOperation(step);
+    if (!detectedNow) {
+      await verifySignatureBeforeDestructive(part, false, step);
+    }
     const result = await engine.readMemory(part.id, memory, "i");
     const stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15);
     downloadBytes(result.data, `${part.id}-${memory}-${stamp}.hex`);
@@ -170,9 +255,12 @@ async function readMemory(memory) {
 
 async function writeMemory(memory, file) {
   await run(`Writing ${memory}`, async ({ step }) => {
-    const part = requireDetectedOrManualPart();
+    configureAvrdudeProgrammer();
+    const { part, detectedNow } = await resolvePartForOperation(step);
     validateFileForMemory(part, memory, file);
-    await verifySignatureBeforeDestructive(part, true, step);
+    if (!detectedNow) {
+      await verifySignatureBeforeDestructive(part, true, step);
+    }
     const confirmed = window.confirm(`Write ${file.name} to ${part.name} ${memory}? A backup is recommended before continuing.`);
     if (!confirmed) {
       throw new Error("Write cancelled by user.");
@@ -184,9 +272,12 @@ async function writeMemory(memory, file) {
 
 async function verifyMemory(memory, file) {
   await run(`Verifying ${memory}`, async ({ step }) => {
-    const part = requireDetectedOrManualPart();
+    configureAvrdudeProgrammer();
+    const { part, detectedNow } = await resolvePartForOperation(step);
     validateFileForMemory(part, memory, file);
-    await verifySignatureBeforeDestructive(part, false, step);
+    if (!detectedNow) {
+      await verifySignatureBeforeDestructive(part, false, step);
+    }
     await engine.verifyMemory(part.id, memory, file, detectFormat(file));
     log(`${memory} verification complete.`);
   });
@@ -194,8 +285,11 @@ async function verifyMemory(memory, file) {
 
 async function eraseChip() {
   await run("Erasing", async ({ step }) => {
-    const part = requireDetectedOrManualPart();
-    await verifySignatureBeforeDestructive(part, true, step);
+    configureAvrdudeProgrammer();
+    const { part, detectedNow } = await resolvePartForOperation(step);
+    if (!detectedNow) {
+      await verifySignatureBeforeDestructive(part, true, step);
+    }
     const confirmed = window.confirm(`Erase ${part.name}? Flash and possibly EEPROM can be erased depending on target configuration.`);
     if (!confirmed) {
       throw new Error("Erase cancelled by user.");
@@ -228,14 +322,15 @@ function requireSelectedPart() {
   return selected;
 }
 
-function requireDetectedOrManualPart() {
+async function resolvePartForOperation(step) {
   if (detectedPart) {
-    return detectedPart;
+    return { part: detectedPart, detectedNow: false };
   }
   if (elements.targetMode.value === "manual") {
-    return requireSelectedPart();
+    return { part: requireSelectedPart(), detectedNow: false };
   }
-  throw new Error("Run Detect AVR first, or switch to Manual Selection.");
+  step("Detecting AVR", 12);
+  return { part: await detectSelectedPart(step), detectedNow: true };
 }
 
 function validateFileForMemory(part, memory, file) {
@@ -337,6 +432,104 @@ function renderPartInfo(part, signature = null) {
   elements.pageSize.textContent = part?.page ? `${part.page} bytes` : "-";
   elements.targetStatus.textContent = part?.name ?? "-";
   elements.signatureStatus.textContent = signature ?? "-";
+  elements.eraseTarget.textContent = part?.name ?? "Use detected or selected AVR";
+  elements.programmingInterface.textContent = getSelectedProgrammerProfile().interfaceLabel;
+}
+
+function getSelectedProgrammerProfile() {
+  return PROGRAMMER_PROFILES[elements.programmerProfile.value] ?? PROGRAMMER_PROFILES.buspirate;
+}
+
+function handleProgrammerProfileChange() {
+  const profile = getSelectedProgrammerProfile();
+  elements.programmerBaudRate.value = String(profile.baudRate);
+  detectedPart = null;
+  detectedSignature = null;
+  renderPartInfo(repository.findByText(elements.partSearch.value));
+  configureAvrdudeProgrammer();
+  updateProgrammerControls();
+  if (connected) {
+    elements.programmerStatus.textContent = profile.label;
+    updateActionHint();
+  }
+}
+
+function configureAvrdudeProgrammer() {
+  const profile = getSelectedProgrammerProfile();
+  const baudRate = Number.parseInt(elements.programmerBaudRate.value, 10);
+  if (!Number.isInteger(baudRate) || baudRate <= 0) {
+    throw new Error("Programmer baudrate must be a positive integer.");
+  }
+  const extendedOptions = profile.busPirateSpi
+    ? [`spifreq=${elements.busPirateSpiFrequency.value}`]
+    : [];
+  engine.configureProgrammer({
+    programmer: elements.programmerProfile.value,
+    baudRate,
+    extendedOptions,
+  });
+}
+
+function updateProgrammerControls() {
+  const isBusPirate = getSelectedProgrammerProfile().busPirateSpi;
+  elements.busPirateSpiLabel.hidden = !isBusPirate;
+  elements.busPirateSpiFrequency.hidden = !isBusPirate;
+}
+
+
+function setActiveMode(mode) {
+  for (const tab of elements.modeTabs) {
+    const active = tab.dataset.modeTab === mode;
+    tab.classList.toggle("is-active", active);
+    tab.setAttribute("aria-selected", String(active));
+  }
+  for (const panel of elements.modePanels) {
+    const active = panel.dataset.modePanel === mode;
+    panel.classList.toggle("is-active", active);
+    panel.hidden = !active;
+  }
+  for (const actions of elements.modeActions) {
+    const active = actions.dataset.modeActions === mode;
+    actions.classList.toggle("is-active", active);
+    actions.hidden = !active;
+  }
+  updateActionHint(mode);
+}
+
+function updateActionHint(mode = document.querySelector("[data-mode-tab].is-active")?.dataset.modeTab ?? "target") {
+  const automatic = elements.targetMode.value === "auto";
+  const hints = {
+    flash: "Read a backup, write the selected image, or verify it against the target Flash.",
+    eeprom: "Read an EEPROM backup or write the selected EEPROM image.",
+    erase: "Chip erase requires a detected target and a final confirmation.",
+    target: automatic
+      ? "The AVR signature is detected automatically when an operation starts."
+      : "Manual selection requires Detect AVR before destructive operations.",
+  };
+  elements.actionHint.textContent = connected ? hints[mode] : "Connect the programmer to begin.";
+}
+
+function renderSelectedFile(memory) {
+  const input = memory === "flash" ? elements.flashFile : elements.eepromFile;
+  const label = memory === "flash" ? elements.flashFileName : elements.eepromFileName;
+  const file = input.files?.[0];
+  if (!file) {
+    label.textContent = memory === "flash"
+      ? "Intel HEX and raw BIN files are supported."
+      : "Intel HEX, EEP and raw BIN files are supported.";
+    return;
+  }
+  label.textContent = `${file.name} · ${formatFileSize(file.size)}`;
+}
+
+function formatFileSize(bytes) {
+  if (bytes >= 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MiB`;
+  }
+  if (bytes >= 1024) {
+    return `${(bytes / 1024).toFixed(1)} KiB`;
+  }
+  return `${bytes} B`;
 }
 
 function renderOperationState({ busy, label, progress }) {
@@ -347,6 +540,15 @@ function renderOperationState({ busy, label, progress }) {
 }
 
 function setControlsBusy(isBusy) {
+  for (const control of [
+    elements.programmerProfile,
+    elements.programmerBaudRate,
+    elements.busPirateSpiFrequency,
+    elements.targetMode,
+    elements.partSearch,
+  ]) {
+    control.disabled = isBusy;
+  }
   for (const button of document.querySelectorAll("button")) {
     if (button === elements.disconnectButton && connected) {
       button.disabled = isBusy;
@@ -387,6 +589,9 @@ function setStatus(value) {
 }
 
 function appendAvrdudeOutput(message) {
+  if (elements.avrdudeOutput.textContent && !elements.avrdudeOutput.textContent.endsWith("\n")) {
+    elements.avrdudeOutput.textContent += "\n";
+  }
   elements.avrdudeOutput.textContent += `${message}\n`;
   elements.avrdudeOutput.scrollTop = elements.avrdudeOutput.scrollHeight;
   log(message);

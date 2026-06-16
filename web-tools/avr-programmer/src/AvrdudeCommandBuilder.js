@@ -1,11 +1,17 @@
 const AVRDUDE_CONF_PATH = "/tmp/avrdude.conf";
 
 export class AvrdudeCommandBuilder {
-  constructor({ programmer = "buspirate", port = "/dev/null", baudRate = 115200, spiFrequency = 1 } = {}) {
+  constructor({ programmer = "buspirate", port = "/dev/null", baudRate = 115200, extendedOptions = ["spifreq=1"] } = {}) {
     this.programmer = programmer;
     this.port = port;
     this.baudRate = baudRate;
-    this.spiFrequency = spiFrequency;
+    this.extendedOptions = extendedOptions;
+  }
+
+  configure({ programmer = this.programmer, baudRate = this.baudRate, extendedOptions = this.extendedOptions } = {}) {
+    this.programmer = programmer;
+    this.baudRate = baudRate;
+    this.extendedOptions = extendedOptions;
   }
 
   detectSignature(partId) {
@@ -45,9 +51,11 @@ export class AvrdudeCommandBuilder {
       "-P", this.port,
       "-p", partId,
       "-b", String(this.baudRate),
-      "-x", `spifreq=${this.spiFrequency}`,
       ...extraArgs,
     ];
+    for (const option of this.extendedOptions) {
+      args.push("-x", option);
+    }
     return args;
   }
 }

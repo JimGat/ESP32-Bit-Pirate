@@ -67,6 +67,10 @@ export class AvrdudeEngine {
     this.log("Selected Web Serial port bound to AVRDUDE serial bridge.");
   }
 
+  configureProgrammer(options) {
+    this.builder.configure(options);
+  }
+
   async disconnect() {
     const port = this.selectedPort;
     this.connected = false;
@@ -95,8 +99,25 @@ export class AvrdudeEngine {
   }
 
   async detectPart(partId) {
-    const result = await this.run(this.builder.detectSignature(partId));
-    return { ...result, signature: parseSignature(result.output) };
+    try {
+      const result = await this.run(this.builder.detectSignature(partId));
+      return { ...result, signature: parseSignature(result.output) };
+    } catch (error) {
+      const output = error?.avrdudeOutput ?? this.lastOutput ?? "";
+      const signature = parseSignature(output);
+      if (signature) {
+        this.log(`AVR signature ${signature} recovered from AVRDUDE output despite a part mismatch.`);
+        return {
+          exitCode: error?.exitCode ?? 1,
+          output,
+          command: null,
+          module: null,
+          signature,
+          partMismatch: true,
+        };
+      }
+      throw error;
+    }
   }
 
   async readMemory(partId, memory, format = "i") {

@@ -3,23 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Free Web Serial Tools, USB UART consoles, SPI flash programming and SUMP logic analyzer, AVR. Debug embedded hardware from your browser.">
-  <meta name="keywords" content="Web Serial terminal, USB UART terminal, SPI flash programmer, SUMP logic analyzer, VCD waveform viewer, embedded hardware tools, ESP32-S3 debugging, browser serial console, pulseview, avr">
+  <meta name="description" content="Browser-based tools for serial consoles, ESP and STM32 flashing, SPI flash programming, AVR programming and SUMP logic analysis.">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
   <meta name="theme-color" content="#121212">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
   <meta property="og:site_name" content="Web Serial Tools">
-  <meta property="og:title" content="Web Serial Tools, SPI Flash, Logic Analysis, AVR, Serial Terminal">
-  <meta property="og:description" content="Use free browser-based embedded hardware tools for Web Serial terminals, SPI flash workflows and SUMP logic analyzer captures.">
+  <meta property="og:title" content="Embedded Hardware Web Tools">
+  <meta property="og:description" content="Browser tools for serial consoles, ESP and STM32 flashing, SPI flash programming, AVR programming and logic analysis.">
   <meta property="og:url" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/">
   <meta property="og:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/assets/bit-pirate-web-tools.svg">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Web Serial Tools for Embedded Hardware Debugging">
-  <meta name="twitter:description" content="Free browser tools for Web Serial, USB UART consoles, SPI flash programming, SUMP logic analyzer, AVR programming.">
+  <meta name="twitter:title" content="Embedded Hardware Web Tools">
+  <meta name="twitter:description" content="Browser tools for serial consoles, firmware flashing, SPI flash, AVR programming and logic analysis.">
   <meta name="twitter:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/assets/bit-pirate-web-tools.svg">
   <link rel="canonical" href="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/">
-  <title>Web Serial Tools, SPI Flash Programmer, Logic Analyzer, Serial Terminal, AVR programmer</title>
+  <title>Embedded Hardware Web Tools | ESP32 Bit Pirate</title>
   <link rel="icon" type="image/svg+xml" href="web-serial-terminal/favicon.svg">
   <link rel="stylesheet" href="styles/main.css">
   <script type="application/ld+json">
@@ -66,6 +65,22 @@
         "operatingSystem": "Chrome, Edge, Chromium browsers",
         "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/avr-programmer/",
         "description": "Browser AVR programmer prototype using AVRDUDE WebAssembly and the ESP32 Bit Pirate AVRDUDE adapter."
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Web ESP Tool",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Chrome, Edge, Chromium browsers",
+        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/esp-tool/",
+        "description": "Browser ESP flashing workstation using Web Serial and esptool-js for flash, read, merge and erase workflows."
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "STM32 Web Tool",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Chrome, Edge, Chromium browsers",
+        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/stm32-tool/",
+        "description": "Browser STM32 UART bootloader workstation for identification, flash, read, erase and serial console workflows."
       }
     ]
   }
@@ -74,7 +89,7 @@
 <body>
   <main class="wrap">
     <header class="hero">
-      <a class="brand" href="https://github.com/geo-tp/ESP32-Bit-Pirate" target="_blank" rel="noopener">
+      <a class="brand" href="https://github.com/geo-tp/ESP32-Bit-Pirate" target="_blank" rel="noopener" aria-label="Open the ESP32 Bit Pirate repository">
         <span class="brand-mark" aria-hidden="true">B</span>
         <span>ESP32 Bit Pirate</span>
       </a>
@@ -82,26 +97,26 @@
       <h1>Embedded Hardware Web Tools</h1>
 
       <p>
-        Free browser-based tools for serial communication, SPI flash programming,
+        Free browser-based tools for serial communication, ESP and STM32 flashing, SPI flash programming,
         AVR programming and logic analysis. Connect compatible hardware directly
         from your browser to inspect, program and debug embedded devices without
         installing a desktop toolchain.
       </p>
     </header>
     <section class="tool-grid featured-tools" aria-label="Available ESP32 Bit Pirate web tools">
-      <article class="tool-card">
-        <a href="web-serial-terminal/">
-          <img class="tool-image" src="assets/web-serial-terminal.svg" alt="Web Serial terminal connected to an ESP32 and USB UART device" width="520" height="300" loading="lazy">
+      <article class="tool-card" aria-labelledby="web-serial-terminal-title">
+        <a href="web-serial-terminal/" tabindex="-1" aria-hidden="true">
+          <img class="tool-image" src="assets/web-serial-terminal.svg" alt="" width="520" height="300" loading="lazy">
         </a>
         <p class="eyebrow"><span class="eyebrow-text-mark" aria-hidden="true">&gt;_</span> Web Serial</p>
-        <h2>Web Serial Terminal for USB UART Devices</h2>
+        <h2 id="web-serial-terminal-title">Web Serial Terminal for USB UART Devices</h2>
         <p>Connect to ESP32, Arduino, ARM boards, Bus Pirate firmware, USB-UART adapters and CDC-ACM serial devices directly from Chrome, Firefox or Edge. Read logs, send commands, paste scripts, save serial sessions locally.</p>
         <a class="button" href="web-serial-terminal/">Open Web Serial Terminal</a>
       </article>
 
-      <article class="tool-card">
-        <a href="spi-flash-programmer/">
-          <img class="tool-image" src="assets/spi-flash-programmer.svg" alt="SPI flash chip connected to a browser flash programmer" width="520" height="300" loading="lazy">
+      <article class="tool-card" aria-labelledby="spi-flash-programmer-title">
+        <a href="spi-flash-programmer/" tabindex="-1" aria-hidden="true">
+          <img class="tool-image" src="assets/spi-flash-programmer.svg" alt="" width="520" height="300" loading="lazy">
         </a> 
         <p class="eyebrow">
           <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -110,14 +125,14 @@
           </svg>
           SPI Flash
         </p>
-        <h2>Web SPI Flash Programmer for Firmware Dumps</h2>
-        <p>Browser-based flashrom workflow for probing, reading, writing, saving SPI NOR flash chips through serprog-compatible hardware. ESP32 Bit Pirate is the first adapter target for web-based firmware extraction.</p>
+        <h2 id="spi-flash-programmer-title">Web SPI Flash Programmer for Firmware Dumps</h2>
+        <p>Browser-based flashrom workflow for probing, reading, writing, and saving SPI NOR flash chips through serprog-compatible hardware, enabling firmware extraction directly from a web browser.</p>
         <a class="button" href="spi-flash-programmer/">Open SPI Flash Programmer</a>
       </article>
 
-      <article class="tool-card">
-        <a  href="logic-analyzer/">
-          <img class="tool-image" src="assets/logic-analyzer.svg" alt="SUMP logic analyzer waveform traces in a browser VCD viewer" width="520" height="300" loading="lazy">
+      <article class="tool-card" aria-labelledby="logic-analyzer-title">
+        <a href="logic-analyzer/" tabindex="-1" aria-hidden="true">
+          <img class="tool-image" src="assets/logic-analyzer.svg" alt="" width="520" height="300" loading="lazy">
         </a>
         <p class="eyebrow">
           <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -125,14 +140,48 @@
           </svg>
           SUMP Logic
         </p>
-        <h2>Web Logic Analyzer with VCD Waveform Viewer</h2>
+        <h2 id="logic-analyzer-title">Web Logic Analyzer with VCD Waveform Viewer</h2>
         <p>Capture digital signals from SUMP-compatible hardware, inspect GPIO waveforms in the browser and export VCD, CSV, raw binary or session JSON data for protocol debugging and reproducible analysis.</p>
         <a class="button" href="logic-analyzer/">Open Web Logic Analyzer</a>
       </article>
 
-      <article class="tool-card">
-        <a href="avr-programmer/">
-          <img class="tool-image" src="assets/avr-programmer.svg" alt="AVR target connected to a browser programmer through ESP32 Bit Pirate" width="520" height="300" loading="lazy">
+      <article class="tool-card" aria-labelledby="esp-tool-title">
+        <a href="esp-tool/" tabindex="-1" aria-hidden="true">
+          <img class="tool-image" src="assets/esp-tool.svg" alt="" width="520" height="300" loading="lazy">
+        </a>
+        <p class="eyebrow">
+          <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="6" y="5" width="12" height="14" rx="2"></rect>
+            <path d="M9 9h6M9 12h6M9 15h4"></path>
+            <path d="M4 8h2M4 12h2M4 16h2M18 8h2M18 12h2M18 16h2"></path>
+          </svg>
+          ESP Tool
+        </p>
+        <h2 id="esp-tool-title">Web ESP Tool with Web Serial and esptool-js</h2>
+        <p>Flash ESP firmware parts, read backups, merge binaries offline and erase chips from a desktop-style browser tool. Supports common ESP32 layouts, custom offsets, validation, all in your web browser.</p>
+        <a class="button" href="esp-tool/">Open Web ESP Tool</a>
+      </article>
+
+      <article class="tool-card" aria-labelledby="stm32-tool-title">
+        <a href="stm32-tool/" tabindex="-1" aria-hidden="true">
+          <img class="tool-image" src="assets/stm32-tool.svg" alt="" width="520" height="300" loading="lazy">
+        </a>
+        <p class="eyebrow">
+          <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="6" y="5" width="12" height="14" rx="2"></rect>
+            <path d="M9 9h6M9 12h6M9 15h4"></path>
+            <path d="M4 8h2M4 12h2M4 16h2M18 8h2M18 12h2M18 16h2"></path>
+          </svg>
+          STM32 ST-LINK
+        </p>
+        <h2 id="stm32-tool-title">Web ST-Link Tool for STM32 Programming</h2>
+        <p>Identify STM32 targets, flash BIN or Intel HEX firmware, back up memory, erase pages or sectors and switch to a serial console through the built-in ROM UART bootloader or ST-Link adapter.</p>
+        <a class="button" href="stm32-tool/">Open STM32 Web Tool</a>
+      </article>
+
+      <article class="tool-card" aria-labelledby="avr-programmer-title">
+        <a href="avr-programmer/" tabindex="-1" aria-hidden="true">
+          <img class="tool-image" src="assets/avr-programmer.svg" alt="" width="520" height="300" loading="lazy">
         </a>
         <p class="eyebrow">
           <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -142,15 +191,16 @@
           </svg>
           AVR ISP
         </p>
-        <h2>Web AVR Programmer with AVRDUDE WebAssembly</h2>
+        <h2 id="avr-programmer-title">Web AVR Programmer with AVRDUDE WebAssembly</h2>
         <p>Prototype AVR ISP workflows in the browser with the ESP32 Bit Pirate AVRDUDE adapter. Detect ATmega and ATtiny targets, read memory, write HEX files with the Bus Pirate driver.</p>
         <a class="button" href="avr-programmer/">Open Web AVR Programmer</a>
       </article>
+
     </section>
 
-    <section class="info-card" aria-label="Compatibility and usage tips">
+    <section class="info-card" aria-labelledby="compatibility-title">
       <div class="info-card-header">
-        <h2>
+        <h2 id="compatibility-title">
           <svg class="section-title-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 5h16M4 12h16M4 19h16"></path>
             <path d="M8 5v14M16 5v14"></path>
@@ -164,12 +214,13 @@
           <h3>Works with ESP32 Bit Pirate and compatible protocol devices</h3>
           <p>These browser tools are built for ESP32 Bit Pirate workflows, but they also work with other hardware that exposes the same open interfaces and protocol adapters.</p>
         </div>
-        <div class="protocol-list" aria-label="Compatible protocols">
-          <span>serprog</span>
-          <span>SUMP</span>
-          <span>USB-UART</span>
-          <span>AVR ISP</span>
-        </div>
+        <ul class="protocol-list" aria-label="Compatible protocols">
+          <li>serprog</li>
+          <li>SUMP</li>
+          <li>USB-UART</li>
+          <li>AVR ISP</li>
+          <li>ST-LINK</li>
+        </ul>
       </div>
 
       <div class="faq-grid" aria-label="Browser hardware tools FAQ">
@@ -187,15 +238,15 @@
         </article>
         <article>
           <h2>Local Privacy</h2>
-          <p>Serial logs, flash data and logic analyzer captures are processed locally in your browser by these static pages. The application does not upload captures to a server.</p>
+          <p>Serial logs, flash data and logic analyzer captures are processed locally by these static pages. The application does not upload captures to a server.</p>
         </article>
       </div>
     </section>
 
-    <section class="content-card authority-card">
+    <section class="content-card authority-card" aria-labelledby="open-source-title">
       <div class="authority-layout">
         <div>
-          <h2>
+          <h2 id="open-source-title">
             <svg class="section-title-icon" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="6" cy="6" r="3"></circle>
               <circle cx="18" cy="6" r="3"></circle>
@@ -235,9 +286,9 @@
       </div>
     </section>
 
-    <section class="external-links-card" aria-label="External ESP32 Bit Pirate ecosystem links">
+    <section class="external-links-card" aria-labelledby="external-projects-title">
       <div class="external-links-header">
-        <h2>
+        <h2 id="external-projects-title">
           <svg class="section-title-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"></path>
             <path d="M14 11a5 5 0 0 0-7.1 0l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"></path>
@@ -246,7 +297,7 @@
         </h2>
         <p>Useful companion projects for extending hardware and automating ESP32 Bit Pirate workflows.</p>
       </div>
-      <div class="external-link-grid">
+      <nav class="external-link-grid" aria-label="External ESP32 Bit Pirate ecosystem links">
         <a href="https://geo-tp.github.io/ESP32-Bit-Pirate/webflasher/" target="_blank" rel="noopener">
           <span class="external-link-kicker">Web Flasher</span>
           <span>Flash ESP32 Bit Pirate firmware from the browser</span>
@@ -263,12 +314,12 @@
           <span class="external-link-kicker">Dock</span>
           <span>Build a desktop dock around the ESP32 Bit Pirate hardware</span>
         </a>
-      </div>
+      </nav>
     </section>
 
-    <section class="external-links-card" aria-label="Technology credits for ESP32 Bit Pirate web tools">
+    <section class="external-links-card" aria-labelledby="technology-credits-title">
       <div class="external-links-header">
-        <h2>
+        <h2 id="technology-credits-title">
           <svg class="section-title-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M7 8h10M7 12h7M7 16h10"></path>
             <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"></path>
@@ -277,14 +328,14 @@
         </h2>
         <p>These tools build on open browser APIs and open-source projects that make this possible.</p>
       </div>
-      <div class="external-link-grid">
+      <nav class="external-link-grid" aria-label="Technology credits">
         <a href="https://github.com/xtermjs/xterm.js" target="_blank" rel="noopener">
           <span class="external-link-kicker">xterm.js</span>
           <span>Terminal rendering engine used by Serial console</span>
         </a>
         <a href="https://github.com/flashrom/flashrom" target="_blank" rel="noopener">
           <span class="external-link-kicker">flashrom serprog</span>
-          <span>Open SPI flash programmer protocot</span>
+          <span>Open SPI flash programmer protocol</span>
         </a>
         <a href="https://github.com/gzuidhof/coi-serviceworker" target="_blank" rel="noopener">
           <span class="external-link-kicker">coi-serviceworker</span>
@@ -292,9 +343,26 @@
         </a>
         <a href="https://github.com/leaphy-robotics/avrdude-webassembly" target="_blank" rel="noopener">
           <span class="external-link-kicker">AVRDUDE WASM</span>
-          <span>AVR programming engine used by the browser AVR workflow</span>
+          <span>AVR programming engine</span>
         </a>
-      </div>
+        <a href="https://github.com/espressif/esptool-js" target="_blank" rel="noopener">
+          <span class="external-link-kicker">esptool-js</span>
+          <span>ESP serial bootloader engine</span>
+        </a>
+        <a href="https://www.st.com/resource/en/application_note/an3155-how-to-use-usart-protocol-in-bootloader-on-stm32-mcus-stmicroelectronics.pdf" target="_blank" rel="noopener">
+          <span class="external-link-kicker">STM32 AN3155</span>
+          <span>UART protocol used by STM32 Web Tool</span>
+        </a>
+        <a href="https://github.com/devanlai/webstlink" target="_blank" rel="noopener">
+          <span class="external-link-kicker">WebSTLink / WebUSB</span>
+          <span>STM32 ST-Link/V2 SWD programming engine</span>
+        </a>
+
+        <a href="https://github.com/GoogleChromeLabs/serial-terminal" target="_blank" rel="noopener">
+          <span class="external-link-kicker">Google Web Serial</span>
+          <span>Open Web Serial terminal reference USB</span>
+        </a>
+      </nav>
     </section>
   </main>
 </body>

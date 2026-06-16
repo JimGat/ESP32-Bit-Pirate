@@ -40,6 +40,11 @@ a {
   color: inherit;
 }
 
+a:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
 .wrap {
   width: min(1080px, calc(100% - 24px));
   margin: 0 auto;
@@ -289,7 +294,7 @@ h2 {
   gap: 7px;
 }
 
-.protocol-list span {
+.protocol-list li {
   display: inline-flex;
   align-items: center;
   min-height: 30px;
@@ -301,6 +306,7 @@ h2 {
   font-size: 0.78rem;
   font-weight: 700;
   line-height: 1;
+  list-style: none;
 }
 
 .external-links-card {

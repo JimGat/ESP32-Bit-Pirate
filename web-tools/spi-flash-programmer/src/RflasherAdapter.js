@@ -5,8 +5,10 @@ import { identifyJedec } from "./chipDatabase.js";
 const ACK = 0x06;
 const NAK = 0x15;
 const BUS_SPI = 0x08;
-const DEFAULT_READ_CHUNK = 4096;
+const DEFAULT_READ_CHUNK = 65536;
 const DEFAULT_PAGE_SIZE = 256;
+const ADDRESS_24BIT_LIMIT = 0x1000000;
+const ADDRESS_32BIT_LIMIT = 0x100000000;
 
 const COMMANDS = {
   NOP: 0x00,
@@ -112,34 +114,29 @@ export class RflasherAdapter {
 
   async read(start, length) {
     this.ensureConnected();
-    if (!Number.isInteger(start) || start < 0 || start > 0xffffff) {
-      throw new Error("Read start must be a 24-bit SPI flash address.");
+    if (!Number.isInteger(start) || start < 0 || start >= ADDRESS_32BIT_LIMIT) {
+      throw new Error("Read start must be a 32-bit SPI flash address.");
     }
     if (!Number.isInteger(length) || length <= 0 || length > this.safeReadChunkSize(DEFAULT_READ_CHUNK)) {
       throw new Error(`Read chunk length must be between 1 and ${this.safeReadChunkSize(DEFAULT_READ_CHUNK)} bytes.`);
     }
 
-    const command = new Uint8Array([
-      0x03,
-      (start >> 16) & 0xff,
-      (start >> 8) & 0xff,
-      start & 0xff,
-    ]);
+    const command = this.buildAddressCommand(start, { read: true });
 
-    this.log(`Reading ${length} bytes at 0x${start.toString(16).padStart(6, "0")} with opcode 0x03.`);
+    this.log(`Reading ${length} bytes at ${formatAddress(start)} with opcode 0x${command[0].toString(16).padStart(2, "0")}.`);
     return this.spiOp(command, length, 6000);
   }
 
   async readRange(start, length, { chunkSize = DEFAULT_READ_CHUNK, onProgress = () => {}, onChunk = () => {} } = {}) {
     this.ensureConnected();
-    if (!Number.isInteger(start) || start < 0 || start > 0xffffff) {
-      throw new Error("Read start must be a 24-bit SPI flash address.");
+    if (!Number.isInteger(start) || start < 0 || start >= ADDRESS_32BIT_LIMIT) {
+      throw new Error("Read start must be a 32-bit SPI flash address.");
     }
     if (!Number.isInteger(length) || length <= 0) {
       throw new Error("Read length must be greater than zero.");
     }
-    if (start + length > 0x1000000) {
-      throw new Error("Read range exceeds 24-bit SPI flash address space.");
+    if (start + length > ADDRESS_32BIT_LIMIT) {
+      throw new Error("Read range exceeds 32-bit SPI flash address space.");
     }
 
     const output = new Uint8Array(length);
@@ -194,12 +191,12 @@ export class RflasherAdapter {
   }
 
   async eraseChip({ onProgress = () => {} } = {}) {
-    this.requireIdentifiedChip();
+    const chip = this.requireIdentifiedChip();
     this.log("Sending write enable and chip erase (0xC7).");
     await this.writeEnable();
     await this.spiOp(new Uint8Array([0xc7]), 0, 2000);
     await this.waitWhileBusy({
-      timeoutMs: 180000,
+      timeoutMs: Math.max(180000, Math.ceil(chip.capacity / ADDRESS_24BIT_LIMIT) * 180000),
       intervalMs: 250,
       onProgress,
     });
@@ -258,7 +255,7 @@ export class RflasherAdapter {
     }
 
     throw new Error(
-      "No serprog SYNCNOP response. ESP32 Bit Pirate detected may not be in Flashrom SPI Adapter mode, the wrong serial port may be selected, or another app may hold the port."
+      "No serprog SYNCNOP response. The selected device may not be in serprog/SPI flash adapter mode, the wrong serial port may be selected, or another app may hold the port."
     );
   }
 
@@ -373,16 +370,38 @@ export class RflasherAdapter {
       throw new Error("Page program must not cross a 256-byte page boundary.");
     }
 
-    const command = new Uint8Array(4 + data.length);
-    command[0] = 0x02;
-    command[1] = (address >> 16) & 0xff;
-    command[2] = (address >> 8) & 0xff;
-    command[3] = address & 0xff;
-    command.set(data, 4);
+    if (!Number.isInteger(address) || address < 0 || address >= ADDRESS_32BIT_LIMIT) {
+      throw new Error("Page program address must be a 32-bit SPI flash address.");
+    }
+
+    const addressCommand = this.buildAddressCommand(address, { read: false });
+    const command = new Uint8Array(addressCommand.length + data.length);
+    command.set(addressCommand, 0);
+    command.set(data, addressCommand.length);
 
     await this.writeEnable();
     await this.spiOp(command, 0, 4000);
     await this.waitWhileBusy({ timeoutMs: 5000, intervalMs: 10 });
+  }
+
+  buildAddressCommand(address, { read }) {
+    const use4ByteAddress = address >= ADDRESS_24BIT_LIMIT || (this.lastProbe?.chip?.capacity ?? 0) > ADDRESS_24BIT_LIMIT;
+    if (use4ByteAddress) {
+      return new Uint8Array([
+        read ? 0x13 : 0x12,
+        Math.floor(address / 0x1000000) & 0xff,
+        (address >> 16) & 0xff,
+        (address >> 8) & 0xff,
+        address & 0xff,
+      ]);
+    }
+
+    return new Uint8Array([
+      read ? 0x03 : 0x02,
+      (address >> 16) & 0xff,
+      (address >> 8) & 0xff,
+      address & 0xff,
+    ]);
   }
 
   async spiOp(writeBytes, readLength, timeoutMs = 3000) {
@@ -441,9 +460,6 @@ export class RflasherAdapter {
     if (!chip?.capacity) {
       throw new Error("Probe and identify a supported SPI flash chip before full-chip operations.");
     }
-    if (chip.capacity > 0x1000000) {
-      throw new Error("Full-chip operations currently support 24-bit-address SPI flash up to 16 MiB.");
-    }
     return chip;
   }
 
@@ -455,6 +471,10 @@ export class RflasherAdapter {
 
 export function formatBytes(bytes) {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(" ");
+}
+
+function formatAddress(address) {
+  return `0x${address.toString(16).padStart(address >= ADDRESS_24BIT_LIMIT ? 8 : 6, "0")}`;
 }
 
 function sleep(ms) {

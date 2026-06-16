@@ -22,6 +22,8 @@ const elements = {
   maxRead: document.querySelector("#maxRead"),
   maxWrite: document.querySelector("#maxWrite"),
   spiFrequencySelect: document.querySelector("#spiFrequencySelect"),
+  spiFrequencyCustom: document.querySelector("#spiFrequencyCustom"),
+  spiFrequencyActual: document.querySelector("#spiFrequencyActual"),
   jedecId: document.querySelector("#jedecId"),
   chipName: document.querySelector("#chipName"),
   chipCapacity: document.querySelector("#chipCapacity"),
@@ -68,7 +70,8 @@ function init() {
     renderWriteFileName();
     renderControls();
   });
-  elements.spiFrequencySelect.addEventListener("change", changeSpiFrequency);
+  elements.spiFrequencySelect.addEventListener("change", handleSpiFrequencySelectChange);
+  elements.spiFrequencyCustom.addEventListener("change", changeSpiFrequency);
   for (const tab of operationTabs) {
     tab.addEventListener("click", () => selectOperationTab(tab.dataset.operationTab));
   }
@@ -101,10 +104,20 @@ async function connect() {
     setConnectionButtons(true);
     renderControls();
 
-    if (info.programmerName && !/ESP32-BP-SERPRG/i.test(info.programmerName)) {
-      log("Warning: a serprog adapter responded, but its name is not ESP32-BP-SERPRG.");
+    if (info.programmerName) {
+      log(`Connected serprog adapter: ${info.programmerName}.`);
     }
   });
+}
+
+async function handleSpiFrequencySelectChange() {
+  renderControls();
+  if (elements.spiFrequencySelect.value === "custom") {
+    elements.spiFrequencyCustom.focus();
+    elements.spiFrequencyCustom.select();
+    return;
+  }
+  await changeSpiFrequency();
 }
 
 async function changeSpiFrequency() {
@@ -266,6 +279,7 @@ function setButtonsDuringBusy(isBusy) {
     button.disabled = isBusy;
   }
   elements.spiFrequencySelect.disabled = isBusy;
+  elements.spiFrequencyCustom.disabled = isBusy;
 }
 
 function setConnectionButtons(connected) {
@@ -286,7 +300,13 @@ function renderProgrammerInfo(info) {
 }
 
 function readSelectedSpiFrequency() {
-  return Number.parseInt(elements.spiFrequencySelect.value, 10);
+  const value = elements.spiFrequencySelect.value === "custom"
+    ? Math.round(Number.parseFloat(elements.spiFrequencyCustom.value) * 1000000)
+    : Number.parseInt(elements.spiFrequencySelect.value, 10);
+  if (!Number.isInteger(value) || value <= 0 || value > 0xffffffff) {
+    throw new Error("SPI frequency must be greater than 0 MHz and within the 32-bit serprog limit.");
+  }
+  return value;
 }
 
 function syncSpiFrequencySelect(actualFrequency) {
@@ -294,7 +314,14 @@ function syncSpiFrequencySelect(actualFrequency) {
     .find((item) => Number.parseInt(item.value, 10) === actualFrequency);
   if (option) {
     elements.spiFrequencySelect.value = option.value;
+  } else if (Number.isInteger(actualFrequency) && actualFrequency > 0) {
+    elements.spiFrequencySelect.value = "custom";
+    elements.spiFrequencyCustom.value = formatFrequencyMhzInput(actualFrequency);
   }
+  elements.spiFrequencyCustom.hidden = elements.spiFrequencySelect.value !== "custom";
+  elements.spiFrequencyActual.textContent = Number.isInteger(actualFrequency) && actualFrequency > 0
+    ? `Actual: ${formatFrequency(actualFrequency)}`
+    : "Actual: -";
 }
 
 function resetProgrammerInfo() {
@@ -350,6 +377,8 @@ function renderControls() {
     elements.writeButton.title = "";
   }
   elements.spiFrequencySelect.disabled = busy;
+  elements.spiFrequencyCustom.disabled = busy;
+  elements.spiFrequencyCustom.hidden = elements.spiFrequencySelect.value !== "custom";
 }
 
 function renderWriteFileName() {
@@ -449,6 +478,20 @@ function formatCapacity(bytes) {
     return `${bytes / (1024 * 1024)} MiB`;
   }
   return `${bytes / 1024} KiB`;
+}
+
+function formatFrequency(hz) {
+  if (hz >= 1000000) {
+    return `${hz / 1000000} MHz`;
+  }
+  if (hz >= 1000) {
+    return `${hz / 1000} kHz`;
+  }
+  return `${hz} Hz`;
+}
+
+function formatFrequencyMhzInput(hz) {
+  return Number((hz / 1000000).toFixed(6)).toString();
 }
 
 function renderProgress({ done, total, phase }) {

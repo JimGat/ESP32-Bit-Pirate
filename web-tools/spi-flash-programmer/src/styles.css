@@ -237,6 +237,31 @@
   font: inherit;
 }
 
+.inline-input {
+  width: min(100%, 180px);
+  min-height: 36px;
+  margin-top: 6px;
+  padding: 7px 10px;
+  border: 1px solid #2b2b2b;
+  border-radius: var(--radius);
+  background: #0b0d0c;
+  color: var(--text);
+  font: inherit;
+}
+
+#spiFrequencyCustom {
+  width: 9ch;
+  max-width: 100%;
+  text-align: right;
+}
+
+#spiFrequencyActual {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 .info-list {
   display: grid;
   gap: 8px;
@@ -437,6 +462,7 @@
   }
 
   .action-button,
+  .inline-input,
   .range-row input,
   .operation-controls input,
   .file-picker {

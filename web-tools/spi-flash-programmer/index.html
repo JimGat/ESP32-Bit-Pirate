@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Read, write, erase and verify SPI flash chips directly from your browser using the ESP32 Bit Pirate serprog adapter. No flashrom installation required.">
+  <meta name="description" content="Read, write, erase and verify SPI flash chips directly from your browser using serprog-compatible hardware. No flashrom installation required.">
   <meta name="google" content="notranslate">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
   <meta name="theme-color" content="#121212">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
-  <meta property="og:site_name" content="ESP32 Bit Pirate">
-  <meta property="og:title" content="Web SPI Flash Programmer with ESP32 Bit Pirate">
-  <meta property="og:description" content="Read, write, erase and verify SPI flash chips directly from your browser using the ESP32 Bit Pirate serprog adapter.">
+  <meta property="og:site_name" content="Web Serial Tools">
+  <meta property="og:title" content="Web SPI Flash Programmer for serprog-compatible hardware">
+  <meta property="og:description" content="Read, write, erase and verify SPI flash chips directly from your browser using serprog-compatible hardware.">
   <meta property="og:url" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/spi-flash-programmer/">
   <meta property="og:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Web SPI Flash Programmer with ESP32 Bit Pirate">
-  <meta name="twitter:description" content="Read, write, erase and verify SPI flash chips directly from your browser using the ESP32 Bit Pirate serprog adapter.">
+  <meta name="twitter:title" content="Web SPI Flash Programmer for serprog-compatible hardware">
+  <meta name="twitter:description" content="Read, write, erase and verify SPI flash chips directly from your browser using serprog-compatible hardware.">
   <meta name="twitter:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/og-image.png">
   <link rel="canonical" href="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/spi-flash-programmer/">
-  <title>Web SPI Flash Programmer with ESP32 Bit Pirate</title>
+  <title>Web SPI Flash Programmer for serprog-compatible hardware</title>
   <link rel="icon" type="image/svg+xml" href="../web-serial-terminal/favicon.svg">
   <link rel="stylesheet" href="../styles/main.css">
   <link rel="stylesheet" href="src/styles.css">
@@ -34,10 +34,10 @@
       Web Serial is not available in this browser. Use Chrome, Edge, or another compatible Chromium browser over HTTPS or localhost.
     </section>
 
-    <section class="programmer-shell" aria-label="SPI flash programmer prototype">
+    <section class="programmer-shell" aria-label="SPI flash programmer">
       <div class="toolbar">
         <div class="toolbar-brand" aria-label="Web SPI Flash Programmer">
-          <a class="brand-mark" href="../" aria-label="Open ESP32 Bit Pirate web tools">B</a>
+          <a class="brand-mark" href="../" aria-label="Open embedded hardware web tools">B</a>
           <h1>Web SPI Flash Programmer</h1>
         </div>
 
@@ -68,7 +68,15 @@
                   <option value="8000000" selected>8 MHz</option>
                   <option value="12000000">12 MHz</option>
                   <option value="16000000">16 MHz</option>
+                  <option value="20000000">20 MHz</option>
+                  <option value="26000000">26 MHz</option>
+                  <option value="40000000">40 MHz</option>
+                  <option value="60000000">60 MHz</option>
+                  <option value="80000000">80 MHz</option>
+                  <option value="custom">Custom...</option>
                 </select>
+                <input id="spiFrequencyCustom" class="inline-input" type="number" min="0.001" step="0.001" inputmode="decimal" value="8" aria-label="Custom SPI frequency in MHz" hidden>
+                <small id="spiFrequencyActual">Actual: -</small>
               </dd>
             </div>
           </dl>

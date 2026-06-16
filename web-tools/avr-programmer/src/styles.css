@@ -615,3 +615,69 @@ select:disabled {
     width: auto;
   }
 }
+
+/* Small-screen layout: use a normal document flow instead of a viewport-sized app. */
+@media (max-width: 760px) {
+  html,
+  body,
+  .notranslate {
+    height: auto;
+    min-height: 100%;
+  }
+
+  body {
+    overflow-y: auto;
+  }
+
+  .avr-wrap {
+    min-height: 100dvh;
+    height: auto;
+    overflow: visible;
+  }
+
+  .programmer-shell,
+  .workspace,
+  .work-panel,
+  .side-panel,
+  .mode-panel,
+  .output-card,
+  .action-strip {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .mode-panel {
+    grid-template-rows: auto;
+  }
+
+  .output-card {
+    display: block;
+  }
+
+  .user-output {
+    height: auto;
+    min-height: 260px;
+    max-height: 420px;
+    overflow: auto;
+  }
+
+  .toolbar {
+    position: relative;
+  }
+
+  .toolbar-brand {
+    min-height: 32px;
+    padding-right: 40px;
+  }
+
+  .toolbar > .toolbar-actions > .help-icon-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+  }
+}

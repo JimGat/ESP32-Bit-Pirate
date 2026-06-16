@@ -491,3 +491,157 @@
     gap: 3px;
   }
 }
+
+/* Small-screen layout: keep cards and logs in the normal page flow. */
+@media (max-width: 760px) {
+  html,
+  body {
+    height: auto;
+    min-height: 100%;
+  }
+
+  body {
+    overflow-y: auto;
+  }
+
+  .programmer-wrap {
+    min-height: 100dvh;
+    height: auto;
+    overflow: visible;
+  }
+
+  .programmer-shell,
+  .operation-card,
+  .operation-panels,
+  .log-card {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .operation-card,
+  .log-card {
+    display: block;
+  }
+
+  .toolbar {
+    position: relative;
+  }
+
+  .toolbar-brand {
+    min-height: 32px;
+    padding-right: 40px;
+  }
+
+  .toolbar > .toolbar-actions > .help-icon-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+  }
+}
+
+/* Prevent horizontal clipping on narrow phones. */
+@media (max-width: 760px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .programmer-wrap,
+  .programmer-shell,
+  .toolbar,
+  .panel-grid,
+  .tool-card,
+  .content-card,
+  .operation-card,
+  .operation-tabs,
+  .operation-panels,
+  .operation-section,
+  .operation-controls,
+  .progress-row,
+  .log-card,
+  .log-header {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .programmer-shell > *,
+  .panel-grid > *,
+  .operation-card > *,
+  .operation-panels > *,
+  .operation-section > *,
+  .log-card > * {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .toolbar-brand,
+  .toolbar-actions,
+  .toolbar-brand h1,
+  .status-pill {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .toolbar-brand h1,
+  .status-pill {
+    overflow-wrap: anywhere;
+  }
+
+  .toolbar-actions > :not(.help-icon-button),
+  .operation-controls > *,
+  .file-picker > * {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .operation-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .operation-tab {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    justify-content: center;
+    padding-inline: 6px;
+    overflow-wrap: anywhere;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .operation-tab:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .inline-select,
+  .inline-input,
+  .range-row input,
+  .operation-controls input,
+  .action-button,
+  .hex-preview,
+  .log-output {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  /* Keep the native file input visually hidden; generic mobile input sizing
+     must not expand this absolutely positioned control past the card edge. */
+  .file-input {
+    width: 1px !important;
+    max-width: 1px;
+    height: 1px;
+    min-width: 0;
+  }
+}

@@ -1065,3 +1065,70 @@ textarea:disabled {
   box-sizing: border-box;
 }
 
+
+/* Small-screen layout: keep the complete tool in the document scroll flow. */
+@media (max-width: 760px) {
+  html,
+  body {
+    height: auto;
+    min-height: 100%;
+  }
+
+  body {
+    overflow-y: auto;
+  }
+
+  .stm32-wrap {
+    min-height: 100dvh;
+    height: auto;
+    overflow: visible;
+  }
+
+  .stm32-shell,
+  .workspace,
+  .work-panel,
+  .side-panel,
+  .mode-panel,
+  .action-strip,
+  .work-panel:has(> .boot-help:not([hidden])) > .mode-panel {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .mode-panel,
+  .mode-panel[data-mode-panel="read"],
+  .mode-panel[data-mode-panel="flash"],
+  .memory-card {
+    grid-template-rows: auto;
+  }
+
+  .mode-panel[data-mode-panel="read"] .metric-grid,
+  .mode-panel[data-mode-panel="flash"] .segment-list,
+  .mode-panel[data-mode-panel="flash"] .options-grid {
+    grid-row: auto;
+  }
+
+  .console-panel {
+    overflow: visible;
+  }
+
+  .toolbar {
+    position: relative;
+  }
+
+  .toolbar-brand {
+    min-height: 32px;
+    padding-right: 40px;
+  }
+
+  .toolbar > .toolbar-actions > .help-icon-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+  }
+}

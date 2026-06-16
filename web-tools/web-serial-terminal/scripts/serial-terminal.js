@@ -91,10 +91,14 @@ export class SerialTerminal {
     this.enterMode = "cr";
     this.disposables = [];
     this.log = [];
+    this.logByteLength = 0;
     this.maxLogChunks = 20000;
+    this.textEncoder = new TextEncoder();
+    this.logChangeHandler = null;
     this.inputHandler = null;
     this.syncingScrollbar = false;
     this.pendingBottomScroll = false;
+    this.wheelLineRemainder = 0;
 
     this.term = new terminalCtor({
       allowProposedApi: false,
@@ -114,6 +118,7 @@ export class SerialTerminal {
     this.term.loadAddon(this.fitAddon);
     this.term.open(element);
     this.createScrollbar();
+    this.bindWheelScrolling();
     this.fit();
 
     this.disposables.push(this.term.onData((data) => this.handleInput(data)));
@@ -129,12 +134,30 @@ export class SerialTerminal {
     this.inputHandler = handler;
   }
 
+  onLogChange(handler) {
+    this.logChangeHandler = handler;
+    this.notifyLogChange();
+  }
+
+  notifyLogChange() {
+    if (this.logChangeHandler) {
+      this.logChangeHandler(this.logByteLength);
+    }
+  }
+
   write(text, { log = true } = {}) {
-    if (log) {
+    if (log && text.length > 0) {
       this.log.push(text);
+      this.logByteLength += this.textEncoder.encode(text).byteLength;
+
       if (this.log.length > this.maxLogChunks) {
-        this.log.splice(0, this.log.length - this.maxLogChunks);
+        const removedChunks = this.log.splice(0, this.log.length - this.maxLogChunks);
+        for (const chunk of removedChunks) {
+          this.logByteLength -= this.textEncoder.encode(chunk).byteLength;
+        }
       }
+
+      this.notifyLogChange();
     }
 
     this.term.write(text, () => {
@@ -152,6 +175,8 @@ export class SerialTerminal {
 
   clearLog() {
     this.log = [];
+    this.logByteLength = 0;
+    this.notifyLogChange();
   }
 
   focus() {
@@ -181,6 +206,50 @@ export class SerialTerminal {
 
       this.term.scrollToLine(Math.round(this.scrollbar.scrollTop));
     });
+  }
+
+  bindWheelScrolling() {
+    this.wheelHandler = (event) => {
+      if (event.ctrlKey || event.metaKey) {
+        return;
+      }
+
+      const lines = this.convertWheelDeltaToLines(event);
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (lines === 0 || this.term.buffer.active.baseY <= 0) {
+        return;
+      }
+
+      this.term.scrollLines(lines);
+      this.syncScrollbar();
+    };
+
+    this.element.addEventListener("wheel", this.wheelHandler, { passive: false });
+    this.disposables.push({
+      dispose: () => this.element.removeEventListener("wheel", this.wheelHandler)
+    });
+  }
+
+  convertWheelDeltaToLines(event) {
+    const lineHeight = Math.max(8, this.term.options.fontSize * this.term.options.lineHeight);
+    let deltaLines = event.deltaY;
+
+    if (event.deltaMode === WheelEvent.DOM_DELTA_PIXEL) {
+      deltaLines = event.deltaY / lineHeight;
+    } else if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+      deltaLines = event.deltaY * this.term.rows;
+    }
+
+    this.wheelLineRemainder += deltaLines;
+    const wholeLines = this.wheelLineRemainder < 0
+      ? Math.ceil(this.wheelLineRemainder)
+      : Math.floor(this.wheelLineRemainder);
+
+    this.wheelLineRemainder -= wholeLines;
+    return wholeLines;
   }
 
   syncScrollbar() {
@@ -279,6 +348,10 @@ export class SerialTerminal {
   }
 
   downloadLog(filenamePrefix = "web-serial-terminal") {
+    if (this.logByteLength === 0) {
+      return false;
+    }
+
     const contents = this.log.join("");
     const stamp = new Date().toISOString().replace(/[:.]/g, "-");
     const blob = new Blob([contents], { type: "text/plain;charset=utf-8" });
@@ -290,6 +363,7 @@ export class SerialTerminal {
     link.click();
 
     setTimeout(() => URL.revokeObjectURL(url), 0);
+    return true;
   }
 
   handleInput(data) {

@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="description" content="Use this free Web Serial terminal to connect to ESP32, Arduino, Bus Pirate and USB UART devices directly from Chrome, Edge or Firefox. No installation required.">
+  <meta name="google" content="notranslate">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
   <meta name="author" content="ESP32 Bit Pirate">
   <meta name="application-name" content="Web Serial Terminal">
@@ -100,15 +101,16 @@
             <button id="fontIncreaseButton" type="button" aria-label="Increase terminal text size">+</button>
           </div>
 
-          <button id="configButton" class="config-button" type="button" aria-label="Serial settings" aria-expanded="false" aria-controls="configPanel" title="Serial settings">⚙</button>
+          <span class="config-status-group">
+            <button id="configButton" class="config-button" type="button" aria-label="Serial settings" aria-expanded="false" aria-controls="configPanel" title="Serial settings">⚙</button>
+            <span id="connectionStatus" class="connection-status" aria-live="polite">Ready</span>
+          </span>
         </div>
-
-        <div id="connectionStatus" class="connection-status" aria-live="polite">Ready</div>
 
         <div class="toolbar-actions">
           <button id="connectButton" type="button" class="primary">Connect</button>
           <button id="clearButton" type="button">Clear</button>
-          <button id="downloadButton" type="button">Download log</button>
+          <button id="downloadButton" type="button" disabled title="No serial log to download">Download log</button>
         </div>
       </div>
 

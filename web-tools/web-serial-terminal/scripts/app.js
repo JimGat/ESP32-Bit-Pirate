@@ -75,6 +75,30 @@ const WELCOME_TEXT =
 const serial = new WebSerialConnection();
 const terminal = new SerialTerminal(elements.terminal);
 
+let hasReceivedSerialData = false;
+let serialLogByteLength = 0;
+
+function updateDownloadButton(byteLength = serialLogByteLength) {
+  serialLogByteLength = byteLength;
+  const canDownload = hasReceivedSerialData && byteLength > 0;
+
+  elements.downloadButton.disabled = !canDownload;
+  elements.downloadButton.setAttribute("aria-disabled", String(!canDownload));
+  elements.downloadButton.title = canDownload
+    ? `Download serial log (${byteLength} bytes)`
+    : "No serial log to download";
+}
+
+function resetDownloadState() {
+  hasReceivedSerialData = false;
+  serialLogByteLength = 0;
+  updateDownloadButton(0);
+}
+
+terminal.onLogChange((byteLength) => {
+  updateDownloadButton(byteLength);
+});
+
 let connecting = false;
 let connected = false;
 let lastFocusedElement = null;
@@ -214,6 +238,7 @@ async function connect() {
     closeConfig({ restoreFocus: false });
     terminal.clear();
     terminal.clearLog();
+    resetDownloadState();
     await serial.connect({
       baudRate: settings.baudRate,
       dataBits: settings.dataBits,
@@ -297,6 +322,9 @@ terminal.onInput(async (data) => {
 });
 
 serial.addEventListener("data", (event) => {
+  if (event.detail.length > 0) {
+    hasReceivedSerialData = true;
+  }
   terminal.write(event.detail);
 });
 
@@ -327,16 +355,23 @@ elements.connectButton.addEventListener("click", () => {
   }
 });
 elements.clearButton.addEventListener("click", () => {
+  terminal.clearLog();
+  resetDownloadState();
+
   if (connected) {
     terminal.clear();
-    terminal.clearLog();
   } else {
     showWelcome();
   }
 
   terminal.focus();
 });
-elements.downloadButton.addEventListener("click", () => terminal.downloadLog());
+elements.downloadButton.addEventListener("click", () => {
+  if (!hasReceivedSerialData || serialLogByteLength === 0) {
+    return;
+  }
+  terminal.downloadLog();
+});
 elements.baudRateInput.addEventListener("input", saveCurrentSerialSettings);
 elements.themeSelect.addEventListener("change", () => {
   terminal.setTheme(elements.themeSelect.value);
@@ -406,4 +441,5 @@ terminal.setAutoScroll(true);
 applyStoredPreferences();
 applySerialSettings(loadSerialSettings());
 showWelcome();
+resetDownloadState();
 initializeCompatibility();

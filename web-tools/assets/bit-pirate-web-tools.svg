@@ -1,10 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
-  <title id="title">ESP32 Bit Pirate browser hardware tools</title>
-  <desc id="desc">A browser window connected to an ESP32-S3 hardware debugging board with serial, flash and logic analyzer signals.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Embedded Hardware Web Tools</title>
+  <desc id="desc">Browser-based serial terminal, firmware programming and logic analysis tools for embedded hardware.</desc>
+
   <defs>
     <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0" stop-color="#102018"/>
-      <stop offset="0.48" stop-color="#151515"/>
+      <stop offset="0.5" stop-color="#151515"/>
       <stop offset="1" stop-color="#1f2116"/>
     </linearGradient>
     <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
@@ -12,29 +13,58 @@
       <stop offset="1" stop-color="#0b0d0c"/>
     </linearGradient>
   </defs>
-  <rect width="960" height="540" rx="28" fill="url(#bg)"/>
-  <rect x="70" y="62" width="820" height="416" rx="20" fill="#070908" stroke="#2f3a36" stroke-width="3"/>
-  <rect x="70" y="62" width="820" height="54" rx="20" fill="#141917"/>
-  <circle cx="106" cy="90" r="8" fill="#ff6b6b"/>
-  <circle cx="132" cy="90" r="8" fill="#ffd166"/>
-  <circle cx="158" cy="90" r="8" fill="#2dd4bf"/>
-  <text x="194" y="97" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="22" font-weight="700">ESP32 Bit Pirate Web Tools</text>
-  <rect x="105" y="152" width="310" height="230" rx="14" fill="url(#panel)" stroke="#2f3a36" stroke-width="2"/>
-  <rect x="142" y="192" width="236" height="112" rx="14" fill="#111714" stroke="#00ff9966" stroke-width="3"/>
-  <rect x="168" y="222" width="184" height="52" rx="8" fill="#050706" stroke="#39443e" stroke-width="2"/>
-  <text x="187" y="255" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="24" font-weight="700">BP&gt; scan</text>
-  <circle cx="174" cy="326" r="7" fill="#00ff00"/>
-  <circle cx="205" cy="326" r="7" fill="#00ffcc"/>
-  <circle cx="236" cy="326" r="7" fill="#ffd166"/>
-  <circle cx="267" cy="326" r="7" fill="#8ab4ff"/>
-  <circle cx="298" cy="326" r="7" fill="#ff8c42"/>
-  <circle cx="329" cy="326" r="7" fill="#b8ffb8"/>
-  <path d="M415 244h78m0 0v-48h74m-74 48v48h74" fill="none" stroke="#00ffcc" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="585" y="154" width="248" height="64" rx="12" fill="#121915" stroke="#00ff9966" stroke-width="2"/>
-  <text x="610" y="194" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="24" font-weight="700">Web Serial</text>
-  <rect x="585" y="238" width="248" height="64" rx="12" fill="#171611" stroke="#ffd16677" stroke-width="2"/>
-  <text x="610" y="278" fill="#fff4bd" font-family="Menlo, Courier New, monospace" font-size="24" font-weight="700">SPI Flash</text>
-  <rect x="585" y="322" width="248" height="64" rx="12" fill="#11161b" stroke="#8ab4ff77" stroke-width="2"/>
-  <path d="M612 354h34v-18h34v34h34v-18h34" fill="none" stroke="#8ab4ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="815" y="362" fill="#d9e8ff" font-family="Menlo, Courier New, monospace" font-size="22" font-weight="700" text-anchor="end">SUMP</text>
+
+  <rect width="1200" height="630" rx="32" fill="url(#bg)"/>
+  <rect x="72" y="62" width="1056" height="506" rx="22" fill="#070908" stroke="#2f3a36" stroke-width="3"/>
+  <rect x="72" y="62" width="1056" height="58" rx="22" fill="#141917"/>
+
+  <circle cx="110" cy="91" r="8" fill="#ff6b6b"/>
+  <circle cx="138" cy="91" r="8" fill="#ffd166"/>
+  <circle cx="166" cy="91" r="8" fill="#2dd4bf"/>
+  <text x="205" y="99" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="24" font-weight="700">Embedded Hardware Web Tools</text>
+
+  <text x="110" y="166" fill="#f4fff9" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="700">Hardware tools, directly in your browser</text>
+  <text x="110" y="202" fill="#9fb0a8" font-family="Inter, Arial, sans-serif" font-size="21">Connect, inspect, program and debug embedded devices without a desktop toolchain.</text>
+
+  <rect x="110" y="242" width="410" height="224" rx="16" fill="url(#panel)" stroke="#2f3a36" stroke-width="2"/>
+  <rect x="144" y="278" width="342" height="92" rx="12" fill="#0d1210" stroke="#00ff9966" stroke-width="3"/>
+  <text x="170" y="332" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="30" font-weight="700">HW&gt; connect</text>
+
+  <circle cx="226" cy="406" r="6" fill="#00ff00"/>
+  <text x="244" y="413" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="18">Web Serial ready</text>
+
+  <path d="M520 354h64m0 0v-65h42m-42 65v65h42" fill="none" stroke="#00ffcc" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g font-family="Menlo, Courier New, monospace" font-weight="700">
+    <rect x="646" y="242" width="202" height="94" rx="14" fill="#121915" stroke="#00ff9966" stroke-width="2"/>
+    <text x="674" y="282" fill="#d8fff2" font-size="23">Serial</text>
+    <text x="674" y="310" fill="#7f9489" font-size="16">Terminal &amp; logs</text>
+
+    <rect x="862" y="242" width="202" height="94" rx="14" fill="#171611" stroke="#ffd16677" stroke-width="2"/>
+    <text x="890" y="282" fill="#fff4bd" font-size="23">Firmware</text>
+    <text x="890" y="310" fill="#9b9274" font-size="16">Read &amp; write</text>
+
+    <rect x="646" y="358" width="202" height="94" rx="14" fill="#11161b" stroke="#8ab4ff77" stroke-width="2"/>
+    <path d="M680 410h22v-18h22v36h22v-18h22" fill="none" stroke="#8ab4ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="778" y="417" fill="#d9e8ff" font-size="20">Logic</text>
+
+    <rect x="862" y="358" width="202" height="94" rx="14" fill="#171218" stroke="#b77bff77" stroke-width="2"/>
+    <rect x="892" y="384" width="40" height="40" rx="6" fill="none" stroke="#b77bff" stroke-width="3"/>
+    <path d="M908 376v8m20-8v8m-20 40v8m20-8v8m-38-28h8m40 0h8m-28-8v16m-8-8h16" fill="none" stroke="#b77bff" stroke-width="3" stroke-linecap="round"/>
+    <text x="952" y="417" fill="#eadcff" font-size="20">MCU</text>
+  </g>
+
+  <line x1="110" y1="496" x2="1064" y2="496" stroke="#26302c" stroke-width="2"/>
+
+  <g font-family="Menlo, Courier New, monospace" font-size="17" font-weight="700">
+    <text x="110" y="535" fill="#6eb4ff">USB / Web Serial</text>
+    <text x="310" y="535" fill="#9b7bff">SPI</text>
+    <text x="382" y="535" fill="#7dff6a">I²C</text>
+    <text x="461" y="535" fill="#ffe45c">UART</text>
+    <text x="552" y="535" fill="#ff9d4d">GPIO</text>
+    <text x="641" y="535" fill="#6eb4ff">JTAG / SWD</text>
+    <text x="788" y="535" fill="#9fb0a8">ESP32</text>
+    <text x="872" y="535" fill="#9fb0a8">AVR</text>
+    <text x="934" y="535" fill="#9fb0a8">STM32</text>
+  </g>
 </svg>

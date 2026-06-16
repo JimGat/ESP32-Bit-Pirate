@@ -11,7 +11,7 @@ export function writeVcd(capture) {
   lines.push(`  ${capture.startedAt}`);
   lines.push("$end");
   lines.push("$version");
-  lines.push("  Web Logic Analyzer SUMP prototype");
+  lines.push("  Web Logic Analyzer SUMP capture");
   lines.push("$end");
   lines.push("$comment");
   lines.push(`  sample_rate_hz=${capture.sampleRateHz}`);

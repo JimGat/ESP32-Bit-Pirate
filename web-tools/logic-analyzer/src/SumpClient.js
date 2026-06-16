@@ -25,8 +25,6 @@ export const SUMP_COMPAT_PROFILE = {
   clockHz: 100000000,
 };
 
-export const ESP32_BP_COMPAT_PROFILE = SUMP_COMPAT_PROFILE;
-
 export class SumpClient {
   constructor({ transport = new SerialTransport({ baudRate: 115200, bufferSize: 262144 }), log = () => {} } = {}) {
     this.transport = transport;
@@ -76,7 +74,7 @@ export class SumpClient {
     try {
       const bytes = await this.readMetadataResponse(2048, 1500);
       const metadata = parseSumpMetadata(bytes);
-      return { ...SUMP_COMPAT_PROFILE, ...metadata, clockHz: SUMP_COMPAT_PROFILE.clockHz };
+      return { ...SUMP_COMPAT_PROFILE, ...metadata };
     } catch (error) {
       this.log(`Metadata unavailable, using a conservative SUMP compatibility profile: ${error.message}`);
       return { ...SUMP_COMPAT_PROFILE, metadataFallback: true };
@@ -89,7 +87,7 @@ export class SumpClient {
     }
 
     this.captureCancelled = false;
-    const metadata = this.metadata ?? ESP32_BP_COMPAT_PROFILE;
+    const metadata = this.metadata ?? SUMP_COMPAT_PROFILE;
     const divider = calculateDivider(sampleRateHz, metadata.clockHz);
     const effectiveSampleRateHz = calculateEffectiveSampleRate(metadata.clockHz, divider);
     const safeSampleCount = clampSampleCount(sampleCount, metadata.sampleMemoryBytes);

@@ -42,6 +42,9 @@
         </div>
 
         <div class="toolbar-actions">
+          <button class="help-icon-button" type="button" data-help-open aria-label="Open Web ESP Tool help" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6"></path><path d="M12 7h.01"></path></svg>
+          </button>
           <select id="baudRate" class="inline-select" aria-label="Baudrate">
             <option value="115200">115200</option>
             <option value="230400">230400</option>
@@ -300,6 +303,30 @@
     </section>
   </main>
 
+  <section id="toolHelpContent" class="tool-help-source" hidden>
+    <h2 id="toolHelpTitle">Web ESP Tool help</h2>
+    <section>
+      <h3>What it does</h3>
+      <p>Flash, read, erase and merge firmware images for ESP8266, ESP32 and newer ESP variants through the ROM serial bootloader.</p>
+    </section>
+    <section>
+      <h3>Adapter</h3>
+      <ul>
+        <li>Use a USB serial adapter or a development board with built-in USB-UART.</li>
+        <li>Connect TX to RX, RX to TX and share GND. Keep 3.3 V logic levels.</li>
+        <li>For bare modules, wire EN/RESET and BOOT/GPIO0 so the chip can enter download mode.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Connection</h3>
+      <ol>
+        <li>Hold BOOT/GPIO0 low, reset or power-cycle the ESP, then release reset.</li>
+        <li>Click Connect and select the serial port.</li>
+        <li>Load firmware files, choose the matching layout and run the operation.</li>
+      </ol>
+    </section>
+  </section>
+  <script type="module" src="../shared/help-modal.js"></script>
   <script type="module" src="src/App.js"></script>
 </body>
 </html>

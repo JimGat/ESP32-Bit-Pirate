@@ -49,6 +49,9 @@
         </div>
 
         <div class="toolbar-actions">
+          <button class="help-icon-button" type="button" data-help-open aria-label="Open STM32 Web Tool help" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6"></path><path d="M12 7h.01"></path></svg>
+          </button>
           <select id="connectionTransport" class="inline-select compact-select transport-select" aria-label="Connection interface">
             <option value="uart">UART Bootloader</option>
             <option value="stlink" selected>ST-Link (WebUSB)</option>
@@ -347,8 +350,32 @@
     </section>
   </main>
 
+  <section id="toolHelpContent" class="tool-help-source" hidden>
+    <h2 id="toolHelpTitle">STM32 Web Tool help</h2>
+    <section>
+      <h3>What it does</h3>
+      <p>Identify, back up, erase and flash STM32 devices either through the factory UART bootloader or through an ST-Link probe over SWD.</p>
+    </section>
+    <section>
+      <h3>Adapters</h3>
+      <ul>
+        <li>UART mode: use a 3.3 V USB serial adapter connected to the STM32 bootloader UART pins.</li>
+        <li>ST-Link mode: use ST-LINK/V2 or ST-LINK/V2-1 with SWDIO, SWCLK, GND and target voltage sense connected.</li>
+        <li>ST-Link uses WebUSB, so use Chrome, Edge or another Chromium browser. Firefox is not supported for this mode.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Connection</h3>
+      <ol>
+        <li>For UART, set BOOT0 high, reset the target, then click Connect.</li>
+        <li>For ST-Link, power the target, connect SWD, then click Connect and select the probe.</li>
+        <li>Read a backup before writing when working on hardware you cannot easily recover.</li>
+      </ol>
+    </section>
+  </section>
   <script src="../web-serial-terminal/vendor/xterm/xterm.min.js"></script>
   <script src="../web-serial-terminal/vendor/xterm/addon-fit.min.js"></script>
+  <script type="module" src="../shared/help-modal.js"></script>
   <script type="module" src="src/App.js"></script>
 </body>
 </html>

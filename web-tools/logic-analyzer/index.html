@@ -42,6 +42,9 @@
         </div>
 
         <div class="toolbar-actions">
+          <button class="help-icon-button" type="button" data-help-open aria-label="Open Web Logic Analyzer help" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6"></path><path d="M12 7h.01"></path></svg>
+          </button>
           <button id="connectButton" class="button action-button primary" type="button">Connect</button>
           <button id="disconnectButton" class="button action-button" type="button" disabled hidden>Disconnect</button>
           <span id="connectionStatus" class="status-pill">Disconnected</span>
@@ -109,6 +112,30 @@
     </details>
   </main>
 
+  <section id="toolHelpContent" class="tool-help-source" hidden>
+    <h2 id="toolHelpTitle">Web Logic Analyzer help</h2>
+    <section>
+      <h3>What it does</h3>
+      <p>Capture digital signals from SUMP-compatible logic analyzer firmware, then inspect timing, triggers and exported waveforms in the browser.</p>
+    </section>
+    <section>
+      <h3>Adapter</h3>
+      <ul>
+        <li>Use a SUMP-compatible device or firmware exposed as a serial port.</li>
+        <li>Connect the analyzer ground to the target ground before connecting signal channels.</li>
+        <li>Keep input voltages within the analyzer hardware limits.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Connection</h3>
+      <ol>
+        <li>Click Connect and select the analyzer serial port.</li>
+        <li>Choose sample rate, channel mask and trigger settings.</li>
+        <li>Start capture, then review or export the waveform.</li>
+      </ol>
+    </section>
+  </section>
+  <script type="module" src="../shared/help-modal.js"></script>
   <script type="module" src="src/App.js"></script>
 </body>
 </html>

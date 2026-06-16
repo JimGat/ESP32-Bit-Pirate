@@ -53,6 +53,9 @@
         </div>
 
         <div class="toolbar-actions">
+          <button class="help-icon-button" type="button" data-help-open aria-label="Open Web AVR Programmer help" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6"></path><path d="M12 7h.01"></path></svg>
+          </button>
           <button id="connectButton" class="button action-button primary" type="button">Connect</button>
           <button id="disconnectButton" class="button action-button" type="button" disabled hidden>Disconnect</button>
           <span id="connectionStatus" class="status-pill">Disconnected</span>
@@ -263,6 +266,30 @@
     </section>
   </main>
 
+  <section id="toolHelpContent" class="tool-help-source" hidden>
+    <h2 id="toolHelpTitle">Web AVR Programmer help</h2>
+    <section>
+      <h3>What it does</h3>
+      <p>Runs AVRDUDE in the browser to detect AVR chips, read Flash, write firmware, verify images and perform chip erase operations.</p>
+    </section>
+    <section>
+      <h3>Adapters</h3>
+      <ul>
+        <li>Bus Pirate Raw SPI/ISP is the main profile for in-system programming.</li>
+        <li>AVR109 and other serial bootloader profiles work when the target already has a compatible bootloader.</li>
+        <li>For ISP, connect MOSI, MISO, SCK, RESET, GND and a voltage reference that matches the target.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Connection</h3>
+      <ol>
+        <li>Select the programmer profile and target detection mode.</li>
+        <li>Click Connect and choose the Web Serial port for the programmer.</li>
+        <li>Use Detect AVR before writing when the exact part is unknown.</li>
+      </ol>
+    </section>
+  </section>
+  <script type="module" src="../shared/help-modal.js"></script>
   <script type="module" src="src/App.js"></script>
 </body>
 </html>

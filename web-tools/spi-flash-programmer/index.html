@@ -42,6 +42,9 @@
         </div>
 
         <div class="toolbar-actions">
+          <button class="help-icon-button" type="button" data-help-open aria-label="Open Web SPI Flash Programmer help" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6"></path><path d="M12 7h.01"></path></svg>
+          </button>
           <button id="connectButton" class="button action-button primary" type="button">Connect</button>
           <button id="disconnectButton" class="button action-button" type="button" disabled hidden>Disconnect</button>
           <span id="connectionStatus" class="status-pill">Disconnected</span>
@@ -164,6 +167,30 @@
     </section>
   </main>
 
+  <section id="toolHelpContent" class="tool-help-source" hidden>
+    <h2 id="toolHelpTitle">Web SPI Flash Programmer help</h2>
+    <section>
+      <h3>What it does</h3>
+      <p>Read, erase, write and verify SPI NOR flash chips using a serprog-compatible adapter from the browser.</p>
+    </section>
+    <section>
+      <h3>Adapter</h3>
+      <ul>
+        <li>Use hardware running a serprog-compatible firmware.</li>
+        <li>Connect CS, SCK, MOSI, MISO, GND and the correct flash supply voltage.</li>
+        <li>Use short wiring and a conservative SPI frequency when reading unknown boards in-circuit.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Connection</h3>
+      <ol>
+        <li>Power the flash chip safely before connecting.</li>
+        <li>Click Connect and select the adapter serial port.</li>
+        <li>Read and save a backup before erase or write operations.</li>
+      </ol>
+    </section>
+  </section>
+  <script type="module" src="../shared/help-modal.js"></script>
   <script type="module" src="src/App.js"></script>
 </body>
 </html>

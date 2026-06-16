@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="300" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
+  <title id="title">STM32 Web Tool browser programmer</title>
+  <desc id="desc">A desktop-style STM32 UART bootloader tool with firmware, device information and flash memory map.</desc>
+  <rect width="520" height="300" rx="8" fill="#0b0d0c"/>
+  <rect x="16" y="16" width="488" height="268" rx="8" fill="#121615" stroke="#333"/>
+  <rect x="16" y="16" width="488" height="42" rx="8" fill="#101412" stroke="#333"/>
+  <rect x="30" y="27" width="22" height="22" rx="5" fill="#1a1a1a" stroke="#2f3a2f"/>
+  <text x="37" y="43" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="13" font-weight="900">B</text>
+  <text x="64" y="41" fill="#e0e0e0" font-family="Menlo, Courier New, monospace" font-size="17" font-weight="700">STM32 Web Tool</text>
+  <rect x="329" y="26" width="70" height="22" rx="5" fill="#0d0d0d" stroke="#2b2b2b"/>
+  <text x="342" y="41" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="10">115200</text>
+  <rect x="410" y="26" width="76" height="22" rx="5" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="427" y="41" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="10" font-weight="700">Connect</text>
+  <g transform="translate(28 72)">
+    <rect width="310" height="28" rx="6" fill="#17252b" stroke="#00ffcc" stroke-opacity=".55"/>
+    <text x="18" y="19" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="11" font-weight="700">Flash</text>
+    <text x="72" y="19" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="11">Read</text>
+    <text x="116" y="19" fill="#ffd1d1" font-family="Menlo, Courier New, monospace" font-size="11">Erase</text>
+    <text x="169" y="19" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="11">Device Info</text>
+    <text x="256" y="19" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="11">Console</text>
+  </g>
+  <rect x="28" y="112" width="286" height="112" rx="7" fill="#0f0f0f" stroke="#333"/>
+  <text x="42" y="134" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="11" font-weight="700">FIRMWARE IMAGE</text>
+  <rect x="42" y="146" width="258" height="38" rx="5" fill="#080a09" stroke="#3a4a42" stroke-dasharray="4 4"/>
+  <text x="80" y="169" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="10">Drop BIN or Intel HEX</text>
+  <text x="42" y="202" fill="#9aa0a6" font-family="Menlo, Courier New, monospace" font-size="10">Address</text>
+  <text x="112" y="202" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="10">0x08000000</text>
+  <text x="220" y="202" fill="#9aa0a6" font-family="Menlo, Courier New, monospace" font-size="10">8E1</text>
+  <rect x="326" y="112" width="166" height="112" rx="7" fill="#0f0f0f" stroke="#333"/>
+  <text x="340" y="134" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="11" font-weight="700">TARGET</text>
+  <g font-family="Menlo, Courier New, monospace" font-size="10">
+    <text x="340" y="156" fill="#9aa0a6">Device</text>
+    <text x="398" y="156" fill="#e0e0e0">STM32F4</text>
+    <text x="340" y="176" fill="#9aa0a6">ID</text>
+    <text x="398" y="176" fill="#e0e0e0">0x0413</text>
+    <text x="340" y="196" fill="#9aa0a6">Flash</text>
+    <text x="398" y="196" fill="#e0e0e0">1 MB</text>
+  </g>
+  <rect x="28" y="238" width="464" height="30" rx="6" fill="#101412" stroke="#333"/>
+  <rect x="42" y="246" width="112" height="14" rx="4" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="58" y="257" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="10" font-weight="700">Flash Firmware</text>
+  <rect x="170" y="247" width="286" height="12" rx="4" fill="#080a09" stroke="#2b2b2b"/>
+  <rect x="171" y="248" width="154" height="10" rx="3" fill="#0ea86b"/>
+</svg>

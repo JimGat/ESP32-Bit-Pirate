@@ -36,5 +36,5 @@
   <text x="610" y="278" fill="#fff4bd" font-family="Menlo, Courier New, monospace" font-size="24" font-weight="700">SPI Flash</text>
   <rect x="585" y="322" width="248" height="64" rx="12" fill="#11161b" stroke="#8ab4ff77" stroke-width="2"/>
   <path d="M612 354h34v-18h34v34h34v-18h34" fill="none" stroke="#8ab4ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="762" y="362" fill="#d9e8ff" font-family="Menlo, Courier New, monospace" font-size="22" font-weight="700" text-anchor="end">SUMP</text>
+  <text x="815" y="362" fill="#d9e8ff" font-family="Menlo, Courier New, monospace" font-size="22" font-weight="700" text-anchor="end">SUMP</text>
 </svg>

@@ -1,18 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="520" height="300" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
-  <title id="title">Web Serial terminal for ESP32 and USB UART</title>
-  <desc id="desc">A browser terminal showing serial console commands for embedded devices.</desc>
-  <rect width="520" height="300" rx="18" fill="#101412"/>
-  <rect x="28" y="28" width="464" height="244" rx="14" fill="#060807" stroke="#2d3b34" stroke-width="2"/>
-  <rect x="28" y="28" width="464" height="38" rx="14" fill="#18201c"/>
-  <circle cx="54" cy="47" r="6" fill="#ff6b6b"/>
-  <circle cx="76" cy="47" r="6" fill="#ffd166"/>
-  <circle cx="98" cy="47" r="6" fill="#00ffcc"/>
-  <text x="44" y="112" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="21" font-weight="700">BP&gt; i2c scan</text>
-  <text x="44" y="151" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="18">0x3C OLED display found</text>
-  <text x="44" y="190" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="18">115200 baud · Web Serial</text>
-  <path d="M346 118h62m-22-22 22 22-22 22" fill="none" stroke="#00ffcc" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="324" y="164" width="116" height="50" rx="8" fill="#111714" stroke="#00ff9966" stroke-width="2"/>
-  <circle cx="352" cy="189" r="7" fill="#00ff00"/>
-  <circle cx="382" cy="189" r="7" fill="#00ffcc"/>
-  <circle cx="412" cy="189" r="7" fill="#ffd166"/>
+  <title id="title">Web Serial Terminal desktop-style browser interface</title>
+  <desc id="desc">A compact preview of the Web Serial Terminal with connection controls, terminal output and command input.</desc>
+  <rect width="520" height="300" rx="8" fill="#0b0d0c"/>
+  <rect x="16" y="16" width="488" height="268" rx="8" fill="#121615" stroke="#333"/>
+  <rect x="16" y="16" width="488" height="42" rx="8" fill="#101412" stroke="#333"/>
+  <rect x="30" y="27" width="22" height="22" rx="5" fill="#1a1a1a" stroke="#2f3a2f"/>
+  <text x="37" y="43" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="13" font-weight="900">B</text>
+  <text x="64" y="41" fill="#e0e0e0" font-family="Menlo, Courier New, monospace" font-size="17" font-weight="700">Web Serial Terminal</text>
+  <rect x="329" y="26" width="70" height="22" rx="5" fill="#0d0d0d" stroke="#2b2b2b"/>
+  <text x="342" y="41" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="10">115200</text>
+  <rect x="410" y="26" width="76" height="22" rx="5" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="427" y="41" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="10" font-weight="700">Connect</text>
+
+  <rect x="28" y="72" width="464" height="152" rx="7" fill="#080a09" stroke="#333"/>
+  <rect x="28" y="72" width="464" height="24" rx="7" fill="#0f1412" stroke="#333"/>
+  <circle cx="43" cy="84" r="3" fill="#00ff00"/>
+  <text x="53" y="88" fill="#9aa0a6" font-family="Menlo, Courier New, monospace" font-size="9">Ready</text>
+  <text x="416" y="88" fill="#9aa0a6" font-family="Menlo, Courier New, monospace" font-size="9">ANSI</text>
+  <text x="454" y="88" fill="#9aa0a6" font-family="Menlo, Courier New, monospace" font-size="9">UTF-8</text>
+  <g font-family="Menlo, Courier New, monospace" font-size="11">
+    <text x="42" y="119" fill="#00ff00" font-weight="700">BP&gt; i2c scan</text>
+    <text x="42" y="141" fill="#d8ddd8">Scanning I2C bus...</text>
+    <text x="42" y="163" fill="#00ffcc">0x3C  SSD1306 OLED</text>
+    <text x="42" y="185" fill="#d8ddd8">1 device found</text>
+    <text x="42" y="207" fill="#00ff00" font-weight="700">BP&gt; _</text>
+  </g>
+
+  <rect x="28" y="238" width="464" height="30" rx="6" fill="#101412" stroke="#333"/>
+  <text x="42" y="257" fill="#9aa0a6" font-family="Menlo, Courier New, monospace" font-size="10">Type directly in the terminal</text>
+  <rect x="340" y="246" width="60" height="14" rx="4" fill="#17252b" stroke="#2b2b2b"/>
+  <text x="353" y="257" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="9">Clear</text>
+  <rect x="408" y="246" width="70" height="14" rx="4" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="421" y="257" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="9" font-weight="700">Save Log</text>
 </svg>

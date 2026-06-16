@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="300" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
+  <title id="title">Web ESP Tool browser firmware workstation</title>
+  <desc id="desc">A dark desktop-style ESP firmware tool with flash files, memory map and a connected chip.</desc>
+  <rect width="520" height="300" rx="8" fill="#0b0d0c"/>
+  <rect x="16" y="16" width="488" height="268" rx="8" fill="#121615" stroke="#333"/>
+  <rect x="16" y="16" width="488" height="42" rx="8" fill="#101412" stroke="#333"/>
+  <rect x="30" y="27" width="22" height="22" rx="5" fill="#1a1a1a" stroke="#2f3a2f"/>
+  <text x="37" y="43" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="13" font-weight="900">B</text>
+  <text x="64" y="42" fill="#e0e0e0" font-family="Menlo, Courier New, monospace" font-size="18" font-weight="700">Web ESP Tool</text>
+  <rect x="320" y="26" width="76" height="22" rx="5" fill="#0d0d0d" stroke="#2b2b2b"/>
+  <text x="335" y="41" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="10">ESP32-S3</text>
+  <rect x="410" y="26" width="76" height="22" rx="5" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="427" y="41" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="10" font-weight="700">Connect</text>
+  <g transform="translate(28 72)">
+    <rect width="218" height="28" rx="6" fill="#17252b" stroke="#00ffcc" stroke-opacity=".55"/>
+    <text x="22" y="19" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="12" font-weight="700">Flash</text>
+    <text x="78" y="19" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="12">Read</text>
+    <text x="126" y="19" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="12">Merge</text>
+    <text x="178" y="19" fill="#ffd1d1" font-family="Menlo, Courier New, monospace" font-size="12">Erase</text>
+  </g>
+  <rect x="28" y="112" width="286" height="112" rx="7" fill="#0f0f0f" stroke="#333"/>
+  <text x="42" y="134" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="11" font-weight="700">FIRMWARE FILES</text>
+  <g font-family="Menlo, Courier New, monospace" font-size="11">
+    <text x="42" y="158" fill="#9aa0a6">Address</text>
+    <text x="122" y="158" fill="#9aa0a6">File</text>
+    <text x="244" y="158" fill="#9aa0a6">Size</text>
+    <line x1="40" y1="166" x2="302" y2="166" stroke="#202523"/>
+    <text x="42" y="184" fill="#d8fff2">0x0000</text>
+    <text x="122" y="184" fill="#e0e0e0">bootloader.bin</text>
+    <text x="244" y="184" fill="#e0e0e0">24 KB</text>
+    <text x="42" y="204" fill="#d8fff2">0x8000</text>
+    <text x="122" y="204" fill="#e0e0e0">partitions.bin</text>
+    <text x="244" y="204" fill="#e0e0e0">3 KB</text>
+  </g>
+  <rect x="326" y="112" width="166" height="112" rx="7" fill="#0f0f0f" stroke="#333"/>
+  <text x="340" y="134" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="11" font-weight="700">MEMORY</text>
+  <rect x="340" y="150" width="138" height="48" rx="5" fill="#080a09" stroke="#2b2b2b"/>
+  <rect x="343" y="162" width="18" height="24" rx="3" fill="#163333" stroke="#00ffcc"/>
+  <rect x="370" y="162" width="10" height="24" rx="3" fill="#163333" stroke="#00ffcc"/>
+  <rect x="398" y="162" width="70" height="24" rx="3" fill="#163333" stroke="#00ffcc"/>
+  <text x="340" y="214" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="10">No overlaps detected</text>
+  <rect x="28" y="238" width="464" height="30" rx="6" fill="#101412" stroke="#333"/>
+  <rect x="42" y="246" width="112" height="14" rx="4" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="61" y="257" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="10" font-weight="700">Flash Firmware</text>
+  <rect x="170" y="247" width="286" height="12" rx="4" fill="#080a09" stroke="#2b2b2b"/>
+  <rect x="171" y="248" width="96" height="10" rx="3" fill="#0ea86b"/>
+</svg>

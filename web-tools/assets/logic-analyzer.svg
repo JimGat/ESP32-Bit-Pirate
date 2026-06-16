@@ -1,18 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="520" height="300" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
-  <title id="title">Web SUMP logic analyzer</title>
-  <desc id="desc">Digital waveform traces displayed in a browser logic analyzer using SUMP and VCD capture data.</desc>
-  <rect width="520" height="300" rx="18" fill="#10151b"/>
-  <rect x="32" y="36" width="456" height="228" rx="14" fill="#070a0d" stroke="#30404c" stroke-width="2"/>
-  <g stroke="#1e2a32" stroke-width="1">
-    <path d="M86 54v192M156 54v192M226 54v192M296 54v192M366 54v192M436 54v192"/>
-    <path d="M56 84h404M56 132h404M56 180h404M56 228h404"/>
+  <title id="title">Web Logic Analyzer desktop-style browser interface</title>
+  <desc id="desc">A compact preview of the SUMP logic analyzer with acquisition controls and digital waveform channels.</desc>
+  <rect width="520" height="300" rx="8" fill="#0b0d0c"/>
+  <rect x="16" y="16" width="488" height="268" rx="8" fill="#121615" stroke="#333"/>
+  <rect x="16" y="16" width="488" height="42" rx="8" fill="#101412" stroke="#333"/>
+  <rect x="30" y="27" width="22" height="22" rx="5" fill="#1a1a1a" stroke="#2f3a2f"/>
+  <text x="37" y="43" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="13" font-weight="900">B</text>
+  <text x="64" y="41" fill="#e0e0e0" font-family="Menlo, Courier New, monospace" font-size="17" font-weight="700">Web Logic Analyzer</text>
+  <rect x="329" y="26" width="70" height="22" rx="5" fill="#0d0d0d" stroke="#2b2b2b"/>
+  <text x="342" y="41" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="9">1 MHz</text>
+  <rect x="410" y="26" width="76" height="22" rx="5" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="427" y="41" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="10" font-weight="700">Connect</text>
+
+  <rect x="28" y="72" width="464" height="30" rx="6" fill="#0f0f0f" stroke="#333"/>
+  <g font-family="Menlo, Courier New, monospace" font-size="9">
+    <text x="42" y="91" fill="#9aa0a6">Samples</text><text x="88" y="91" fill="#d8fff2">100k</text>
+    <text x="136" y="91" fill="#9aa0a6">Channels</text><text x="191" y="91" fill="#d8fff2">D0-D7</text>
+    <text x="250" y="91" fill="#9aa0a6">Trigger</text><text x="298" y="91" fill="#d8fff2">None</text>
   </g>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="6">
-    <path d="M62 88h48v36h70V88h54v36h74V88h92v36h58" stroke="#8ab4ff"/>
-    <path d="M62 154h88v-36h52v36h114v-36h74v36h68" stroke="#00ffcc"/>
-    <path d="M62 218h34v-36h120v36h44v-36h126v36h72" stroke="#ffd166"/>
+  <rect x="376" y="78" width="102" height="18" rx="4" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="393" y="91" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="9" font-weight="700">Start Capture</text>
+
+  <rect x="28" y="112" width="464" height="112" rx="7" fill="#080a09" stroke="#333"/>
+  <g stroke="#1c2420" stroke-width="1">
+    <path d="M82 124v88M142 124v88M202 124v88M262 124v88M322 124v88M382 124v88M442 124v88"/>
+    <path d="M38 146h444M38 176h444M38 206h444"/>
   </g>
-  <text x="58" y="68" fill="#d9e8ff" font-family="Menlo, Courier New, monospace" font-size="15" font-weight="700">D0</text>
-  <text x="58" y="140" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="15" font-weight="700">D1</text>
-  <text x="58" y="205" fill="#fff4bd" font-family="Menlo, Courier New, monospace" font-size="15" font-weight="700">D2</text>
+  <g font-family="Menlo, Courier New, monospace" font-size="9" font-weight="700">
+    <text x="38" y="139" fill="#8ab4ff">D0</text>
+    <text x="38" y="169" fill="#00ffcc">D1</text>
+    <text x="38" y="199" fill="#ffd166">D2</text>
+  </g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
+    <path d="M64 142h40v-16h46v16h36v-16h68v16h54v-16h88v16h92" stroke="#8ab4ff"/>
+    <path d="M64 172h70v16h48v-16h82v16h72v-16h50v16h62" stroke="#00ffcc"/>
+    <path d="M64 202h28v-16h90v16h44v-16h112v16h38v-16h72" stroke="#ffd166"/>
+  </g>
+
+  <rect x="28" y="238" width="464" height="30" rx="6" fill="#101412" stroke="#333"/>
+  <text x="42" y="257" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="10">Capture complete · 100,000 samples</text>
+  <rect x="345" y="246" width="38" height="14" rx="4" fill="#17252b" stroke="#2b2b2b"/>
+  <text x="355" y="257" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="9">VCD</text>
+  <rect x="389" y="246" width="38" height="14" rx="4" fill="#17252b" stroke="#2b2b2b"/>
+  <text x="399" y="257" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="9">CSV</text>
+  <rect x="433" y="246" width="45" height="14" rx="4" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="442" y="257" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="9">JSON</text>
 </svg>

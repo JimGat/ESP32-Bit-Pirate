@@ -1,0 +1,8 @@
+{
+  "name": "esp32-bit-pirate-bpio2-web-tool",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/run-tests.mjs"
+  }
+}

@@ -17,6 +17,7 @@ public:
     void rebootUsbUartBridge();
     void rebootFlashromSerprog();
     void rebootAvrDudeBusPirate();
+    void rebootBpio2();
     void rebootSumpLogicAnalyzer();
     void rebootOpenOcdBusPirate();
     void rebootInfraredToy();
@@ -42,6 +43,7 @@ private:
         " OpenOCD JTAG/SWD",
         " USB IR Toy / LIRC",
         " SubGHz CDC CC1101",
+        " Bit Bang IO/SPI/I2C",
         " Exit"
     };
     inline static constexpr size_t actionsCount = sizeof(actions) / sizeof(actions[0]);

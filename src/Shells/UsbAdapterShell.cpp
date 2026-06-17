@@ -1,5 +1,6 @@
 #include "UsbAdapterShell.h"
 #include <Arduino.h>
+#include <algorithm>
 #include <vector>
 
 UsbAdapterShell::UsbAdapterShell(ITerminalView& tv,
@@ -46,7 +47,11 @@ void UsbAdapterShell::run() {
         rebootSubGhzRawCdc();
         return;
     }
-
+    if (choice == 7) {
+        rebootBpio2();
+        return;
+    }
+    
     terminalView.println("Exiting USB adapters...\n");
 }
 
@@ -198,6 +203,87 @@ void UsbAdapterShell::rebootAvrDudeBusPirate() {
         "AVRDUDE Bus Pirate SPI adapter",
         "Use avrdude on the new CDC serial port.",
         "Example: avrdude -c buspirate -P /dev/ttyACM0 -p m328p -v -x spifreq=1"
+    );
+}
+
+void UsbAdapterShell::rebootBpio2() {
+    const auto forbidden = state.getProtectedPins();
+    const uint8_t candidates[] = {
+        state.getSpiCSPin(),
+        state.getSpiCLKPin(),
+        state.getSpiMOSIPin(),
+        state.getSpiMISOPin(),
+        state.getI2cSclPin(),
+        state.getI2cSdaPin(),
+        state.getUartTxPin(),
+        state.getUartRxPin(),
+        state.getOneWirePin(),
+        state.getLedDataPin()
+    };
+
+    std::vector<uint8_t> defaultPins;
+    defaultPins.reserve(8);
+    for (uint8_t pin : candidates) {
+        if (defaultPins.size() >= 8) break;
+        if (std::find(forbidden.begin(), forbidden.end(), pin) != forbidden.end()) continue;
+        if (std::find(defaultPins.begin(), defaultPins.end(), pin) != defaultPins.end()) continue;
+        defaultPins.push_back(pin);
+    }
+    for (uint8_t pin = 0; pin <= 48 && defaultPins.size() < 8; ++pin) {
+        if (std::find(forbidden.begin(), forbidden.end(), pin) != forbidden.end()) continue;
+        if (std::find(defaultPins.begin(), defaultPins.end(), pin) != defaultPins.end()) continue;
+        defaultPins.push_back(pin);
+    }
+
+    terminalView.println("\nBPIO2 GPIO / SPI / I2C adapter pins:");
+    terminalView.println("Select 8 unique GPIOs mapped to BPIO2 IO0..IO7.\n");
+
+    terminalView.println("SPI mapping:");
+    terminalView.println("  IO0 = CS");
+    terminalView.println("  IO1 = SCK / CLK");
+    terminalView.println("  IO2 = MOSI");
+    terminalView.println("  IO3 = MISO");
+    terminalView.println("  IO4..IO7 = auxiliary GPIOs\n");
+
+    terminalView.println("I2C mapping:");
+    terminalView.println("  IO1 = SCL");
+    terminalView.println("  IO2 = SDA");
+    terminalView.println("  IO0, IO3..IO7 = auxiliary GPIOs\n");
+
+    terminalView.println("The adapter uses the BPIO2 FlatBuffers.");
+    terminalView.println("Scripts can switch between HiZ, SPI and I2C.\n");
+
+    std::vector<uint8_t> selectedPins;
+    while (true) {
+        selectedPins = userInputManager.readValidatedPinGroup(
+            "BPIO2 GPIOs IO0..IO7",
+            defaultPins,
+            forbidden
+        );
+
+        bool duplicates = false;
+        for (size_t i = 0; i < selectedPins.size() && !duplicates; ++i) {
+            for (size_t j = i + 1; j < selectedPins.size(); ++j) {
+                if (selectedPins[i] == selectedPins[j]) {
+                    duplicates = true;
+                    break;
+                }
+            }
+        }
+
+        if (selectedPins.size() == 8 && !duplicates) break;
+        terminalView.println("Please select exactly 8 unique GPIOs.");
+    }
+
+    nvsService.open();
+    nvsService.saveOneShotBpio2Config(selectedPins.data(), 8);
+    nvsService.saveOneShotBootMode(OneShotBootMode::Bpio2);
+    nvsService.close();
+
+    rebootIntoAdapter(
+        "BPIO2 adapter",
+        "The device will expose GPIO, hardware SPI and hardware I2C.",
+        "Use the Bus Pirate BPIO2 Python client on the serial port."
     );
 }
 

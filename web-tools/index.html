@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Browser-based tools for serial consoles, ESP and STM32 flashing, SPI flash programming, AVR programming and SUMP logic analysis.">
+  <meta name="description" content="Browser-based tools for serial consoles, GPIO, I2C, SPI, ESP and STM32 flashing, firmware programming and logic analysis.">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
   <meta name="theme-color" content="#121212">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
   <meta property="og:site_name" content="Web Serial Tools">
   <meta property="og:title" content="Embedded Hardware Web Tools">
-  <meta property="og:description" content="Browser tools for serial consoles, ESP and STM32 flashing, SPI flash programming, AVR programming and logic analysis.">
+  <meta property="og:description" content="Browser tools for serial consoles, BPIO2 GPIO/I2C/SPI control, firmware flashing, programming and logic analysis.">
   <meta property="og:url" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/">
   <meta property="og:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/assets/bit-pirate-web-tools.svg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Embedded Hardware Web Tools">
-  <meta name="twitter:description" content="Browser tools for serial consoles, firmware flashing, SPI flash, AVR programming and logic analysis.">
+  <meta name="twitter:description" content="Browser tools for serial consoles, GPIO/I2C/SPI control, firmware flashing, programming and logic analysis.">
   <meta name="twitter:image" content="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/assets/bit-pirate-web-tools.svg">
   <meta name="google-site-verification" content="ZRzOB9tX2XsRJbgvgSmH0x4BufDJDpYcfKFn0CZdifA" />
   <link rel="canonical" href="https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/">
@@ -23,68 +23,76 @@
   <link rel="icon" type="image/svg+xml" href="web-serial-terminal/favicon.svg">
   <link rel="stylesheet" href="styles/main.css">
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Web Serial Tools",
-    "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/",
-    "description": "Free browser-based embedded hardware tools for Web Serial, USB UART consoles, SPI flash programming and SUMP logic analyzer captures.",
-    "publisher": {
-      "@type": "Organization",
-      "name": "ESP32 Bit Pirate",
-      "url": "https://github.com/geo-tp/ESP32-Bit-Pirate"
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Web Serial Tools",
+  "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/",
+  "description": "Free browser-based embedded hardware tools for Web Serial, USB UART consoles, SPI flash programming and SUMP logic analyzer captures.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "ESP32 Bit Pirate",
+    "url": "https://github.com/geo-tp/ESP32-Bit-Pirate"
+  },
+  "hasPart": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Web Serial Terminal",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Chrome, Edge, Chromium browsers",
+      "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/",
+      "description": "Browser serial terminal for ESP32, Arduino, ARM, Bus Pirate, USB UART and CDC-ACM devices."
     },
-    "hasPart": [
-      {
-        "@type": "SoftwareApplication",
-        "name": "Web Serial Terminal",
-        "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Chrome, Edge, Chromium browsers",
-        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/web-serial-terminal/",
-        "description": "Browser serial terminal for ESP32, Arduino, ARM, Bus Pirate, USB UART and CDC-ACM devices."
-      },
-      {
-        "@type": "SoftwareApplication",
-        "name": "Web SPI Flash Programmer",
-        "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Chrome, Edge, Chromium browsers",
-        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/spi-flash-programmer/",
-        "description": "Browser SPI flash programmer prototype for serprog-compatible hardware and ESP32 Bit Pirate adapters."
-      },
-      {
-        "@type": "SoftwareApplication",
-        "name": "Web Logic Analyzer",
-        "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Chrome, Edge, Chromium browsers",
-        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/logic-analyzer/",
-        "description": "Browser SUMP logic analyzer for digital captures, VCD waveform viewing and embedded protocol debugging."
-      },
-      {
-        "@type": "SoftwareApplication",
-        "name": "Web AVR Programmer",
-        "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Chrome, Edge, Chromium browsers",
-        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/avr-programmer/",
-        "description": "Browser AVR programmer prototype using AVRDUDE WebAssembly and the ESP32 Bit Pirate AVRDUDE adapter."
-      },
-      {
-        "@type": "SoftwareApplication",
-        "name": "Web ESP Tool",
-        "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Chrome, Edge, Chromium browsers",
-        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/esp-tool/",
-        "description": "Browser ESP flashing workstation using Web Serial and esptool-js for flash, read, merge and erase workflows."
-      },
-      {
-        "@type": "SoftwareApplication",
-        "name": "STM32 Web Tool",
-        "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Chrome, Edge, Chromium browsers",
-        "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/stm32-tool/",
-        "description": "Browser STM32 UART bootloader workstation for identification, flash, read, erase and serial console workflows."
-      }
-    ]
-  }
+    {
+      "@type": "SoftwareApplication",
+      "name": "Web SPI Flash Programmer",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Chrome, Edge, Chromium browsers",
+      "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/spi-flash-programmer/",
+      "description": "Browser SPI flash programmer prototype for serprog-compatible hardware and ESP32 Bit Pirate adapters."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Web Logic Analyzer",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Chrome, Edge, Chromium browsers",
+      "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/logic-analyzer/",
+      "description": "Browser SUMP logic analyzer for digital captures, VCD waveform viewing and embedded protocol debugging."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Web AVR Programmer",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Chrome, Edge, Chromium browsers",
+      "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/avr-programmer/",
+      "description": "Browser AVR programmer prototype using AVRDUDE WebAssembly and the ESP32 Bit Pirate AVRDUDE adapter."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Web ESP Tool",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Chrome, Edge, Chromium browsers",
+      "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/esp-tool/",
+      "description": "Browser ESP flashing workstation using Web Serial and esptool-js for flash, read, merge and erase workflows."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "STM32 Web Tool",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Chrome, Edge, Chromium browsers",
+      "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/stm32-tool/",
+      "description": "Browser STM32 UART bootloader workstation for identification, flash, read, erase and serial console workflows."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Web Bit Bang Remote I/O (BPIO2)",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Chrome, Edge, Firefox and compatible desktop browsers",
+      "url": "https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/bpio2/",
+      "description": "Browser bit-bang remote I/O controller using BPIO2 for GPIO, I2C, SPI and simple hardware automation sequences."
+    }
+  ]
+}
   </script>
 </head>
 <body>
@@ -197,6 +205,40 @@
         <a class="button" href="avr-programmer/">Open Web AVR Programmer</a>
       </article>
 
+    
+
+      <article class="tool-card" aria-labelledby="bpio2-title">
+        <a href="bpio2/" tabindex="-1" aria-hidden="true">
+          <img class="tool-image" src="assets/bpio2-remote-io.svg" alt="" width="520" height="300" loading="lazy">
+        </a>
+        <p class="eyebrow">
+          <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h4M4 12h4M4 17h4M16 7h4M16 12h4M16 17h4"></path>
+            <rect x="8" y="5" width="8" height="14" rx="2"></rect>
+          </svg>
+          Bit Bang · BPIO2
+        </p>
+        <h2 id="bpio2-title">Web GPIO, I2C and SPI Controller</h2>
+        <p>Use compatible BPIO2 hardware to control GPIOs, scan and transact with I2C devices, exchange SPI data and build simple visual hardware sequences directly in the browser.</p>
+        <a class="button" href="bpio2/">Open Bit Bang Controller</a>
+      </article>
+      <article class="tool-card" aria-labelledby="suggest-tool-title">
+        <a href="https://github.com/geo-tp/ESP32-Bit-Pirate" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
+          <img class="tool-image" src="assets/bit-pirate-web-tools.svg" alt="" width="520" height="300" loading="lazy">
+        </a>
+        <p class="eyebrow">
+          <svg class="eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"></path>
+            <path d="M4 4h16v16H4z"></path>
+          </svg>
+          Community · GitHub
+        </p>
+        <h2 id="suggest-tool-title">Suggest the Next Embedded Web Tool</h2>
+        <p>Have an idea for another browser-based hardware, firmware or protocol tool? Open an issue on ESP32 Bit Pirate, describe the workflow and help shape the next addition.</p>
+        <a class="button" href="https://github.com/geo-tp/ESP32-Bit-Pirate" target="_blank" rel="noopener">Suggest a Web Tool</a>
+      </article>
+
+
     </section>
 
     <section class="info-card" aria-labelledby="compatibility-title">
@@ -216,6 +258,7 @@
           <p>These browser tools are built for ESP32 Bit Pirate workflows, but they also work with other hardware that exposes the same open interfaces and protocol adapters.</p>
         </div>
         <ul class="protocol-list" aria-label="Compatible protocols">
+          <li>BPIO2</li>
           <li>serprog</li>
           <li>SUMP</li>
           <li>USB-UART</li>

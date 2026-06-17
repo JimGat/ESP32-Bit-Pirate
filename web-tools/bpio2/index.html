@@ -233,11 +233,14 @@
             <div class="panel-heading sequence-heading">
               <div>
                 <p class="eyebrow">Simple automation</p>
-                <p>Add visual I2C, SPI and GPIO steps and run them in order. GPIO steps can manipulate any pin.</p>
+                <p>Add I2C, SPI and GPIO steps and run them in order. GPIO steps can manipulate any pin.</p>
               </div>
               <div class="panel-actions">
-                <button id="sequenceClearButton" class="button action-button" type="button" disabled>Clear</button>
+                <button id="sequenceImportButton" class="button action-button sequence-secondary-action" type="button" title="Import a BPIO2 sequence text file">Import</button>
+                <button id="sequenceSaveButton" class="button action-button sequence-secondary-action" type="button" title="Save the current sequence as a text file">Save</button>
+                <button id="sequenceClearButton" class="button action-button sequence-secondary-action" type="button" disabled>Clear</button>
                 <button id="sequenceRunButton" class="button action-button primary" type="button" disabled>Run sequence</button>
+                <input id="sequenceFileInput" type="file" accept=".txt,.seq,.bpioseq,text/plain" hidden>
               </div>
             </div>
 

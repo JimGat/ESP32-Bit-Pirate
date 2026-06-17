@@ -55,6 +55,9 @@ const elements = {
   sequenceI2cWrite: document.querySelector("#sequenceI2cWrite"),
   sequenceI2cRead: document.querySelector("#sequenceI2cRead"),
   sequenceAddButton: document.querySelector("#sequenceAddButton"),
+  sequenceImportButton: document.querySelector("#sequenceImportButton"),
+  sequenceSaveButton: document.querySelector("#sequenceSaveButton"),
+  sequenceFileInput: document.querySelector("#sequenceFileInput"),
   sequenceRunButton: document.querySelector("#sequenceRunButton"),
   sequenceClearButton: document.querySelector("#sequenceClearButton"),
   sequenceList: document.querySelector("#sequenceList"),
@@ -105,6 +108,9 @@ function init() {
   elements.sequenceType.addEventListener("change", renderSequenceEditor);
   elements.sequenceDelayUnit.addEventListener("change", updateSequenceDelayLimit);
   elements.sequenceAddButton.addEventListener("click", addSequenceStep);
+  elements.sequenceImportButton.addEventListener("click", () => elements.sequenceFileInput.click());
+  elements.sequenceSaveButton.addEventListener("click", saveSequence);
+  elements.sequenceFileInput.addEventListener("change", importSequence);
   elements.sequenceRunButton.addEventListener("click", runSequence);
   elements.sequenceClearButton.addEventListener("click", () => { sequence = []; renderSequence(); });
   elements.sequenceList.addEventListener("click", handleSequenceListClick);
@@ -467,13 +473,165 @@ function addSequenceStep() {
   }
 }
 
+function saveSequence() {
+  if (!sequence.length) {
+    setSequenceStatus("Add at least one step before saving.", true);
+    return;
+  }
+
+  const text = serializeSequence(sequence);
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "bpio2-sequence.txt";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  setSequenceStatus(`Saved ${sequence.length} step${sequence.length === 1 ? "" : "s"}.`);
+}
+
+async function importSequence(event) {
+  const file = event.target.files?.[0];
+  event.target.value = "";
+  if (!file) return;
+
+  try {
+    if (file.size > 1_000_000) throw new Error("Sequence file is too large.");
+    const imported = parseSequence(await file.text());
+    sequence = imported;
+    renderSequence();
+    setSequenceStatus(`Imported ${sequence.length} step${sequence.length === 1 ? "" : "s"}.`);
+  } catch (error) {
+    setSequenceStatus(error.message, true);
+  }
+}
+
+function serializeSequence(steps) {
+  const lines = [
+    "# BPIO2 sequence v1",
+    "# GPIO;io;HIGH|LOW",
+    "# DELAY;value;ms|us",
+    "# SPI;tx bytes;read bytes;duplex 0|1",
+    "# I2C;address;write bytes;read bytes",
+    "# Use - when a byte field is empty",
+  ];
+
+  for (const step of steps) {
+    if (step.type === "gpio") {
+      lines.push(`GPIO;${step.io};${step.high ? "HIGH" : "LOW"}`);
+    } else if (step.type === "delay") {
+      lines.push(`DELAY;${step.value};${step.unit}`);
+    } else if (step.type === "spi") {
+      lines.push(`SPI;${formatSequenceBytes(step.tx)};${step.readBytes};${step.duplex ? 1 : 0}`);
+    } else if (step.type === "i2c") {
+      lines.push(`I2C;0x${hexByte(step.address)};${formatSequenceBytes(step.write)};${step.readBytes}`);
+    }
+  }
+
+  return `${lines.join("\n")}\n`;
+}
+
+function parseSequence(text) {
+  const steps = [];
+  const lines = String(text).split(/\r?\n/);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index].trim();
+    if (!line || line.startsWith("#")) continue;
+
+    try {
+      const fields = line.split(";").map((field) => field.trim());
+      const type = fields[0].toUpperCase();
+
+      if (type === "GPIO") {
+        requireSequenceFields(fields, 3);
+        const level = fields[2].toUpperCase();
+        if (level !== "HIGH" && level !== "LOW") throw new Error("GPIO level must be HIGH or LOW.");
+        steps.push({
+          type: "gpio",
+          io: parseSequenceInteger(fields[1], 0, 7, "GPIO IO"),
+          high: level === "HIGH",
+        });
+      } else if (type === "DELAY") {
+        requireSequenceFields(fields, 3);
+        const unit = fields[2].toLowerCase();
+        if (unit !== "ms" && unit !== "us") throw new Error("Delay unit must be ms or us.");
+        steps.push({
+          type: "delay",
+          value: parseSequenceInteger(fields[1], 0, unit === "us" ? 100_000 : 60_000, "Delay"),
+          unit,
+        });
+      } else if (type === "SPI") {
+        requireSequenceFields(fields, 4);
+        steps.push({
+          type: "spi",
+          tx: [...parseSequenceBytes(fields[1])],
+          readBytes: parseSequenceInteger(fields[2], 0, 65535, "SPI read length"),
+          duplex: parseSequenceBoolean(fields[3]),
+        });
+      } else if (type === "I2C") {
+        requireSequenceFields(fields, 4);
+        steps.push({
+          type: "i2c",
+          address: parseSequenceInteger(fields[1], 0, 0x7f, "I2C address"),
+          write: [...parseSequenceBytes(fields[2])],
+          readBytes: parseSequenceInteger(fields[3], 0, 65535, "I2C read length"),
+        });
+      } else {
+        throw new Error(`Unknown step type: ${fields[0] || "empty"}.`);
+      }
+    } catch (error) {
+      throw new Error(`Line ${index + 1}: ${error.message}`);
+    }
+  }
+
+  if (!steps.length) throw new Error("The file does not contain any sequence steps.");
+  if (steps.length > 1000) throw new Error("A sequence cannot contain more than 1000 steps.");
+  return steps;
+}
+
+function requireSequenceFields(fields, expected) {
+  if (fields.length !== expected) {
+    throw new Error(`Expected ${expected} fields separated by semicolons.`);
+  }
+}
+
+function parseSequenceBoolean(value) {
+  const normalized = String(value).trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) return true;
+  if (["0", "false", "no", "off"].includes(normalized)) return false;
+  throw new Error("SPI duplex must be 0 or 1.");
+}
+
+function parseSequenceInteger(value, minimum, maximum, label) {
+  const text = String(value).trim();
+  if (!/^(?:0x[0-9a-f]+|\d+)$/i.test(text)) {
+    throw new Error(`${label} must be a whole decimal or hexadecimal number.`);
+  }
+  return parseInteger(text, minimum, maximum, label);
+}
+
+function parseSequenceBytes(value) {
+  const text = String(value).trim();
+  return text === "-" ? new Uint8Array() : parseHexBytes(text);
+}
+
+function formatSequenceBytes(value) {
+  return formatHex(value) || "-";
+}
+
 async function runSequence() {
   if (!sequence.length) {
     setSequenceStatus("Add at least one step.", true);
     return;
   }
 
-  sequence.forEach((_, index) => markSequenceStep(index, ""));
+  sequence.forEach((_, index) => {
+    markSequenceStep(index, "");
+    setSequenceStepResult(index, "");
+  });
   await runOperation("Running sequence", async () => {
     setSequenceStatus(`Running 0/${sequence.length}...`);
 
@@ -504,6 +662,7 @@ async function runSequence() {
           readBytes: step.readBytes,
           duplex: step.duplex,
         });
+        setSequenceStepResult(index, formatSequenceResult("RX", result.data));
         log(`Sequence SPI result: ${formatHex(result.data, 64) || "no data"}.`);
       } else if (step.type === "i2c") {
         await configureI2cFromUi();
@@ -512,6 +671,7 @@ async function runSequence() {
           write: Uint8Array.from(step.write),
           readBytes: step.readBytes,
         });
+        setSequenceStepResult(index, formatSequenceResult("RX", result.data));
         log(`Sequence I2C 0x${hexByte(step.address)} result: ${formatHex(result.data, 64) || "no data"}.`);
       }
 
@@ -854,7 +1014,11 @@ function renderSequence() {
       row.dataset.sequenceStep = String(index);
       row.innerHTML = `
         <span class="step-number">${index + 1}</span>
-        <div><strong>${escapeHtml(sequenceStepTitle(step))}</strong><small>${escapeHtml(sequenceStepDetail(step))}</small></div>
+        <div>
+          <strong>${escapeHtml(sequenceStepTitle(step))}</strong>
+          <small>${escapeHtml(sequenceStepDetail(step))}</small>
+          <small class="step-result" data-step-result hidden></small>
+        </div>
         <span class="step-state" data-step-state></span>
         <button type="button" class="remove-step" data-remove-step="${index}" aria-label="Remove step ${index + 1}">×</button>
       `;
@@ -870,6 +1034,20 @@ function markSequenceStep(index, state) {
   row.classList.toggle("is-running", state === "running");
   row.classList.toggle("is-done", state === "done");
   row.querySelector("[data-step-state]").textContent = state === "running" ? "Running" : state === "done" ? "Done" : "";
+}
+
+function setSequenceStepResult(index, message) {
+  const output = elements.sequenceList.querySelector(`[data-sequence-step="${index}"] [data-step-result]`);
+  if (!output) return;
+  output.textContent = message;
+  output.hidden = !message;
+}
+
+function formatSequenceResult(label, data) {
+  const bytes = data ?? new Uint8Array();
+  const preview = bytes.slice(0, 128);
+  const suffix = bytes.length > preview.length ? " ..." : "";
+  return `${label} (${bytes.length}): ${formatHex(preview) || "-"}${suffix}`;
 }
 
 function setSequenceStatus(message, error = false) {
@@ -898,6 +1076,8 @@ function renderControls() {
     button.disabled = busy || !connected || (button === elements.sequenceRunButton && !sequence.length);
   }
   elements.sequenceAddButton.disabled = busy;
+  elements.sequenceImportButton.disabled = busy;
+  elements.sequenceSaveButton.disabled = busy || !sequence.length;
   elements.sequenceClearButton.disabled = busy || !sequence.length;
   for (const control of elements.gpioRows.querySelectorAll("[data-io-direction], [data-io-level]")) {
     control.disabled = busy || !connected;

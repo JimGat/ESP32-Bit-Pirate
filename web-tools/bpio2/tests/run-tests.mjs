@@ -174,6 +174,17 @@ for (const length of [0, 1, 2, 253, 254, 255, 512, 4096]) {
   assert.match(appSource, /parseMegahertz\(elements\.spiCustomSpeed\.value, 40, "SPI speed"\)/, "custom SPI speed must be interpreted in MHz");
   assert.match(appSource, /megahertz \* 1_000_000/, "custom MHz values must be converted to Hz before encoding");
   assert.doesNotMatch(appSource, /function parseFrequency/, "unit-based custom frequency parsing must stay removed");
+  assert.match(htmlSource, /id="sequenceImportButton"/, "sequence import must be available");
+  assert.match(htmlSource, /id="sequenceSaveButton"/, "sequence save must be available");
+  assert.match(appSource, /function serializeSequence\(steps\)/, "sequences must use a simple text serializer");
+  assert.match(appSource, /line\.split\(";"\)/, "sequence files must use simple semicolon-separated parsing");
+  assert.match(appSource, /Line \$\{index \+ 1\}/, "sequence parser errors must identify the invalid line");
+  assert.match(appSource, /GPIO;\$\{step\.io\}/, "GPIO steps must be exported in the documented text format");
+  assert.match(appSource, /DELAY;\$\{step\.value\}/, "delay steps must be exported in the documented text format");
+  assert.match(appSource, /data-step-result/, "sequence rows must expose an inline result area");
+  assert.match(appSource, /setSequenceStepResult\(index, formatSequenceResult\("RX", result\.data\)\)/, "SPI and I2C sequence reads must be shown inline");
+  assert.match(appSource, /\$\{label\} \(\$\{bytes\.length\}\):/, "sequence readback must include the received byte count");
+  assert.match(htmlSource, /sequence-secondary-action/, "sequence utility buttons must use the compact secondary style");
 }
 
 console.log("BPIO2 codec and UI regression tests passed.");

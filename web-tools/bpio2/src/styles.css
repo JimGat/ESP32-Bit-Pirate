@@ -1241,3 +1241,76 @@ progress {
     grid-column: 1 / -1;
   }
 }
+
+/* Keep sequence utility actions compact so the main run action stays prominent. */
+.sequence-heading .panel-actions {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.sequence-heading .sequence-secondary-action {
+  min-width: 68px;
+  min-height: 34px;
+  padding: 6px 9px;
+  font-size: 0.76rem;
+}
+
+.sequence-heading #sequenceRunButton {
+  min-width: 132px;
+  font-weight: 800;
+}
+
+.step-result {
+  color: var(--cyan) !important;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1120px) {
+  .sequence-heading > div:first-child {
+    min-width: 0;
+  }
+
+  .sequence-heading .panel-actions {
+    display: grid;
+    flex: 0 1 330px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: min(100%, 330px);
+    gap: 6px;
+    align-self: center;
+  }
+
+  .sequence-heading .panel-actions .sequence-secondary-action {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .sequence-heading .panel-actions #sequenceRunButton {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+  }
+}
+
+@media (max-width: 900px) {
+  .sequence-heading .panel-actions {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    align-self: stretch;
+  }
+}
+
+@media (max-width: 760px) {
+  .sequence-heading .panel-actions .sequence-secondary-action {
+    min-height: 32px;
+    padding: 5px 6px;
+    font-size: 0.72rem;
+  }
+
+  .sequence-heading .panel-actions #sequenceRunButton {
+    padding: 7px 9px;
+  }
+}

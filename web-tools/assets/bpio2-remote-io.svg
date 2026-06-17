@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="300" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
+  <title id="title">Web Bit Bang Controller desktop-style browser interface</title>
+  <desc id="desc">A compact preview of a BPIO2 Bit Bang controller with a visual sequence, live GPIO states and a logic trace.</desc>
+
+  <rect width="520" height="300" rx="8" fill="#0b0d0c"/>
+  <rect x="16" y="16" width="488" height="268" rx="8" fill="#121615" stroke="#333"/>
+  <rect x="16" y="16" width="488" height="42" rx="8" fill="#101412" stroke="#333"/>
+  <rect x="30" y="27" width="22" height="22" rx="5" fill="#1a1a1a" stroke="#2f3a2f"/>
+  <text x="37" y="43" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="13" font-weight="900">B</text>
+  <text x="64" y="41" fill="#e0e0e0" font-family="Menlo, Courier New, monospace" font-size="16" font-weight="700">Web Bit Bang Controller</text>
+  <rect x="329" y="26" width="70" height="22" rx="5" fill="#0d0d0d" stroke="#2b2b2b"/>
+  <text x="347" y="41" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="9">BPIO2</text>
+  <rect x="410" y="26" width="76" height="22" rx="5" fill="#26332a" stroke="#2b2b2b"/>
+  <text x="427" y="41" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="10" font-weight="700">Connect</text>
+
+  <rect x="28" y="72" width="464" height="30" rx="6" fill="#0f0f0f" stroke="#333"/>
+  <g font-family="Menlo, Courier New, monospace" font-size="9">
+    <text x="42" y="91" fill="#9aa0a6">Mode</text><text x="70" y="91" fill="#d8fff2">HiZ</text>
+    <text x="119" y="91" fill="#9aa0a6">Write</text><text x="153" y="91" fill="#d8fff2">N/A</text>
+    <text x="201" y="91" fill="#9aa0a6">Read</text><text x="230" y="91" fill="#d8fff2">N/A</text>
+    <text x="278" y="91" fill="#9aa0a6">Refresh</text><text x="322" y="91" fill="#b8ffb8">50 ms</text>
+  </g>
+  <rect x="391" y="78" width="87" height="18" rx="4" fill="#17252b" stroke="#2b2b2b"/>
+  <text x="407" y="91" fill="#d8fff2" font-family="Menlo, Courier New, monospace" font-size="9">Start live</text>
+
+  <g transform="translate(28 112)">
+    <rect width="286" height="112" rx="7" fill="#0f0f0f" stroke="#333"/>
+    <g font-family="Menlo, Courier New, monospace" font-size="9" font-weight="700">
+      <rect x="12" y="10" width="66" height="21" rx="5" fill="#17252b" stroke="#00ffcc" stroke-opacity=".55"/>
+      <text x="22" y="24" fill="#00ffcc">Sequence</text>
+      <text x="91" y="24" fill="#9aa0a6">I2C</text>
+      <text x="132" y="24" fill="#9aa0a6">SPI</text>
+      <text x="173" y="24" fill="#9aa0a6">GPIO</text>
+    </g>
+
+    <g transform="translate(12 42)" font-family="Menlo, Courier New, monospace">
+      <rect width="72" height="42" rx="6" fill="#101412" stroke="#334039"/>
+      <text x="9" y="16" fill="#9aa0a6" font-size="8">01 · GPIO</text>
+      <text x="9" y="31" fill="#b8ffb8" font-size="10" font-weight="700">IO4 HIGH</text>
+      <path d="M76 21h10" stroke="#46534d" stroke-width="2"/>
+
+      <rect x="88" width="72" height="42" rx="6" fill="#101412" stroke="#334039"/>
+      <text x="97" y="16" fill="#9aa0a6" font-size="8">02 · DELAY</text>
+      <text x="97" y="31" fill="#d8fff2" font-size="10" font-weight="700">100 ms</text>
+      <path d="M164 21h10" stroke="#46534d" stroke-width="2"/>
+
+      <rect x="176" width="72" height="42" rx="6" fill="#101412" stroke="#334039"/>
+      <text x="185" y="16" fill="#9aa0a6" font-size="8">03 · GPIO</text>
+      <text x="185" y="31" fill="#ffd166" font-size="10" font-weight="700">IO4 LOW</text>
+    </g>
+
+    <rect x="184" y="91" width="90" height="16" rx="4" fill="#26332a" stroke="#2b2b2b"/>
+    <text x="202" y="102" fill="#b8ffb8" font-family="Menlo, Courier New, monospace" font-size="8" font-weight="700">Run sequence</text>
+  </g>
+
+  <g transform="translate(326 112)">
+    <rect width="166" height="112" rx="7" fill="#0f0f0f" stroke="#333"/>
+    <text x="14" y="22" fill="#00ff00" font-family="Menlo, Courier New, monospace" font-size="10" font-weight="700">LIVE GPIO</text>
+
+    <g transform="translate(14 32)" font-family="Menlo, Courier New, monospace">
+      <rect width="64" height="24" rx="5" fill="#142119" stroke="#3d6d50"/>
+      <circle cx="10" cy="12" r="3" fill="#00ff77"/>
+      <text x="18" y="10" fill="#d8fff2" font-size="8">IO4</text>
+      <text x="18" y="20" fill="#b8ffb8" font-size="8" font-weight="700">HIGH</text>
+
+      <rect x="74" width="64" height="24" rx="5" fill="#101412" stroke="#333"/>
+      <circle cx="84" cy="12" r="3" fill="#5d6662"/>
+      <text x="92" y="10" fill="#d8fff2" font-size="8">IO5</text>
+      <text x="92" y="20" fill="#9aa0a6" font-size="8" font-weight="700">LOW</text>
+    </g>
+
+    <g transform="translate(14 63)">
+      <rect width="138" height="36" rx="5" fill="#080a09" stroke="#2b2b2b"/>
+      <path d="M6 11H132M6 27H132" stroke="#1c2420"/>
+      <path d="M6 27H25V11H45V27H63V11H83V27H104V11H119V27H132" fill="none" stroke="#00ffcc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="8" y="9" fill="#9aa0a6" font-family="Menlo, Courier New, monospace" font-size="7">IO4 LOGIC</text>
+    </g>
+  </g>
+
+  <rect x="28" y="238" width="464" height="30" rx="6" fill="#101412" stroke="#333"/>
+  <text x="42" y="257" fill="#d8ddd8" font-family="Menlo, Courier New, monospace" font-size="10">Ready · Visual GPIO, I2C, SPI and sequences</text>
+  <rect x="421" y="246" width="57" height="14" rx="4" fill="#17252b" stroke="#2b2b2b"/>
+  <text x="435" y="257" fill="#00ffcc" font-family="Menlo, Courier New, monospace" font-size="9">Bit Bang</text>
+</svg>

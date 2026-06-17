@@ -47,6 +47,7 @@ const elements = {
   sequenceIo: document.querySelector("#sequenceIo"),
   sequenceLevel: document.querySelector("#sequenceLevel"),
   sequenceDelay: document.querySelector("#sequenceDelay"),
+  sequenceDelayUnit: document.querySelector("#sequenceDelayUnit"),
   sequenceSpiTx: document.querySelector("#sequenceSpiTx"),
   sequenceSpiRead: document.querySelector("#sequenceSpiRead"),
   sequenceSpiDuplex: document.querySelector("#sequenceSpiDuplex"),
@@ -67,7 +68,7 @@ let status = null;
 let busy = false;
 let sequence = [
   { type: "gpio", io: 4, high: true },
-  { type: "delay", ms: 100 },
+  { type: "delay", value: 100, unit: "ms" },
   { type: "gpio", io: 4, high: false },
 ];
 let livePinMapping = false;
@@ -102,6 +103,7 @@ function init() {
   elements.spiRunButton.addEventListener("click", runSpiTransfer);
   elements.spiSpeed.addEventListener("change", () => updateSpiCustomSpeedVisibility({ focus: true }));
   elements.sequenceType.addEventListener("change", renderSequenceEditor);
+  elements.sequenceDelayUnit.addEventListener("change", updateSequenceDelayLimit);
   elements.sequenceAddButton.addEventListener("click", addSequenceStep);
   elements.sequenceRunButton.addEventListener("click", runSequence);
   elements.sequenceClearButton.addEventListener("click", () => { sequence = []; renderSequence(); });
@@ -111,6 +113,7 @@ function init() {
   renderPinGrid();
   renderGpioRows();
   renderSequenceEditor();
+  updateSequenceDelayLimit();
   renderSequence();
   updateSpiCustomSpeedVisibility();
   renderControls();
@@ -435,7 +438,13 @@ function addSequenceStep() {
     if (type === "gpio") {
       step = { type, io: Number(elements.sequenceIo.value), high: elements.sequenceLevel.value === "high" };
     } else if (type === "delay") {
-      step = { type, ms: parseInteger(elements.sequenceDelay.value, 0, 60000, "Delay") };
+      const unit = elements.sequenceDelayUnit.value;
+      const maximum = unit === "us" ? 100_000 : 60_000;
+      step = {
+        type,
+        value: parseInteger(elements.sequenceDelay.value, 0, maximum, "Delay"),
+        unit,
+      };
     } else if (type === "spi") {
       step = {
         type,
@@ -483,7 +492,11 @@ async function runSequence() {
         });
         status = applyRequestedGpioState(status, bit);
       } else if (step.type === "delay") {
-        await delay(step.ms);
+        if (step.unit === "us") {
+          delayMicroseconds(step.value);
+        } else {
+          await delayMilliseconds(step.value);
+        }
       } else if (step.type === "spi") {
         await configureSpiFromUi();
         const result = await client.spiTransfer({
@@ -822,6 +835,14 @@ function renderSequenceEditor() {
   });
 }
 
+function updateSequenceDelayLimit() {
+  const microseconds = elements.sequenceDelayUnit.value === "us";
+  elements.sequenceDelay.max = microseconds ? "100000" : "60000";
+  elements.sequenceDelay.title = microseconds
+    ? "Approximate busy-wait delay, up to 100000 µs."
+    : "Non-blocking delay, up to 60000 ms.";
+}
+
 function renderSequence() {
   elements.sequenceList.innerHTML = "";
   if (!sequence.length) {
@@ -1041,14 +1062,18 @@ function formatCount(value) {
 
 function sequenceStepTitle(step) {
   if (step.type === "gpio") return `GPIO IO${step.io} ${step.high ? "HIGH" : "LOW"}`;
-  if (step.type === "delay") return `Delay ${step.ms} ms`;
+  if (step.type === "delay") return `Delay ${step.value} ${step.unit === "us" ? "µs" : "ms"}`;
   if (step.type === "spi") return "SPI transfer";
   return `I2C 0x${hexByte(step.address)}`;
 }
 
 function sequenceStepDetail(step) {
   if (step.type === "gpio") return "Sets the pin as an output and changes its level.";
-  if (step.type === "delay") return "Browser-side delay.";
+  if (step.type === "delay") {
+    return step.unit === "us"
+      ? "Approximate browser busy-wait delay."
+      : "Non-blocking browser delay.";
+  }
   if (step.type === "spi") return `TX ${formatHex(step.tx) || "-"}; read ${step.readBytes}; ${step.duplex ? "full duplex" : "write then read"}.`;
   return `Write ${formatHex(step.write) || "-"}; read ${step.readBytes}.`;
 }
@@ -1062,6 +1087,14 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function delay(ms) {
+function delayMilliseconds(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function delayMicroseconds(microseconds) {
+  const durationMs = microseconds / 1000;
+  const start = performance.now();
+  while (performance.now() - start < durationMs) {
+    // Intentional busy-wait: short microsecond delays must not yield to the event loop.
+  }
 }

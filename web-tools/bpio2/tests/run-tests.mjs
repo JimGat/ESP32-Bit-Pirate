@@ -145,6 +145,10 @@ for (const length of [0, 1, 2, 253, 254, 255, 512, 4096]) {
   assert.match(appSource, /value >= 5 && value <= 1000/, "live sampling must support 5 ms through 1 second");
   assert.match(appSource, /await configureSpiFromUi\(\);[\s\S]*?client\.spiTransfer/, "sequence SPI steps must restore SPI before transfer");
   assert.match(appSource, /await configureI2cFromUi\(\);[\s\S]*?client\.i2cTransfer/, "sequence I2C steps must restore I2C before transfer");
+  assert.match(appSource, /step\.unit === "us"[\s\S]*delayMicroseconds\(step\.value\)/, "microsecond sequence delays must use a browser busy-wait");
+  assert.match(appSource, /await delayMilliseconds\(step\.value\)/, "millisecond sequence delays must remain non-blocking");
+  assert.match(appSource, /while \(performance\.now\(\) - start < durationMs\)/, "microsecond delays must use the highest-resolution browser clock available");
+  assert.match(appSource, /microseconds \? "100000" : "60000"/, "sequence delay limit must follow the selected unit");
   assert.match(appSource, /\["I2C SCL", "SPI SCK"\]/, "IO1 must expose permanent I2C and SPI role tags");
   assert.match(appSource, /probeModeLimits/, "SPI and I2C limits must be detected independently of HiZ");
   assert.match(appSource, /directionMask: allPinsMask,\s*direction: 0/, "HiZ release must explicitly configure every pin as input");
@@ -157,6 +161,7 @@ for (const length of [0, 1, 2, 253, 254, 255, 512, 4096]) {
   assert.match(htmlSource, /data-operation-tab="sequence"[\s\S]*<\/div>\s*<div class="operation-panels">/, "Sequence must be the final tab");
   assert.match(htmlSource, /option value="5">5 ms<\/option>/, "refresh selector must include 5 ms");
   assert.match(htmlSource, /option value="1000">1 s<\/option>/, "refresh selector must include 1 second");
+  assert.match(htmlSource, /id="sequenceDelayUnit"[\s\S]*option value="ms" selected>ms<\/option>[\s\S]*option value="us">µs<\/option>/, "sequence delays must support both milliseconds and microseconds");
 
   assert.match(htmlSource, /option value="10" selected>10 ms<\/option>/, "10 ms must be the default refresh delay");
   assert.doesNotMatch(htmlSource, /Every pin is sampled and displayed as a live logic trace/, "GPIO helper copy must remain concise");

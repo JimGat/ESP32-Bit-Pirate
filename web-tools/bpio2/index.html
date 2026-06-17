@@ -197,7 +197,10 @@
                     <option value="40000000">40 MHz</option>
                     <option value="custom">Custom…</option>
                   </select>
-                  <input id="spiCustomSpeed" type="text" value="12.5 MHz" placeholder="e.g. 12.5 MHz" spellcheck="false" inputmode="decimal" aria-label="Custom SPI speed" hidden>
+                  <span id="spiCustomSpeedField" class="speed-custom-input" hidden>
+                    <input id="spiCustomSpeed" type="text" value="12.5" placeholder="e.g. 22" spellcheck="false" inputmode="decimal" aria-label="Custom SPI speed in MHz">
+                    <span>MHz</span>
+                  </span>
                 </span>
               </label>
               <label>Mode
@@ -254,7 +257,8 @@
               </div>
 
               <div class="sequence-editor" data-sequence-editor="delay" hidden>
-                <label>Milliseconds<input id="sequenceDelay" type="number" min="0" max="60000" value="100"></label>
+                <label>Delay<input id="sequenceDelay" type="number" min="0" max="60000" value="100"></label>
+                <label>Unit<select id="sequenceDelayUnit"><option value="ms" selected>ms</option><option value="us">µs</option></select></label>
               </div>
 
               <div class="sequence-editor" data-sequence-editor="spi" hidden>

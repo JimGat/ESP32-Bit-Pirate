@@ -1,5 +1,7 @@
 #include "NvsService.h"
 
+#include <cstdio>
+
 NvsService::~NvsService() {
     preferences.end(); // Close namespace
 }
@@ -237,4 +239,33 @@ void NvsService::clearOneShotSubGhzRawCdcConfig() {
     preferences.remove("sgraw_freq");
     preferences.remove("sgraw_pa");
     preferences.remove("sgraw_baud");
+}
+
+
+void NvsService::saveOneShotBpio2Config(const uint8_t* pins, uint8_t pinCount) {
+    if (!pins) return;
+    const uint8_t count = pinCount > 8 ? 8 : pinCount;
+    char key[16];
+    for (uint8_t i = 0; i < count; ++i) {
+        std::snprintf(key, sizeof(key), "oneshot_bp2_%u", static_cast<unsigned>(i));
+        preferences.putUChar(key, pins[i]);
+    }
+}
+
+void NvsService::getOneShotBpio2Config(const uint8_t* defaultPins, uint8_t* pins, uint8_t pinCount) {
+    if (!defaultPins || !pins) return;
+    const uint8_t count = pinCount > 8 ? 8 : pinCount;
+    char key[16];
+    for (uint8_t i = 0; i < count; ++i) {
+        std::snprintf(key, sizeof(key), "oneshot_bp2_%u", static_cast<unsigned>(i));
+        pins[i] = preferences.getUChar(key, defaultPins[i]);
+    }
+}
+
+void NvsService::clearOneShotBpio2Config() {
+    char key[16];
+    for (uint8_t i = 0; i < 8; ++i) {
+        std::snprintf(key, sizeof(key), "oneshot_bp2_%u", static_cast<unsigned>(i));
+        preferences.remove(key);
+    }
 }

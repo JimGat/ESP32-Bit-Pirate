@@ -47,6 +47,20 @@ bool BootModeConfigurator::configure() {
         state.getSpiMOSIPin(),
         1000000
     };
+    Bpio2AdapterConfig bpio2Config = {
+        {
+            state.getSpiCSPin(),
+            state.getSpiCLKPin(),
+            state.getSpiMOSIPin(),
+            state.getSpiMISOPin(),
+            state.getI2cSclPin(),
+            state.getI2cSdaPin(),
+            state.getUartTxPin(),
+            state.getUartRxPin()
+        },
+        state.getSpiFrequency(),
+        state.getI2cFrequency()
+    };
     SumpLogicAnalyzerConfig sumpLogicAnalyzerConfig = {
         {
             state.getSpiCSPin(),
@@ -128,6 +142,16 @@ bool BootModeConfigurator::configure() {
         );
         nvsService.clearOneShotAvrDudeBusPirateConfig();
     }
+    if (mode == OneShotBootMode::Bpio2) {
+        nvsService.getOneShotBpio2Config(
+            bpio2Config.ioPins,
+            bpio2Config.ioPins,
+            static_cast<uint8_t>(
+                sizeof(bpio2Config.ioPins) / sizeof(bpio2Config.ioPins[0])
+            )
+        );
+        nvsService.clearOneShotBpio2Config();
+    }
     if (mode == OneShotBootMode::SumpLogicAnalyzer) {
         nvsService.getOneShotSumpLogicAnalyzerConfig(
             sumpLogicAnalyzerConfig.pins.data(),
@@ -188,37 +212,42 @@ bool BootModeConfigurator::configure() {
 
     switch (mode) {
         case OneShotBootMode::UsbUartBridge:
-            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
+            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, bpio2Config, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
             UsbUartBridgeAdapter::run(usbUartBridgeConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::FlashromSerprog:
-            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
+            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, bpio2Config, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
             FlashromSerprogAdapter::run(flashromSerprogConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::AvrDudeBusPirate:
-            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
+            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, bpio2Config, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
             AvrDudeBusPirateAdapter::run(busPirateAvrdudeConfig, deviceInput, hostSerial);
             return true;
 
+        case OneShotBootMode::Bpio2:
+            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, bpio2Config, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
+            Bpio2Adapter::run(bpio2Config, deviceInput, hostSerial);
+            return true;
+
         case OneShotBootMode::SumpLogicAnalyzer:
-            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
+            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, bpio2Config, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
             SumpLogicAnalyzerAdapter::run(sumpLogicAnalyzerConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::OpenOcdBusPirate:
-            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
+            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, bpio2Config, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
             OpenOcdBusPirateAdapter::run(openOcdBusPirateConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::InfraredToy:
-            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
+            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, bpio2Config, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
             InfraredToyAdapter::run(infraredToyConfig, deviceInput, hostSerial);
             return true;
 
         case OneShotBootMode::SubGhzRawCdc:
-            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
+            showOneShotBootMode(mode, usbUartBridgeConfig, flashromSerprogConfig, busPirateAvrdudeConfig, bpio2Config, sumpLogicAnalyzerConfig, openOcdBusPirateConfig, infraredToyConfig, subGhzRawCdcConfig);
             SubGhzRawCdcAdapter::run(subGhzRawCdcConfig, deviceInput, hostSerial);
             return true;
 
@@ -232,6 +261,7 @@ void BootModeConfigurator::showOneShotBootMode(OneShotBootMode mode,
                                                const UsbUartBridgeConfig& usbUartBridgeConfig,
                                                const FlashromSerprogConfig& flashromSerprogConfig,
                                                const AvrDudeBusPirateConfig& busPirateAvrdudeConfig,
+                                               const Bpio2AdapterConfig& bpio2Config,
                                                const SumpLogicAnalyzerConfig& sumpLogicAnalyzerConfig,
                                                const OpenOcdBusPirateConfig& openOcdBusPirateConfig,
                                                const InfraredToyConfig& infraredToyConfig,
@@ -274,6 +304,22 @@ void BootModeConfigurator::showOneShotBootMode(OneShotBootMode mode,
                 }
             );
             break;
+
+        case OneShotBootMode::Bpio2: {
+            std::vector<std::string> details;
+            details.reserve(8);
+            for (size_t i = 0; i < BPIO2_IO_PIN_COUNT; ++i) {
+                details.push_back(
+                    "IO" + std::to_string(i) + " GPIO " + std::to_string(bpio2Config.ioPins[i])
+                );
+            }
+            deviceView.adapterMode(
+                "BPIO2",
+                "GPIO / SPI / I2C",
+                details
+            );
+            break;
+        }
 
         case OneShotBootMode::SumpLogicAnalyzer: {
             std::vector<std::string> details;

@@ -1,4 +1,4 @@
-# ESP32-Bit-Pirate — JARVIS AI Edition Web Flasher
+# ESP32-Bit-Pirate — JARVIS AI Enabled Edition Web Flasher
 
 Static firmware flasher for the JimGat fork of
 [ESP32-Bit-Pirate](https://github.com/geo-tp/ESP32-Bit-Pirate).

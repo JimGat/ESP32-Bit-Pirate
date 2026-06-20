@@ -71,10 +71,11 @@ For hardware extensions, see the [ESP32 Bus Expander](https://github.com/geo-tp/
 | **M5 StampS3**        | ![Photo of the M5 StampS3](/images/stamps3_s.jpg)             | 9 GPIO (exposed pins), 1 button                       |
 | **M5 Stick S3** | ![Photo of the M5 Stick S3](/images/m5sticks3_s.jpg)      | 13 GPIO (Grove, Header), screen, mic, speaker, IR TX, IR RX, IMU, 3 buttons, battery                 |
 | **Seeed Studio Xiao S3** | ![Photo of the Seeed Studio Xiao ESP32-S3](/images/xiaos3_s.jpg)        | 9 GPIO (exposed pins), 1 button |
+| **ESP32-S3 Super Mini**   | 18-pin castellated S3-MINI-1U module | 4 MB flash, 2 MB PSRAM, native USB, dual-core 240 MHz |
 
 - **Other ESP32-S3-based Boards**
 
-  - All boards based on the **ESP32-S3 can be supported**, provided they have at least **8 MB of flash.**
+  - All boards based on the **ESP32-S3 can be supported**, provided they have at least **4 MB of flash.**
 
   - You can **flash the s3 dev-kit firmware onto any ESP32-S3 board.**
 
@@ -172,6 +173,151 @@ All interfaces share the same command structure and can be used interchangeably 
 The [ESP32 Bit Pirate Web Serial Tools](https://geo-tp.github.io/ESP32-Bit-Pirate/web-tools/) provides direct access to the Serial CLI from a compatible browser, without installing PuTTY, minicom, or another terminal application.
 
 ![A demo Using the ESP32 Bit Pirate with Web Serial Tools](images/web_tools_demo.gif)
+
+## ☠️ JimGat Fork — AI Agent & Compact Hardware Features
+
+The following sections describe features added in this fork at [JimGat/ESP32-Bit-Pirate](https://github.com/JimGat/ESP32-Bit-Pirate). They are designed for:
+
+- **Compact form-factor hardware** (S3 Super Mini modules, bare castellated pins).
+- **Direct network control by AI agents / automation frameworks** — JARVIS, Claude Code, or any HTTP-capable client.
+- **Upstream-compatible** design so that each feature can be cherrypicked back into upstream without dragging unrelated changes.
+
+### ESP32-S3 Super Mini
+
+The [ESP32-S3 Super Mini](https://www.wemos.cc/en/latest/d32/d32_s3_super_mini.html) (S3-MINI-1U module class) is a ~22 × 18 mm board with the same ESP32-S3 dual-core at 240 MHz, but in a tiny castellated-pin footprint.
+
+**Key specs in this fork:**
+
+| Feature | S3-SuperMini env |
+|---|---|
+| Chip | ESP32-S3 dual-core RISC-V/Xtensa @ 240 MHz |
+| Flash | 4 MB (XMC embedded) |
+| PSRAM | 2 MB (AP Memory 3.3 V, OPI) |
+| USB | Native USB-CDC @ 921 600 bps |
+| Partition table | `max_app_4MB.csv` (4 MB safe) |
+| Usable GPIOs | 1, 2, 3, 4, 5, 6, 7, 8, 9, 18 (10 I/O pins on the castellated edge) |
+| Protected | 0, 19, 20 (USB D+/D-), 26–37 (flash), 33–34 (PSRAM), 45/46 (strapping), 48 (RGB if present) |
+
+**Default pin map for the super-mini target** (set in `platformio.ini` `[env:s3-supermini]`):
+
+- **I2C**: SDA=8, SCL=9 · 100 kHz
+- **SPI**: CS=18, CLK=6, MISO=7, MOSI=5
+- **UART**: RX=3, TX=4 @ default 9 600 bps
+- **OneWire**: GPIO 4
+- **IR**: TX=1, RX=2
+- **WS2812**: Data=1, Clock=2
+
+The pin map reuses the same role-class as the reference S3-Devkit — every protocol the DevKit supports is supported on the Super Mini, just routed onto the smaller available IO.
+
+**Flash via the web flasher** at [https://jimgat.github.io/ESP32-Bit-Pirate/](https://jimgat.github.io/ESP32-Bit-Pirate/) — the Super Mini is a first-class board in the selector.
+
+**Build locally:**
+
+```bash
+pio run -e s3-supermini
+```
+
+> If your specific super-mini module routes the RGB LED or USB differently, override the defaults by appending `-D LED_PIN=<gpio>` / `-D ARDUINO_USB_CDC_ON_BOOT=1` to `build_flags` for `[env:s3-supermini]`.
+
+### Automation API (REST)
+
+This fork adds a thin JSON HTTP API intended for AI agents and other direct-automation clients. The API reuses the firmware's existing terminal dispatcher path so a programmatic command behaves identically to the same command typed in the Web CLI.
+
+Endpoints:
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/api/status` | Liveness + device/firmware/mode/IP/MAC/heap + whether a WebSocket client is attached |
+| `POST` | `/api/command` | Inject a CLI command into the Web terminal queue and return bounded captured output |
+
+**`/api/status` example response:**
+
+```json
+{
+  "ok": true,
+  "api_version": 1,
+  "device": "ESP32-Bit-Pirate",
+  "firmware": "1.5",
+  "uptime_ms": 123456,
+  "mode": "I2C",
+  "terminal_mode": "WiFi Web",
+  "terminal_ip": "192.168.1.50",
+  "ip": "192.168.1.50",
+  "mac": "AA:BB:CC:DD:EE:FF",
+  "heap_free": 123456,
+  "ws_client_connected": false,
+  "auth": "none"
+}
+```
+
+**`/api/command` example request/response:**
+
+```json
+// request
+{
+  "cmd": "mode i2c",
+  "timeout_ms": 3000,
+  "quiet_ms": 250,
+  "max_bytes": 4096
+}
+
+// response
+{
+  "ok": true,
+  "timeout": false,
+  "duration_ms": 275,
+  "mode": "I2C",
+  "output": "Mode changed to I2C\nI2C> ",
+  "truncated": false
+}
+```
+
+The endpoint is **serial-mirrored** — a local operator watching USB Serial sees:
+
+```text
+[API RX] mode i2c
+[API TX] bytes=25 timeout=false
+```
+
+This makes every remote command auditable at the bench even while an AI client controls the device over the network.
+
+**Optional Bearer authentication.** Define `BITPIRATE_API_TOKEN=***` at compile time to require `Authorization: Bearer <token>` on `/api/*`. Without the macro the API matches the existing Web CLI posture and is unauthenticated.
+
+**Concurrency:** Only one `/api/command` may run at a time. A concurrent call returns `HTTP 409 Conflict`.
+
+Full API doc: [`docs/DIRECT_API.md`](docs/DIRECT_API.md).
+
+#### Transport architecture — why WebSockets *and* REST
+
+The firmware has two very different kinds of traffic, so it uses two transports on purpose:
+
+| Transport | Where | Traffic shape |
+|---|---|---|
+| **WebSocket** (`/ws`) | Web CLI | *Control plane + unbounded protocol streams* — logic analyzer captures, I2C/SPI/UART/CAN sniffer frames, Wi-Fi/BLE scan updates, Sub-GHz raw dumps, RF24 frame flow |
+| **REST API** (`/api/*`) | AI agents / automation | *Control plane only* — one-shot command dispatch, short interactive command output |
+
+**Why WebSockets stay mandatory for real protocol work.**
+BitPirate's protocol modes produce *continuous, asynchronous byte streams* — an I2C sniffer may emit thousands of events per second; a Sub-GHz capture is unbounded raw RF bytes; I2S is a live audio sample stream.
+
+HTTP REST is request/response. Even with a polling pattern like `GET /api/logs?since=seq` every 100 ms, you would:
+
+- miss fast transient protocol events between polls,
+- waste bandwidth on HTTP headers for every single frame,
+- force the ESP32 to hold an ever-growing ring buffer on the device,
+- fight fixed on-chip RAM (S3 has 320 KB SRAM).
+
+A WebSocket is one persistent TCP socket — the firmware pushes bytes the instant they happen, no per-frame HTTP overhead, no unbounded device-side buffering. The client's browser holds the memory. This is the correct model for streaming logic analysis and protocol sniffing.
+
+**Why REST is added on top.**
+AI agents and small automation scripts do *not* need a streaming socket. They do need a reliable, single-request, single-response primitive for state queries and for "type this CLI command and give me the output." The REST API provides exactly that, with a small bounded capture buffer sufficient for the short text output of interactive commands.
+
+**Rule of thumb:**
+
+- **Logic traces, sniffing, RF raw, I2S audio → WebSocket** (the existing `/ws` path is the right one).
+- **Quick automation commands, status checks, AI-agent interaction → REST** (`/api/status`, `/api/command`).
+- **Long-running captures from automation script → open a WebSocket directly**, not a `POST /api/command`.
+
+This keeps the firmware's RAM budget sane — a big ring buffer would break protocol capture on the 320 KB SRAM boards — while still giving modern automation clients a clean entry point.
 
 ## Contribute
 See [How To Contribute](https://github.com/geo-tp/ESP32-Bit-Pirate/wiki/99-Contribute) section, which outlines a **simple way to add a new command** to any mode.

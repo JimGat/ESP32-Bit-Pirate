@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ESP32-Bit-Pirate — JARVIS AI Edition | Flasher</title>
+<style>
+  :root {
+    --ink: #0b1220;
+    --ink-2: #0f1a2e;
+    --gold: #d4a64a;
+    --gold-2: #f0c864;
+    --bone: #f3ead6;
+    --muted: #9aa3b2;
+    --danger: #ff6b6b;
+    --panel: rgba(255, 255, 255, 0.04);
+    --panel-2: rgba(255, 255, 255, 0.06);
+    --border: rgba(212, 166, 74, 0.25);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: radial-gradient(1200px 800px at 70% -10%, #10203b 0%, #0b1220 55%, #060912 100%);
+    color: var(--bone);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(212,166,74,0.08), transparent);
+  }
+  header .skull {
+    font-size: 46px;
+    letter-spacing: 6px;
+    filter: drop-shadow(0 4px 10px rgba(212,166,74,0.35));
+  }
+  header h1 {
+    margin: 8px 0 4px;
+    font-size: 32px;
+    color: var(--gold-2);
+    letter-spacing: 1px;
+    text-shadow: 0 2px 10px rgba(212,166,74,0.2);
+  }
+  header h2 {
+    margin: 0;
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  section {
+    margin-bottom: 36px;
+  }
+  section h3 {
+    color: var(--gold);
+    margin-top: 0;
+    border-left: 3px solid var(--gold);
+    padding-left: 10px;
+    letter-spacing: 0.5px;
+  }
+  .boards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .board {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  .board:hover { transform: translateY(-2px); background: var(--panel-2); }
+  .board.selected {
+    border-color: var(--gold);
+    background: linear-gradient(180deg, rgba(212,166,74,0.12), transparent);
+    box-shadow: 0 0 0 1px rgba(212,166,74,0.35);
+  }
+  .board .name {
+    color: var(--gold-2);
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .board .desc { color: var(--muted); font-size: 13px; }
+  .board .chip {
+    margin-top: 8px;
+    display: inline-block;
+    font-size: 11px;
+    color: var(--bone);
+    background: rgba(212,166,74,0.15);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+  }
+  .board.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .flash-panel {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    text-align: center;
+  }
+  .flash-panel h3 {
+    border-left: none;
+    padding-left: 0;
+    text-align: center;
+  }
+  #flash-area {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  #placeholder-note {
+    display: inline-block;
+    padding: 10px 16px;
+    background: rgba(212,166,74,0.08);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .requirements {
+    background: rgba(255, 107, 107, 0.06);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13.5px;
+    color: var(--bone);
+  }
+  .requirements strong { color: var(--gold-2); }
+  .requirements code {
+    background: rgba(0,0,0,0.4);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: var(--gold);
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12.5px;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--gold); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+<script type="module" src="https://unpkg.com/esp-web-tools@9.4.3/dist/web/install-button.js?module"></script>
+</head>
+<body>
+
+<header>
+  <div class="skull">☠ ☠ ☠</div>
+  <h1>ESP32-Bit-Pirate</h1>
+  <h2>JARVIS AI Edition — Web Flasher</h2>
+</header>
+
+<main>
+
+<section>
+  <h3>Pick your board</h3>
+  <div class="boards" id="boards"></div>
+</section>
+
+<section class="flash-panel">
+  <h3 id="flash-title">Flash firmware</h3>
+  <div id="flash-area">
+    <span id="placeholder-note">Select a board above to begin.</span>
+  </div>
+</section>
+
+<section>
+  <h3>Requirements</h3>
+  <div class="requirements">
+    <strong>Browser:</strong> Chrome, Edge, or Brave on desktop (WebUSB is required).<br/>
+    <strong>Cable:</strong> Use a data-capable USB-C cable, not a charge-only one.<br/>
+    <strong>Boot mode:</strong> Some ESP32-S3 boards need a quick <strong>BOOT</strong>+<strong>RST</strong> tap to enter the USB bootloader if the device isn't detected.
+  </div>
+</section>
+
+<section>
+  <h3>About this flasher</h3>
+  <div style="font-size:14px; line-height:1.6; color:#d6d8dc;">
+    This is the firmware flasher for the <strong style="color:var(--gold-2)">JimGat/ESP32-Bit-Pirate</strong>
+    AI-ready fork — built around the upstream ESP32-Bit-Pirate multi-tool firmware with an added
+    direct HTTP/JSON automation API designed for AI agents (JARVIS, Claude Code, etc.).
+    <br/><br/>
+    The fork remains <strong>platformio + Arduino IDE compatible</strong> with upstream,
+    so contributions flow back cleanly. The web flasher ships the built firmware for the selected
+    board so you can go from unboxing to hacking in under a minute.
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <a href="https://github.com/JimGat/ESP32-Bit-Pirate" target="_blank" rel="noopener">GitHub</a>
+   · 
+  <a href="https://github.com/esp32-bit-pirate/ESP32-Bit-Pirate" target="_blank" rel="noopener">Upstream</a>
+   · 
+  Powered by <a href="https://github.com/esphome/esp-web-tools" target="_blank" rel="noopener">ESP Web Tools</a>
+</footer>
+
+<script>
+const BOARDS = [
+  {
+    id: "s3-devkit",
+    name: "ESP32-S3 DevKit",
+    chipFamily: "ESP32-S3",
+    desc: "Reference dev board. AI-API enabled build.",
+    manifest: "./boards/s3-devkit/manifest.json",
+    enabled: true
+  },
+  /* placeholder cards — add binaries + manifest to boards/<id>/ to enable */
+  { id: "cardputer", name: "M5Stack Cardputer", chipFamily: "ESP32-S3", desc: "Keyboard card — upcoming.", enabled: false },
+  { id: "m5stick-s3", name: "M5StickC Plus3", chipFamily: "ESP32-S3", desc: "Stick form factor — upcoming.", enabled: false },
+  { id: "t-embed", name: "LilyGO T-Embed", chipFamily: "ESP32-S3", desc: "Rotary knob dev board — upcoming.", enabled: false },
+  { id: "m5stamp", name: "M5Stamp S3", chipFamily: "ESP32-S3", desc: "Compact stamp module — upcoming.", enabled: false }
+];
+
+const boardsContainer = document.getElementById("boards");
+const flashArea = document.getElementById("flash-area");
+const flashTitle = document.getElementById("flash-title");
+const placeholderNote = document.getElementById("placeholder-note");
+
+let selected = null;
+
+function renderBoards() {
+  boardsContainer.innerHTML = "";
+  for (const b of BOARDS) {
+    const el = document.createElement("div");
+    el.className = "board" + (b.enabled ? "" : " disabled") + (selected === b.id ? " selected" : "");
+    el.innerHTML = `
+      <div class="name">${b.name}</div>
+      <div class="desc">${b.desc}</div>
+      <span class="chip">${b.chipFamily}</span>
+    `;
+    if (b.enabled) {
+      el.addEventListener("click", () => selectBoard(b.id));
+    } else {
+      el.title = "Binary not yet built for this board.";
+    }
+    boardsContainer.appendChild(el);
+  }
+}
+
+function selectBoard(id) {
+  selected = id;
+  renderBoards();
+  const b = BOARDS.find(x => x.id === id);
+  if (!b) return;
+  flashTitle.textContent = `Flash: ${b.name}`;
+  flashArea.innerHTML = `
+    <esp-web-install-button manifest="${b.manifest}">
+      <button slot="activate" style="
+        background: linear-gradient(180deg, var(--gold-2), var(--gold));
+        color: #111;
+        border: none;
+        font-weight: 700;
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-size: 15px;
+        cursor: pointer;
+        letter-spacing: 0.4px;
+        box-shadow: 0 4px 14px rgba(212,166,74,0.35);">
+        Connect &amp; Install
+      </button>
+    </esp-web-install-button>
+    <div style="font-size:12px; color:var(--muted); margin-top:4px;">
+      You'll be prompted to select the board's USB serial port.
+    </div>
+  `;
+}
+
+renderBoards();
+</script>
+
+</body>
+</html>

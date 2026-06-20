@@ -179,13 +179,14 @@ void setup() {
             // Configure Server
             httpd_handle_t server = nullptr;
             httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+            config.max_uri_handlers = 16; // web UI + ws + LittleFS + automation API routes
             if (httpd_start(&server, &config) != ESP_OK) {
                 return;
             }
 
             JsonTransformer jsonTransformer;
-            HttpServer httpServer(server, littleFsService, jsonTransformer);
             WebSocketServer wsServer(server);
+            HttpServer httpServer(server, littleFsService, jsonTransformer, &wsServer);
 
             // Web View/Input
             WebTerminalView webView(wsServer);

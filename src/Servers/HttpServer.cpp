@@ -1,4 +1,12 @@
 #include "HttpServer.h"
+#include <ArduinoJson.h>
+#include <WiFi.h>
+#include <States/GlobalState.h>
+#include <Enums/ModeEnum.h>
+#include <Enums/TerminalTypeEnum.h>
+#include <esp_timer.h>
+#include <esp_system.h>
+
 
 void HttpServer::setupRoutes() {
     // Page HTML
@@ -81,7 +89,31 @@ void HttpServer::setupRoutes() {
     };
     httpd_register_uri_handler(server, &lfs_dl_uri);
 
-    // Note: We can't have more than 8 handlers (ws + 7 above)
+
+    // GET /api/status -- AI/automation liveness + mode/status endpoint
+    static httpd_uri_t api_status_uri;
+    api_status_uri.uri = "/api/status";
+    api_status_uri.method = HTTP_GET;
+    api_status_uri.user_ctx = this;
+    api_status_uri.handler = [](httpd_req_t *req) -> esp_err_t {
+        HttpServer* self = static_cast<HttpServer*>(req->user_ctx);
+        return self->handleApiStatus(req);
+    };
+    httpd_register_uri_handler(server, &api_status_uri);
+
+    // POST /api/command -- inject one command into the Web terminal queue and
+    // return bounded captured output. This is intended for AI/direct clients.
+    static httpd_uri_t api_command_uri;
+    api_command_uri.uri = "/api/command";
+    api_command_uri.method = HTTP_POST;
+    api_command_uri.user_ctx = this;
+    api_command_uri.handler = [](httpd_req_t *req) -> esp_err_t {
+        HttpServer* self = static_cast<HttpServer*>(req->user_ctx);
+        return self->handleApiCommand(req);
+    };
+    httpd_register_uri_handler(server, &api_command_uri);
+
+    // Keep config.max_uri_handlers high enough in main.cpp for ws + web + API + LittleFS routes.
 }
 
 esp_err_t HttpServer::handleRootRequest(httpd_req_t *req) {
@@ -364,3 +396,153 @@ std::string HttpServer::sanitizeUploadFilename(const char* raw) {
     return safe;
 }
 
+
+
+bool HttpServer::isApiAuthorized(httpd_req_t* req) {
+#ifdef BITPIRATE_API_TOKEN
+    char auth[160] = {0};
+    if (httpd_req_get_hdr_value_str(req, "Authorization", auth, sizeof(auth)) != ESP_OK) {
+        return false;
+    }
+    std::string expected = std::string("Bearer ") + BITPIRATE_API_TOKEN;
+    return expected == auth;
+#else
+    (void)req;
+    return true;
+#endif
+}
+
+esp_err_t HttpServer::sendJson(httpd_req_t* req, const std::string& payload, const char* status) {
+    httpd_resp_set_type(req, "application/json; charset=utf-8");
+    httpd_resp_set_hdr(req, "Cache-Control", "no-store");
+    if (status) httpd_resp_set_status(req, status);
+    return httpd_resp_send(req, payload.c_str(), HTTPD_RESP_USE_STRLEN);
+}
+
+std::string HttpServer::readRequestBody(httpd_req_t* req, size_t maxBytes) {
+    if (req->content_len <= 0 || static_cast<size_t>(req->content_len) > maxBytes) return "";
+    std::string body;
+    body.resize(req->content_len);
+    int remaining = req->content_len;
+    int offset = 0;
+    while (remaining > 0) {
+        int n = httpd_req_recv(req, &body[offset], remaining);
+        if (n <= 0) return "";
+        offset += n;
+        remaining -= n;
+    }
+    return body;
+}
+
+esp_err_t HttpServer::handleApiStatus(httpd_req_t* req) {
+    if (!isApiAuthorized(req)) {
+        return sendJson(req, "{\"ok\":false,\"error\":\"unauthorized\"}", "401 Unauthorized");
+    }
+
+    GlobalState& state = GlobalState::getInstance();
+    JsonDocument doc;
+    doc["ok"] = true;
+    doc["api_version"] = 1;
+    doc["device"] = "ESP32-Bit-Pirate";
+    doc["firmware"] = state.getVersion();
+    doc["uptime_ms"] = static_cast<uint32_t>(millis());
+    doc["mode"] = ModeEnumMapper::toString(state.getCurrentMode());
+    doc["terminal_mode"] = TerminalTypeEnumMapper::toString(state.getTerminalMode());
+    doc["terminal_ip"] = state.getTerminalIp();
+    doc["ip"] = WiFi.localIP().toString();
+    doc["mac"] = WiFi.macAddress();
+    doc["heap_free"] = ESP.getFreeHeap();
+    doc["heap_min_free"] = ESP.getMinFreeHeap();
+    doc["ws_client_connected"] = wsServer ? wsServer->hasClient() : false;
+    doc["api_busy"] = false;
+#ifdef BITPIRATE_API_TOKEN
+    doc["auth"] = "bearer";
+#else
+    doc["auth"] = "none";
+#endif
+
+    std::string payload;
+    serializeJson(doc, payload);
+    return sendJson(req, payload);
+}
+
+esp_err_t HttpServer::handleApiCommand(httpd_req_t* req) {
+    if (!isApiAuthorized(req)) {
+        return sendJson(req, "{\"ok\":false,\"error\":\"unauthorized\"}", "401 Unauthorized");
+    }
+    if (!wsServer) {
+        return sendJson(req, "{\"ok\":false,\"error\":\"web terminal unavailable\"}", "503 Service Unavailable");
+    }
+    if (!apiCommandMutex.try_lock()) {
+        return sendJson(req, "{\"ok\":false,\"error\":\"busy\"}", "409 Conflict");
+    }
+    std::lock_guard<std::mutex> busyGuard(apiCommandMutex, std::adopt_lock);
+
+    std::string body = readRequestBody(req, 2048);
+    if (body.empty()) {
+        return sendJson(req, "{\"ok\":false,\"error\":\"empty or oversized request\"}", "400 Bad Request");
+    }
+
+    JsonDocument doc;
+    DeserializationError err = deserializeJson(doc, body);
+    if (err) {
+        return sendJson(req, "{\"ok\":false,\"error\":\"invalid json\"}", "400 Bad Request");
+    }
+
+    const char* cmdRaw = doc["cmd"] | "";
+    std::string cmd = cmdRaw;
+    if (cmd.empty() || cmd.size() > 512) {
+        return sendJson(req, "{\"ok\":false,\"error\":\"cmd required, max 512 bytes\"}", "400 Bad Request");
+    }
+    uint32_t timeoutMs = doc["timeout_ms"] | 3000;
+    uint32_t quietMs = doc["quiet_ms"] | 250;
+    size_t maxBytes = doc["max_bytes"] | 4096;
+    if (timeoutMs < 100) timeoutMs = 100;
+    if (timeoutMs > 30000) timeoutMs = 30000;
+    if (quietMs < 50) quietMs = 50;
+    if (quietMs > 2000) quietMs = 2000;
+    if (maxBytes < 256) maxBytes = 256;
+    if (maxBytes > 8192) maxBytes = 8192;
+
+    Serial.print("[API RX] ");
+    Serial.println(cmd.c_str());
+
+    if (cmd.back() != '\n') cmd.push_back('\n');
+    wsServer->clearCapturedOutput();
+    uint32_t startSeq = wsServer->getOutputSeq();
+    uint32_t lastSeq = startSeq;
+    uint32_t lastChange = millis();
+    uint32_t started = millis();
+
+    wsServer->injectInput(cmd);
+
+    bool timedOut = false;
+    while (true) {
+        uint32_t seq = wsServer->getOutputSeq();
+        if (seq != lastSeq) {
+            lastSeq = seq;
+            lastChange = millis();
+        }
+        uint32_t now = millis();
+        if (seq != startSeq && (now - lastChange) >= quietMs) break;
+        if ((now - started) >= timeoutMs) { timedOut = true; break; }
+        delay(25);
+    }
+
+    std::string output = wsServer->getOutputSince(startSeq, maxBytes);
+    Serial.print("[API TX] bytes=");
+    Serial.print(output.size());
+    Serial.print(" timeout=");
+    Serial.println(timedOut ? "true" : "false");
+
+    JsonDocument out;
+    out["ok"] = !timedOut;
+    out["timeout"] = timedOut;
+    out["duration_ms"] = static_cast<uint32_t>(millis() - started);
+    out["mode"] = ModeEnumMapper::toString(GlobalState::getInstance().getCurrentMode());
+    out["output"] = output;
+    out["truncated"] = output.size() >= maxBytes;
+    std::string payload;
+    serializeJson(out, payload);
+    return sendJson(req, payload, timedOut ? "504 Gateway Timeout" : nullptr);
+}

@@ -47,8 +47,11 @@ esp_err_t WebSocketServer::wsHandler(httpd_req_t *req) {
     frame.payload[frame.len] = '\0';
     
     // Push chars one by one into buffer
-    for (size_t i = 0; i < frame.len; ++i) {
-        self->buffer.push_back(((char*)frame.payload)[i]);
+    {
+        std::lock_guard<std::mutex> lock(ioMutex);
+        for (size_t i = 0; i < frame.len; ++i) {
+            self->buffer.push_back(((char*)frame.payload)[i]);
+        }
     }
 
     free(frame.payload);
@@ -56,15 +59,21 @@ esp_err_t WebSocketServer::wsHandler(httpd_req_t *req) {
 }
 
 char WebSocketServer::readCharBlocking() {
-    while (buffer.empty()) {
+    while (true) {
+        {
+            std::lock_guard<std::mutex> lock(ioMutex);
+            if (!buffer.empty()) {
+                char c = buffer.front();
+                buffer.pop_front();
+                return c;
+            }
+        }
         delay(10);
     }
-    char c = buffer.front();
-    buffer.pop_front();
-    return c;
 }
 
 char WebSocketServer::readCharNonBlocking() {
+    std::lock_guard<std::mutex> lock(ioMutex);
     if (buffer.empty()) return KEY_NONE;
 
     char c = buffer.front();
@@ -74,10 +83,15 @@ char WebSocketServer::readCharNonBlocking() {
 }
 
 void WebSocketServer::sendText(const std::string& msg) {
-    if (clientFd < 0) return;
-
     // Sanitize UTF8
     std::string safeMsg = sanitizeUtf8(msg);
+
+    {
+        std::lock_guard<std::mutex> lock(ioMutex);
+        appendOutputLocked(safeMsg);
+    }
+
+    if (clientFd < 0) return;
 
     httpd_ws_frame_t ws_pkt = {};
     ws_pkt.type = HTTPD_WS_TYPE_TEXT;
@@ -119,4 +133,45 @@ std::string WebSocketServer::sanitizeUtf8(const std::string& input) {
     }
 
     return output;
+}
+
+void WebSocketServer::appendOutputLocked(const std::string& msg) {
+    outputRing += msg;
+    if (outputRing.size() > OUTPUT_RING_MAX) {
+        outputRing.erase(0, outputRing.size() - OUTPUT_RING_MAX);
+    }
+    outputSeq += 1;
+}
+
+void WebSocketServer::injectInput(const std::string& input) {
+    std::lock_guard<std::mutex> lock(ioMutex);
+    for (char c : input) {
+        buffer.push_back(c);
+    }
+}
+
+uint32_t WebSocketServer::getOutputSeq() const {
+    std::lock_guard<std::mutex> lock(ioMutex);
+    return outputSeq;
+}
+
+void WebSocketServer::clearCapturedOutput() {
+    std::lock_guard<std::mutex> lock(ioMutex);
+    outputRing.clear();
+    outputSeq += 1;
+}
+
+std::string WebSocketServer::getOutputSince(uint32_t seq, size_t maxBytes) const {
+    std::lock_guard<std::mutex> lock(ioMutex);
+    if (seq == outputSeq) return "";
+    std::string out = outputRing;
+    if (out.size() > maxBytes) {
+        out = out.substr(out.size() - maxBytes);
+    }
+    return out;
+}
+
+bool WebSocketServer::hasClient() const {
+    std::lock_guard<std::mutex> lock(ioMutex);
+    return clientFd >= 0;
 }

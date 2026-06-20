@@ -228,19 +228,70 @@ const BOARDS = [
     manifest: "./boards/s3-devkit/manifest.json",
     enabled: true
   },
-    {
-      id: "s3-supermini",
-      name: "ESP32-S3 Super Mini",
-      chipFamily: "ESP32-S3",
-      desc: "18-pin super mini. 4MB flash, 2MB PSRAM, native USB.",
-      manifest: "./boards/s3-supermini/manifest.json",
-      enabled: true
-    },
-  /* placeholder cards — add binaries + manifest to boards/<id>/ to enable */
-  { id: "cardputer", name: "M5Stack Cardputer", chipFamily: "ESP32-S3", desc: "Keyboard card — upcoming.", enabled: false },
-  { id: "m5stick-s3", name: "M5StickC Plus3", chipFamily: "ESP32-S3", desc: "Stick form factor — upcoming.", enabled: false },
-  { id: "t-embed", name: "LilyGO T-Embed", chipFamily: "ESP32-S3", desc: "Rotary knob dev board — upcoming.", enabled: false },
-  { id: "m5stamp", name: "M5Stamp S3", chipFamily: "ESP32-S3", desc: "Compact stamp module — upcoming.", enabled: false }
+  {
+    id: "s3-supermini",
+    name: "ESP32-S3 Super Mini",
+    chipFamily: "ESP32-S3",
+    desc: "18-pin super mini. 4MB flash, 2MB PSRAM, native USB.",
+    manifest: "./boards/s3-supermini/manifest.json",
+    enabled: true
+  },
+  {
+    id: "cardputer-adv",
+    name: "M5Stack Cardputer Adv",
+    chipFamily: "ESP32-S3",
+    desc: "Cardputer with advanced features. 8MB flash, 2MB PSRAM.",
+    manifest: "./boards/cardputer-adv/manifest.json",
+    enabled: true
+  },
+  {
+    id: "m5stack-sticks3",
+    name: "M5Stack StickS3",
+    chipFamily: "ESP32-S3",
+    desc: "Compact stick form factor. 8MB flash, 2MB PSRAM.",
+    manifest: "./boards/m5stack-sticks3/manifest.json",
+    enabled: true
+  },
+  {
+    id: "t-display-s3",
+    name: "LILYGO T-Display S3",
+    chipFamily: "ESP32-S3",
+    desc: "2.4" LCD display. 4MB flash.",
+    manifest: "./boards/t-display-s3/manifest.json",
+    enabled: true
+  },
+  {
+    id: "t-embed-s3",
+    name: "LILYGO T-Embed S3",
+    chipFamily: "ESP32-S3",
+    desc: "Embedded display and rotary encoder. 8MB flash, 2MB PSRAM.",
+    manifest: "./boards/t-embed-s3/manifest.json",
+    enabled: true
+  },
+  {
+    id: "t-embed-s3-cc1101",
+    name: "LILYGO T-Embed S3 CC1101",
+    chipFamily: "ESP32-S3",
+    desc: "T-Embed with CC1101 Sub-1GHz radio. 8MB flash, 2MB PSRAM.",
+    manifest: "./boards/t-embed-s3-cc1101/manifest.json",
+    enabled: true
+  },
+  {
+    id: "t-embed-s3-cc1101plus",
+    name: "LILYGO T-Embed S3 CC1101+",
+    chipFamily: "ESP32-S3",
+    desc: "Enhanced T-Embed with improved CC1101. 8MB flash, 2MB PSRAM.",
+    manifest: "./boards/t-embed-s3-cc1101plus/manifest.json",
+    enabled: true
+  },
+  {
+    id: "xiao-esp32s3",
+    name: "Seeed XIAO ESP32-S3",
+    chipFamily: "ESP32-S3",
+    desc: "Ultra-compact XIAO form factor. 8MB flash, 2MB PSRAM.",
+    manifest: "./boards/xiao-esp32s3/manifest.json",
+    enabled: true
+  }
 ];
 
 const boardsContainer = document.getElementById("boards");

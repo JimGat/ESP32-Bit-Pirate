@@ -2,7 +2,8 @@ name: Deploy Web Flasher
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - web-flash/**
       - .github/workflows/deploy-web-flash.yml

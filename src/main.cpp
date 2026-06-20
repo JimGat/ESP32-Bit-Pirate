@@ -206,6 +206,7 @@ void setup() {
             // Configure Server
             httpd_handle_t server = nullptr;
             httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+            config.max_uri_handlers = 16; // web UI + ws + LittleFS + automation API + captive routes
             config.lru_purge_enable = true;
             config.recv_wait_timeout = 11;
             config.send_wait_timeout = 11;
@@ -221,8 +222,8 @@ void setup() {
             }
 
             JsonTransformer jsonTransformer;
-            HttpServer httpServer(server, littleFsService, jsonTransformer);
             WebSocketServer wsServer(server);
+            HttpServer httpServer(server, littleFsService, jsonTransformer, &wsServer);
 
             // Web View/Input
             WebTerminalView webView(wsServer);

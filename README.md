@@ -236,6 +236,13 @@ pio run -e s3-supermini
 
 > If your specific super-mini module routes the RGB LED or USB differently, override the defaults by appending `-D LED_PIN=<gpio>` / `-D ARDUINO_USB_CDC_ON_BOOT=1` to `build_flags` for `[env:s3-supermini]`.
 
+
+### Remote UART / Serial Console over LAN
+
+The JARVIS AI Enabled Edition can be used as a LAN-accessible serial console. Default UART GPIOs are board-specific; see [Remote UART / Serial Console Wiring](docs/REMOTE_UART.md) for the full pin table and Web UI workflow.
+
+USB Serial setup/recovery does not conflict with target UART GPIOs: USB Serial uses native USB CDC, while target UART uses `Serial1` on the configured RX/TX pins. Super Mini default UART uses header GPIO1/GPIO2, avoiding the inconvenient GPIO17/GPIO18 micro pads; its onboard WS281x-style RGB LED is configured on GPIO48.
+
 ### Persistent Wi-Fi auto-connect for local agents
 
 The JARVIS AI Enabled Edition can automatically rejoin the last successfully configured Wi-Fi network on boot. This makes the Web CLI, WebSocket stream, and REST automation API available on the local LAN without touching the device after power-up.

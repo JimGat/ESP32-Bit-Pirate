@@ -40,6 +40,10 @@ JARVIS AI Enabled Edition deltas:
 - `serial-once` or a board/user-button double-click while Web UI is active starts USB Serial on the next boot only without erasing saved Wi-Fi.
 - Holding BOOT during reset/power-up still enters the ESP32 ROM flashing path; the recovery double-click is only after firmware is already running.
 
+## Remote UART / serial console
+
+For target serial console wiring, use the board-specific UART RX/TX table in [`docs/REMOTE_UART.md`](../docs/REMOTE_UART.md). USB Serial setup/recovery uses native USB CDC and does not conflict with the target UART GPIOs used by Web UI `mode uart`.
+
 ## Local preview
 
 ```bash

@@ -888,7 +888,9 @@ void WifiController::handleWebUi(const TerminalCommand &)
             terminalView.println("Web UI/API: Not active in the current USB Serial session.");
             terminalView.println("Next boot : Saved Wi-Fi credentials will auto-start WiFi Client mode.");
             terminalView.println("           Reset normally; do not hold BOOT during power-up unless flashing.");
-            terminalView.println("Recovery : Use saved to verify, forget to disable auto-connect.");
+            terminalView.println("Recovery : Once Web UI is active, double-click the board/user button");
+            terminalView.println("           or run serial-once to start USB Serial on one boot only.");
+            terminalView.println("           Use saved to verify, forget to disable auto-connect.");
         }
         terminalView.println("");
         terminalView.println("Saved Wi-Fi commands:");

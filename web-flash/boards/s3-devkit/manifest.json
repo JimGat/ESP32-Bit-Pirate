@@ -1,5 +1,5 @@
 {
-  "name": "ESP32-BitPirate-ESP32-S3 DevKit",
+  "name": "ESP32-BitPirate for ESP32-S3 DevKit",
   "builds": [
     {
       "chipFamily": "ESP32-S3",

@@ -1,8 +1,19 @@
 # Direct Automation API
 
-This branch adds a small HTTP API intended for AI agents and other direct automation clients. It keeps the existing human Web CLI intact and reuses the same terminal dispatcher path, so API commands behave like commands typed in the Web terminal.
+The JARVIS AI Enabled Edition adds a small HTTP API intended for AI agents and other direct automation clients. It keeps the existing human Web CLI intact and reuses the same terminal dispatcher path, so API commands behave like commands typed in the Web terminal.
 
 The project is a PlatformIO / Arduino-framework firmware, not a native ESP-IDF app. The API is implemented with the existing ESP-IDF `esp_http_server` used by the Web UI.
+
+## LAN availability and boot auto-connect
+
+The API is only useful to local agents if the BitPirate returns to the LAN after power loss or reboot. Successful `mode wifi` / `connect <ssid> <password>` operations now persist credentials in ESP32 NVS. On subsequent boots, firmware checks NVS before presenting the terminal-mode selector:
+
+- saved credentials present + network reachable → boot directly into Wi-Fi Client mode and start Web UI, `/ws`, and `/api/*` on the LAN IP;
+- no saved credentials or connection failure → fall back to the normal terminal selection flow;
+- `saved` shows the saved SSID and redacts password state;
+- `forget` clears saved SSID/password and disables future boot auto-connect.
+
+This is intentional for the AI-enabled build: JARVIS and other local agents need the GPIO/protocol tool to be discoverable after reboot without a human reselecting Wi-Fi on the device.
 
 ## Endpoints
 

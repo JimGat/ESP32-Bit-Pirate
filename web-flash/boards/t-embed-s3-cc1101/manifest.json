@@ -1,5 +1,5 @@
 {
-  "name": "ESP32-BitPirate-LilyGo T-Embed S3 CC1101",
+  "name": "ESP32-BitPirate for LILYGO T-Embed S3 CC1101",
   "builds": [
     {
       "chipFamily": "ESP32-S3",
@@ -11,6 +11,10 @@
         {
           "path": "partitions.bin",
           "offset": 32768
+        },
+        {
+          "path": "boot_app0.bin",
+          "offset": 57344
         },
         {
           "path": "firmware.bin",

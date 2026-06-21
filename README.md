@@ -219,6 +219,33 @@ pio run -e s3-supermini
 
 > If your specific super-mini module routes the RGB LED or USB differently, override the defaults by appending `-D LED_PIN=<gpio>` / `-D ARDUINO_USB_CDC_ON_BOOT=1` to `build_flags` for `[env:s3-supermini]`.
 
+### Persistent Wi-Fi auto-connect for local agents
+
+The JARVIS AI Enabled Edition can automatically rejoin the last successfully configured Wi-Fi network on boot. This makes the Web CLI, WebSocket stream, and REST automation API available on the local LAN without touching the device after power-up.
+
+Why this matters: BitPirate exposes GPIO protocol tools — I2C, SPI, UART, CAN, OneWire, RF, logic capture, and more — that local agents such as JARVIS can drive remotely. If the device always falls back to a local menu after reboot, automation loses the tool until a human reselects Wi-Fi. Persisted LAN attach turns the BitPirate into a reusable bench instrument that agents can discover and control after reboots.
+
+Behavior:
+
+1. `connect <ssid> <password>` connects to Wi-Fi and stores the SSID/password in ESP32 NVS.
+2. On later boots, firmware checks NVS before showing the terminal-mode selector.
+3. If saved credentials exist and the network is reachable, it automatically starts in Wi-Fi Client mode and launches the Web UI/API on the assigned LAN IP.
+4. If the network is unavailable or credentials are missing, boot falls back to the normal terminal selection flow.
+5. `forget` clears the saved network so future boots stop auto-connecting.
+
+Wi-Fi commands in `mode wifi`:
+
+| Command | Purpose |
+|---|---|
+| `connect <ssid> <password>` | Connect to a network and save credentials to NVS |
+| `connect` | Interactive scan/select/connect flow; successful connection is saved |
+| `saved` | Show `Saved SSID: <name>` and password status as `[REDACTED]`; never reveals the password |
+| `forget` | Clear saved SSID/password from NVS and disable boot auto-connect |
+| `status` | Show current Wi-Fi state plus saved SSID metadata |
+| `disconnect` | Disconnect the current session; does not erase saved credentials |
+
+Security note: saved passwords are used only by firmware to reconnect. The console and documentation paths intentionally expose only the SSID and redact the password.
+
 ### Automation API (REST)
 
 This fork adds a thin JSON HTTP API intended for AI agents and other direct-automation clients. The API reuses the firmware's existing terminal dispatcher path so a programmatic command behaves identically to the same command typed in the Web CLI.

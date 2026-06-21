@@ -40,6 +40,12 @@ private:
     // Handle disconnection from current Wi-Fi
     void handleDisconnect(const TerminalCommand& cmd);
 
+    // Show saved Wi-Fi credentials metadata without revealing password
+    void handleSaved();
+
+    // Forget saved Wi-Fi credentials from NVS
+    void handleForget();
+
     // Display current Wi-Fi status
     void handleStatus(const TerminalCommand& cmd);
 

@@ -1,5 +1,5 @@
 {
-  "name": "ESP32-BitPirate-ESP32-S3 SuperMini",
+  "name": "ESP32-BitPirate for ESP32-S3 Super Mini",
   "builds": [
     {
       "chipFamily": "ESP32-S3",

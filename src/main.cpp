@@ -23,6 +23,7 @@
 #include <Servers/WebSocketServer.h>
 #include <Servers/DnsServer.h>
 #include <Services/NvsService.h>
+#include <Services/WifiService.h>
 #include <Inputs/WebTerminalInput.h>
 #include <Selectors/HorizontalSelector.h>
 #include <Config/TerminalTypeConfigurator.h>
@@ -163,16 +164,43 @@ void setup() {
     LittleFsService littleFsService;
     GlobalState& state = GlobalState::getInstance();
 
-    // Select the terminal type
-    HorizontalSelector selector(deviceView, deviceInput);
-    TerminalTypeConfigurator configurator(selector);
-    TerminalTypeEnum terminalType = configurator.configure();
     std::string webIp = "0.0.0.0";
+    TerminalTypeEnum terminalType = TerminalTypeEnum::None;
 
-    // Configure Wi-Fi if needed
+    // JARVIS AI Enabled boot path:
+    // If a network was saved by the Wi-Fi connect command, automatically attach
+    // to it on boot so WebSocket + REST control are reachable on the local LAN.
+    // The Wi-Fi `forget` command clears these NVS credentials and disables this.
+    {
+        NvsService autoWifiNvsService;
+        autoWifiNvsService.open();
+        std::string savedSsid = autoWifiNvsService.getString(state.getNvsSsidField());
+        std::string savedPassword = autoWifiNvsService.getString(state.getNvsPasswordField());
+        autoWifiNvsService.close();
+
+        if (!savedSsid.empty() && !savedPassword.empty()) {
+            WifiService autoWifiService;
+            if (autoWifiService.connect(savedSsid, savedPassword, 8000)) {
+                terminalType = TerminalTypeEnum::WiFiClient;
+                webIp = autoWifiService.getLocalIP();
+                state.setTerminalIp(webIp);
+            }
+        }
+    }
+
+    // Select the terminal type only if boot auto-connect did not claim Wi-Fi client mode.
+    if (terminalType == TerminalTypeEnum::None) {
+        HorizontalSelector selector(deviceView, deviceInput);
+        TerminalTypeConfigurator configurator(selector);
+        terminalType = configurator.configure();
+    }
+
+    // Configure Wi-Fi if manually selected.
     if (terminalType == TerminalTypeEnum::WiFiClient || terminalType == TerminalTypeEnum::WiFiAp) {
-        WifiTypeConfigurator wifiTypeConfigurator(deviceView, deviceInput);
-        webIp = wifiTypeConfigurator.configure(terminalType);
+        if (webIp == "0.0.0.0") {
+            WifiTypeConfigurator wifiTypeConfigurator(deviceView, deviceInput);
+            webIp = wifiTypeConfigurator.configure(terminalType);
+        }
 
         if (webIp == "0.0.0.0") {
             terminalType = TerminalTypeEnum::SerialPort;

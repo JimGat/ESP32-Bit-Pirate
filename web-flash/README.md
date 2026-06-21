@@ -14,13 +14,23 @@ The firmware binaries built by PlatformIO for each supported board, pulled out o
 
 Currently shipping:
 
-| Board         | Source build env | Status   |
-|---------------|------------------|----------|
-| ESP32-S3 DevKit | `s3-devkit`      | ✅ Ready |
-| Cardputer     | `cardputer`      | planned  |
-| M5StickC Plus3| `m5stack-sticks3`| planned  |
-| LilyGO T-Embed| `t-embed-s3`     | planned  |
-| M5Stamp S3    | `m5stamps3`      | planned  |
+| Board | Source build env | Status |
+|---|---|---|
+| ESP32-S3 DevKit | `s3-devkit` | ✅ Ready |
+| ESP32-S3 Super Mini | `s3-supermini` | ✅ Ready |
+| M5Stack Cardputer Adv | `cardputer-adv` | ✅ Ready |
+| M5Stack StickS3 | `m5stack-sticks3` | ✅ Ready |
+| LILYGO T-Display S3 | `t-display-s3` | ✅ Ready |
+| LILYGO T-Embed S3 | `t-embed-s3` | ✅ Ready |
+| LILYGO T-Embed S3 CC1101 | `t-embed-s3-cc1101` | ✅ Ready |
+| LILYGO T-Embed S3 CC1101+ | `t-embed-s3-cc1101plus` | ✅ Ready |
+| Seeed XIAO ESP32-S3 | `xiao-esp32s3` | ✅ Ready |
+
+## Persistent Wi-Fi auto-connect
+
+This flasher ships the JARVIS AI Enabled Edition firmware. After a user connects from `mode wifi` with `connect <ssid> <password>`, the credentials are stored in ESP32 NVS and reused on later boots. A configured BitPirate therefore comes back on the LAN automatically so local agents can reach the Web CLI, `/ws` stream, and `/api/*` automation endpoints.
+
+Use `saved` to verify the saved SSID without exposing the password, and `forget` to clear the saved network and disable boot auto-connect.
 
 ## Local preview
 
@@ -81,9 +91,9 @@ Default Arduino ESP32 partition layout (used unless `platformio.ini` overrides i
 
 ## Hosting on GitHub Pages
 
-Enable Pages on the `feature/direct-network-api` branch, root `/web-flash`.
+GitHub Actions deploys the `web-flash/` directory from `main` using `.github/workflows/deploy-web-flash.yml`.
 
-URL: `https://<org>.github.io/esp32-bit-pirate/web-flash/`
+URL: `https://jimgat.github.io/ESP32-Bit-Pirate/`
 
 ## CI integration (future)
 

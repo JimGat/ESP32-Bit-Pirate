@@ -10,6 +10,8 @@ void WifiController::handleCommand(const TerminalCommand &cmd)
 
     if (root == "connect") handleConnect(cmd);
     else if (root == "disconnect") handleDisconnect(cmd);
+    else if (root == "saved") handleSaved();
+    else if (root == "forget") handleForget();
     else if (root == "status") handleStatus(cmd);
     else if (root == "ap") handleAp(cmd);
     else if (root == "spam") handleApSpam();
@@ -172,6 +174,49 @@ void WifiController::handleDisconnect(const TerminalCommand &cmd)
 }
 
 /*
+Saved credentials
+*/
+void WifiController::handleSaved()
+{
+    nvsService.open();
+    std::string ssid = nvsService.getString(state.getNvsSsidField());
+    bool hasPassword = nvsService.hasKey(state.getNvsPasswordField());
+    nvsService.close();
+
+    if (ssid.empty()) {
+        terminalView.println("WiFi: No saved network.");
+        terminalView.println("Use: connect <ssid> <password>");
+        return;
+    }
+
+    terminalView.println("Saved SSID: " + ssid);
+    terminalView.println(std::string("Saved password: ") + (hasPassword ? "[REDACTED]" : "not saved"));
+    terminalView.println("Use: forget  (to clear saved Wi-Fi credentials)");
+}
+
+/*
+Forget saved credentials
+*/
+void WifiController::handleForget()
+{
+    nvsService.open();
+    bool hadSsid = nvsService.hasKey(state.getNvsSsidField());
+    bool hadPassword = nvsService.hasKey(state.getNvsPasswordField());
+    nvsService.remove(state.getNvsSsidField());
+    nvsService.remove(state.getNvsPasswordField());
+    nvsService.close();
+
+    if (hadSsid || hadPassword) {
+        terminalView.println("WiFi: Saved network forgotten. Auto-connect disabled for future boots.");
+        if (wifiService.isConnected()) {
+            terminalView.println("WiFi: Current connection remains active until disconnect or reboot.");
+        }
+    } else {
+        terminalView.println("WiFi: No saved network to forget.");
+    }
+}
+
+/*
 Status
 */
 void WifiController::handleStatus(const TerminalCommand &cmd)
@@ -192,6 +237,11 @@ void WifiController::handleStatus(const TerminalCommand &cmd)
     terminalView.println("Hostname     : " + hostname);
 
     terminalView.println("SSID         : " + ssid);
+
+    nvsService.open();
+    std::string savedSsid = nvsService.getString(state.getNvsSsidField());
+    nvsService.close();
+    terminalView.println("Saved SSID   : " + (savedSsid.empty() ? std::string("N/A") : savedSsid));
     terminalView.println("BSSID        : " + bssid);
     terminalView.println("Prov enabled : " + std::string(wifiService.isProvisioningEnabled() ? "Yes" : "No"));
 

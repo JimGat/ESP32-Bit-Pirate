@@ -329,7 +329,9 @@ void HelpShell::cmdWifi() {
     printHeader("WIFI");
     static const char* const lines[] = {
         "scan                 - List Wi-Fi networks",
-        "connect              - Connect to a network",
+        "connect              - Connect to a network and save credentials",
+        "saved                - Show saved SSID only",
+        "forget               - Clear saved credentials",
         "ping <host>          - Ping a remote host",
         "discovery [timeout]  - Discover network devices",
         "sniff                - Monitor Wi-Fi packets",

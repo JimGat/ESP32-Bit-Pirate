@@ -174,7 +174,24 @@ The [ESP32 Bit Pirate Web Serial Tools](https://geo-tp.github.io/ESP32-Bit-Pirat
 
 ![A demo Using the ESP32 Bit Pirate with Web Serial Tools](images/web_tools_demo.gif)
 
-## ☠️ JimGat Fork — AI Agent & Compact Hardware Features
+## ☠️ JimGat Fork — JARVIS AI Enabled Edition Differences
+
+This fork intentionally keeps the core BitPirate protocol tools recognizable while adding LAN-first automation behavior for JARVIS and other local agents.
+
+What is different from the upstream-oriented firmware:
+
+| Area | JARVIS AI Enabled Edition behavior |
+|---|---|
+| Web flasher | Public multi-board flasher at <https://jimgat.github.io/ESP32-Bit-Pirate/> with JimGat-branded board binaries |
+| Direct automation API | Adds `/api/status` and `/api/command` for local AI/automation clients while keeping the human Web CLI on `/ws` |
+| Transport split | REST is for bounded one-shot control; WebSocket remains mandatory for streaming protocol work such as sniffers, captures, and raw RF/audio data |
+| Persistent Wi-Fi | Successful `mode wifi` / `connect <ssid> <password>` stores credentials in ESP32 NVS |
+| Default boot after Wi-Fi setup | If saved credentials exist and the network is reachable, boot automatically starts WiFi Client mode so Web UI, `/ws`, and `/api/*` are reachable on the LAN |
+| Serial recovery | `serial-once` or a board/user-button double-click while Web UI is active starts USB Serial on the next boot only, without erasing saved Wi-Fi |
+| Forget behavior | `forget` clears saved Wi-Fi credentials and disables future boot auto-connect |
+| Secret handling | `saved` shows only the SSID and reports password as `[REDACTED]`; passwords are never printed |
+
+Why: BitPirate exposes I2C, SPI, UART, CAN, OneWire, RF, logic capture, and other GPIO/protocol tooling. JARVIS and local agents need that bench instrument to come back on the LAN after reset or power loss without a human reselecting Wi-Fi every time.
 
 The following sections describe features added in this fork at [JimGat/ESP32-Bit-Pirate](https://github.com/JimGat/ESP32-Bit-Pirate). They are designed for:
 
@@ -231,7 +248,8 @@ Behavior:
 2. On later boots, firmware checks NVS before showing the terminal-mode selector.
 3. If saved credentials exist and the network is reachable, it automatically starts in Wi-Fi Client mode and launches the Web UI/API on the assigned LAN IP.
 4. If the network is unavailable or credentials are missing, boot falls back to the normal terminal selection flow.
-5. `forget` clears the saved network so future boots stop auto-connecting.
+5. `serial-once` or a board/user-button double-click while Web UI is active sets a one-shot USB Serial recovery boot without erasing Wi-Fi.
+6. `forget` clears the saved network so future boots stop auto-connecting.
 
 Wi-Fi commands in `mode wifi`:
 
@@ -241,6 +259,8 @@ Wi-Fi commands in `mode wifi`:
 | `connect` | Interactive scan/select/connect flow; successful connection is saved |
 | `saved` | Show `Saved SSID: <name>` and password status as `[REDACTED]`; never reveals the password |
 | `forget` | Clear saved SSID/password from NVS and disable boot auto-connect |
+| `serial-once` | Start USB Serial on the next boot only; saved Wi-Fi remains intact |
+| Double-click board/user button while Web UI is active | Physical recovery shortcut for `serial-once`; does not affect ROM download mode because it is used after firmware has booted |
 | `status` | Show current Wi-Fi state plus saved SSID metadata |
 | `disconnect` | Disconnect the current session; does not erase saved credentials |
 

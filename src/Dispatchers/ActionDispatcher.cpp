@@ -1,5 +1,6 @@
 #include "ActionDispatcher.h"
 #include "Data/AutoCompleteWords.h"
+#include <Arduino.h>
 
 /*
 Constructor
@@ -410,6 +411,53 @@ void ActionDispatcher::releaseMode(ModeEnum currentMode, ModeEnum newMode) {
 }
 
 /*
+Device Recovery Gesture
+*/
+void ActionDispatcher::handleDeviceRecoveryGesture() {
+    if (state.getTerminalMode() != TerminalTypeEnum::WiFiClient &&
+        state.getTerminalMode() != TerminalTypeEnum::WiFiAp) {
+        provider.getDeviceInput().readChar();
+        return;
+    }
+
+    const char c = provider.getDeviceInput().readChar();
+    const uint32_t now = millis();
+
+    if (c == KEY_NONE) {
+        recoveryButtonDown = false;
+        if (recoveryClickPending && (now - recoveryFirstClickMs) > 650) {
+            recoveryClickPending = false;
+        }
+        return;
+    }
+
+    if (c != KEY_OK || recoveryButtonDown) {
+        return;
+    }
+
+    recoveryButtonDown = true;
+
+    if (!recoveryClickPending) {
+        recoveryClickPending = true;
+        recoveryFirstClickMs = now;
+        return;
+    }
+
+    if ((now - recoveryFirstClickMs) <= 650) {
+        recoveryClickPending = false;
+        provider.getNvsService().open();
+        provider.getNvsService().saveOneShotSerialTerminal();
+        provider.getNvsService().close();
+        provider.getTerminalView().println("Recovery: board button double-click detected.");
+        provider.getTerminalView().println("Recovery: starting USB Serial terminal on next boot. Saved Wi-Fi is unchanged.");
+        delay(250);
+        ESP.restart();
+    } else {
+        recoveryFirstClickMs = now;
+    }
+}
+
+/*
 User Action
 */
 std::string ActionDispatcher::getUserAction() {
@@ -418,7 +466,7 @@ std::string ActionDispatcher::getUserAction() {
     size_t cursorIndex = 0;
 
     while (true) {
-        provider.getDeviceInput().readChar(); // to check shutdown request for T-Embeds
+        handleDeviceRecoveryGesture();
         char c = provider.getTerminalInput().readChar();
         if (c == KEY_NONE) continue;
 

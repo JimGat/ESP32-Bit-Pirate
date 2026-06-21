@@ -29,6 +29,10 @@ private:
     size_t MAX_ALLOWED_COMMAND_LENGTH = 512;
     DependencyProvider& provider;
     GlobalState& state = GlobalState::getInstance();
+    bool recoveryButtonDown = false;
+    bool recoveryClickPending = false;
+    uint32_t recoveryFirstClickMs = 0;
+
 
     // Handle a command
     void dispatchCommand(const TerminalCommand& cmd);
@@ -50,6 +54,9 @@ private:
 
     // Read user input with cursor support
     std::string getUserAction();
+
+    // Detect double-click of the board/user button while Web UI mode is active.
+    void handleDeviceRecoveryGesture();
 
     // Handle ANSI escape sequences (arrows, etc.)
     bool handleEscapeSequence(char c, std::string& inputLine, size_t& cursorIndex, const std::string& mode);

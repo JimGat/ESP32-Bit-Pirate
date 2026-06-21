@@ -137,23 +137,21 @@ void GuideShell::cmdWebTerminal() {
 
     terminalView.println("Use the web interface:");
     terminalView.println(" mode wifi");
-    terminalView.println(" connect");
-    terminalView.println(" reboot, pick WiFi Connect");
+    terminalView.println(" connect <ssid> <password>");
+    terminalView.println(" saved");
+    terminalView.println(" reset normally; saved Wi-Fi auto-starts Web UI/API");
+    terminalView.println("");
+
+    terminalView.println("Recovery:");
+    terminalView.println("  serial-once : next boot uses USB Serial only once");
+    terminalView.println("  double-click board/user button while Web UI is active");
+    terminalView.println("  forget      : erase saved Wi-Fi and stop auto-connect");
     terminalView.println("");
 
     terminalView.println("Barebone boards (no screen):");
-    terminalView.println("  Boot Web terminal modes:");
-    terminalView.println("    • Reset device");
-    terminalView.println("    • Press board button shortly: WiFi Connect");
-    terminalView.println("    • Hold board button 1sec: WiFi Hotspot");
-    terminalView.println("    • LED status:");
-    terminalView.println("       White : connecting");
-    terminalView.println("       Blue  : no Wi-Fi saved");
-    terminalView.println("       Green : connected");
-    terminalView.println("       Red   : failed");
-    terminalView.println("");
-    terminalView.println("  Important:");
-    terminalView.println("    Do not hold BOOT on power");
+    terminalView.println("  Do not hold BOOT during power-up unless flashing.");
+    terminalView.println("  Holding BOOT at reset enters ESP32 ROM download mode.");
+    terminalView.println("  Double-click recovery is only after firmware is running.");
     terminalView.println("");
 
     terminalView.println("Notes:");

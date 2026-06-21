@@ -68,6 +68,18 @@ OneShotBootMode NvsService::consumeOneShotBootMode() {
     return mode;
 }
 
+void NvsService::saveOneShotSerialTerminal() {
+    preferences.putBool("serial_once", true);
+}
+
+bool NvsService::consumeOneShotSerialTerminal() {
+    bool enabled = preferences.getBool("serial_once", false);
+    if (enabled) {
+        preferences.remove("serial_once");
+    }
+    return enabled;
+}
+
 void NvsService::saveOneShotUsbUartBridgeConfig(uint8_t rxPin, uint8_t txPin, bool inverted) {
     preferences.putUChar("oneshot_uart_rx", rxPin);
     preferences.putUChar("oneshot_uart_tx", txPin);

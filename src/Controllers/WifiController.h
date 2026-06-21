@@ -46,6 +46,9 @@ private:
     // Forget saved Wi-Fi credentials from NVS
     void handleForget();
 
+    // Reboot once into USB Serial terminal mode without erasing saved Wi-Fi
+    void handleSerialOnce();
+
     // Display current Wi-Fi status
     void handleStatus(const TerminalCommand& cmd);
 

@@ -44,6 +44,8 @@ public:
     OneShotBootMode getOneShotBootMode();
     void clearOneShotBootMode();
     OneShotBootMode consumeOneShotBootMode();
+    void saveOneShotSerialTerminal();
+    bool consumeOneShotSerialTerminal();
     void saveOneShotUsbUartBridgeConfig(uint8_t rxPin, uint8_t txPin, bool inverted);
     void getOneShotUsbUartBridgeConfig(uint8_t defaultRxPin, uint8_t defaultTxPin, bool defaultInverted, uint8_t& rxPin, uint8_t& txPin, bool& inverted);
     void clearOneShotUsbUartBridgeConfig();

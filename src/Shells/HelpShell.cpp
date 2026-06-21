@@ -332,6 +332,7 @@ void HelpShell::cmdWifi() {
         "connect              - Connect to a network and save credentials",
         "saved                - Show saved SSID only",
         "forget               - Clear saved credentials",
+        "serial-once          - Boot USB Serial once; keep saved Wi-Fi",
         "ping <host>          - Ping a remote host",
         "discovery [timeout]  - Discover network devices",
         "sniff                - Monitor Wi-Fi packets",

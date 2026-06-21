@@ -166,12 +166,25 @@ void setup() {
 
     std::string webIp = "0.0.0.0";
     TerminalTypeEnum terminalType = TerminalTypeEnum::None;
+    bool forceSerialOnce = false;
+
+    {
+        NvsService oneShotTerminalService;
+        oneShotTerminalService.open();
+        forceSerialOnce = oneShotTerminalService.consumeOneShotSerialTerminal();
+        oneShotTerminalService.close();
+    }
+
+    if (forceSerialOnce) {
+        terminalType = TerminalTypeEnum::SerialPort;
+    }
 
     // JARVIS AI Enabled boot path:
     // If a network was saved by the Wi-Fi connect command, automatically attach
     // to it on boot so WebSocket + REST control are reachable on the local LAN.
     // The Wi-Fi `forget` command clears these NVS credentials and disables this.
-    {
+    // A one-shot serial recovery flag skips this path for exactly one boot.
+    if (!forceSerialOnce) {
         NvsService autoWifiNvsService;
         autoWifiNvsService.open();
         std::string savedSsid = autoWifiNvsService.getString(state.getNvsSsidField());

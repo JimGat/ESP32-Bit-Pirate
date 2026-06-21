@@ -1,5 +1,6 @@
 #include "Controllers/WifiController.h"
 #include "Vendors/wifi_atks.h"
+#include <Arduino.h>
 
 /*
 Entry point for command
@@ -12,6 +13,7 @@ void WifiController::handleCommand(const TerminalCommand &cmd)
     else if (root == "disconnect") handleDisconnect(cmd);
     else if (root == "saved") handleSaved();
     else if (root == "forget") handleForget();
+    else if (root == "serial-once") handleSerialOnce();
     else if (root == "status") handleStatus(cmd);
     else if (root == "ap") handleAp(cmd);
     else if (root == "spam") handleApSpam();
@@ -214,6 +216,21 @@ void WifiController::handleForget()
     } else {
         terminalView.println("WiFi: No saved network to forget.");
     }
+}
+
+/*
+One-shot serial terminal recovery
+*/
+void WifiController::handleSerialOnce()
+{
+    nvsService.open();
+    nvsService.saveOneShotSerialTerminal();
+    nvsService.close();
+
+    terminalView.println("Recovery: USB Serial terminal selected for next boot only.");
+    terminalView.println("Recovery: Saved Wi-Fi credentials are unchanged. Use forget to erase them.");
+    delay(250);
+    ESP.restart();
 }
 
 /*
@@ -861,23 +878,23 @@ void WifiController::handleWebUi(const TerminalCommand &)
     {
         auto ip = wifiService.getLocalIP();
         terminalView.println("");
-        terminalView.println(" [⚠️  WARNING] ");
-        terminalView.println(" If you're connected via serial,");
-        terminalView.println(" the web UI will not be active.");
-        terminalView.println(" Reset the device and choose WiFi Connect.");
+        terminalView.println("WiFi: LAN address is http://" + ip);
         terminalView.println("");
-        terminalView.println("[BAREBONE] To launch the WebUI without a screen:");
-        terminalView.println("  1. Reset the device (don’t hold the board button during boot)");
-        terminalView.println("  2. Once powered, press the board button within 3 seconds:");
-        terminalView.println("     • Short press = WiFi Connect");
-        terminalView.println("     • Hold press  = WiFi Hotspot");
-        terminalView.println("  3. The built-in LED shows the following status:");
-        terminalView.println("     • Blue  = No Wi-Fi credentials saved.");
-        terminalView.println("     • White = Connecting in progress");
-        terminalView.println("     • Green = Connected, open the WebUI in your browser.");
-        terminalView.println("     • Red   = Connection failed, try connect again with serial");
+        if (state.getTerminalMode() == TerminalTypeEnum::WiFiClient) {
+            terminalView.println("Web UI/API: Active now at http://" + ip);
+            terminalView.println("Recovery : Double-click the board/user button to start USB Serial once.");
+            terminalView.println("           Or run: serial-once");
+        } else {
+            terminalView.println("Web UI/API: Not active in the current USB Serial session.");
+            terminalView.println("Next boot : Saved Wi-Fi credentials will auto-start WiFi Client mode.");
+            terminalView.println("           Reset normally; do not hold BOOT during power-up unless flashing.");
+            terminalView.println("Recovery : Use saved to verify, forget to disable auto-connect.");
+        }
         terminalView.println("");
-        terminalView.println("WiFi Web UI: http://" + ip + " (reset and select WiFi Connect)");
+        terminalView.println("Saved Wi-Fi commands:");
+        terminalView.println("  saved       Show saved SSID; password is always [REDACTED]");
+        terminalView.println("  forget      Clear saved Wi-Fi and disable boot auto-connect");
+        terminalView.println("  serial-once Start USB Serial on next boot without erasing Wi-Fi");
     }
     else
     {

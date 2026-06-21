@@ -30,7 +30,15 @@ Currently shipping:
 
 This flasher ships the JARVIS AI Enabled Edition firmware. After a user connects from `mode wifi` with `connect <ssid> <password>`, the credentials are stored in ESP32 NVS and reused on later boots. A configured BitPirate therefore comes back on the LAN automatically so local agents can reach the Web CLI, `/ws` stream, and `/api/*` automation endpoints.
 
-Use `saved` to verify the saved SSID without exposing the password, and `forget` to clear the saved network and disable boot auto-connect.
+JARVIS AI Enabled Edition deltas:
+
+- `/api/status` and `/api/command` REST endpoints for bounded automation commands.
+- `/ws` remains the streaming transport for sniffers, captures, raw RF/audio, and other unbounded protocol output.
+- Saved Wi-Fi auto-connect is the default after a successful `connect`.
+- `saved` verifies the saved SSID without exposing the password.
+- `forget` clears saved credentials and disables boot auto-connect.
+- `serial-once` or a board/user-button double-click while Web UI is active starts USB Serial on the next boot only without erasing saved Wi-Fi.
+- Holding BOOT during reset/power-up still enters the ESP32 ROM flashing path; the recovery double-click is only after firmware is already running.
 
 ## Local preview
 

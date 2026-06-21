@@ -11,9 +11,11 @@ The API is only useful to local agents if the BitPirate returns to the LAN after
 - saved credentials present + network reachable → boot directly into Wi-Fi Client mode and start Web UI, `/ws`, and `/api/*` on the LAN IP;
 - no saved credentials or connection failure → fall back to the normal terminal selection flow;
 - `saved` shows the saved SSID and redacts password state;
+- `serial-once` starts USB Serial on the next boot only while keeping saved Wi-Fi intact;
+- a board/user-button double-click while Web UI mode is active triggers the same one-shot serial recovery;
 - `forget` clears saved SSID/password and disables future boot auto-connect.
 
-This is intentional for the AI-enabled build: JARVIS and other local agents need the GPIO/protocol tool to be discoverable after reboot without a human reselecting Wi-Fi on the device.
+This is intentional for the AI-enabled build: JARVIS and other local agents need the GPIO/protocol tool to be discoverable after normal resets or power loss without a human reselecting Wi-Fi on the device. Physical ROM download mode is unchanged: holding BOOT during reset/power-up still enters the ESP32 programming path; the serial recovery double-click is used only after firmware is already running.
 
 ## Endpoints
 
